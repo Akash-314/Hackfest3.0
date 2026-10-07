@@ -1,64 +1,69 @@
-/* Background Canvas */
-.bg-canvas {
+/* ReactBits Galaxy Background */
+.galaxy-bg {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   z-index: 1;
   pointer-events: none;
+  contain: strict;
+  transform: translate3d(0, 0, 0);
 }
 
-/* Atmospheric Glow Orbs */
+/* Atmospheric Glow Orbs - Hardware Accelerated */
 .glow-orb {
   position: fixed;
   border-radius: 50%;
-  filter: blur(120px);
+  filter: blur(40px);
   z-index: 2;
   pointer-events: none;
-  opacity: 0.35;
-  animation: orbFloat 16s ease-in-out infinite alternate;
+  opacity: 0.28;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  animation: orbFloat 18s ease-in-out infinite alternate;
 }
 
 .orb-1 {
-  top: -15%;
+  top: -10%;
   left: 10%;
-  width: 550px;
-  height: 550px;
+  width: 450px;
+  height: 450px;
   background: radial-gradient(circle, #00f0ff 0%, rgba(0, 240, 255, 0) 70%);
 }
 
 .orb-2 {
-  bottom: -20%;
+  bottom: -15%;
   right: 15%;
-  width: 650px;
-  height: 650px;
+  width: 500px;
+  height: 500px;
   background: radial-gradient(circle, #7928ca 0%, rgba(121, 40, 202, 0) 70%);
-  animation-duration: 20s;
+  animation-duration: 22s;
   animation-delay: -5s;
 }
 
 .orb-3 {
   top: 40%;
   left: 50%;
-  width: 400px;
-  height: 400px;
-  transform: translate(-50%, -50%);
+  width: 320px;
+  height: 320px;
+  transform: translate3d(-50%, -50%, 0);
   background: radial-gradient(circle, #00ff88 0%, rgba(0, 255, 136, 0) 70%);
-  opacity: 0.15;
-  animation-duration: 14s;
+  opacity: 0.12;
+  animation-duration: 16s;
   animation-delay: -8s;
 }
 
 @keyframes orbFloat {
   0% {
-    transform: translate(0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate(40px, -30px) scale(1.08);
+    transform: translate3d(30px, -20px, 0) scale(1.05);
   }
   100% {
-    transform: translate(-30px, 30px) scale(0.95);
+    transform: translate3d(-20px, 20px, 0) scale(0.96);
   }
 }
 
@@ -108,58 +113,55 @@
   padding: 24px;
 }
 
-/* Glass Card with 3D Tilt */
+/* Electric Card Container with 3D Tilt */
 .card-glow-wrapper {
   position: relative;
-  max-width: 880px;
+  max-width: 860px;
   width: 100%;
   perspective: 1000px;
   display: flex;
   justify-content: center;
 }
 
-.glass-card {
+.card-tilt-container {
+  width: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.12s cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+/* Electric Card with Avengers Branding */
+.electric-card {
   position: relative;
   width: 100%;
-  background: var(--bg-surface);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid var(--border-glass);
+  background: linear-gradient(180deg, rgba(14, 20, 30, 0.90) 0%, rgba(8, 12, 18, 0.95) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(0, 240, 255, 0.35);
   border-radius: 28px;
-  padding: 68px 50px;
+  padding: 64px 48px 52px 48px;
   text-align: center;
   box-shadow: 
-    0 24px 60px rgba(0, 0, 0, 0.65),
-    0 0 50px rgba(0, 240, 255, 0.09),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    0 24px 60px rgba(0, 0, 0, 0.8),
+    0 0 35px rgba(0, 240, 255, 0.2),
+    inset 0 0 25px rgba(0, 240, 255, 0.08);
   transform-style: preserve-3d;
-  transition: transform 0.15s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.2s ease;
+  color: #ffffff;
 }
 
-.glass-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
-  border-radius: 28px 28px 0 0;
-  opacity: 0.85;
-}
-
-/* Brand Title: Hackfest3.0 */
+/* Brand Title: Hackfest3.0 in Avengers NeoFont */
 .brand-title {
   display: inline-flex;
   align-items: baseline;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   line-height: 1.1;
   user-select: none;
   max-width: 100%;
 }
 
-/* Capital H in NeoFont */
+/* Capital H in NeoFont (Avengers logo symbol) */
 .brand-h {
   font-family: 'NeoFont', sans-serif;
   font-size: clamp(2.4rem, 8.5vw, 6.8rem);
@@ -171,7 +173,7 @@
   transform: translateY(2px);
 }
 
-/* Lowercase ackfest in NeoFont */
+/* Lowercase ackfest in NeoFont (slanted Avengers glyphs) */
 .brand-ackfest {
   font-family: 'NeoFont', sans-serif;
   font-size: clamp(2rem, 7.2vw, 5.7rem);
@@ -221,21 +223,22 @@
   box-shadow: 0 0 10px var(--neon-cyan);
 }
 
-/* Construction Headline: NeoFont */
+/* Construction Headline in default italic font */
 .construction-message {
-  font-family: 'NeoFont', sans-serif;
-  font-size: clamp(1rem, 3.2vw, 2.5rem);
-  font-weight: normal;
-  letter-spacing: 1.5px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-style: italic;
+  font-size: clamp(1.15rem, 2.6vw, 1.95rem);
+  font-weight: 500;
+  letter-spacing: 0.8px;
   color: #38ef7d;
   background: linear-gradient(90deg, #00f0ff 0%, #38ef7d 50%, #00f0ff 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shineGradient 6s linear infinite;
-  text-shadow: 0 0 32px rgba(0, 240, 255, 0.3);
-  margin-bottom: 44px;
-  line-height: 1.3;
+  text-shadow: 0 0 24px rgba(0, 240, 255, 0.35);
+  margin-bottom: 40px;
+  line-height: 1.35;
 }
 
 @keyframes shineGradient {
@@ -297,15 +300,23 @@
   }
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments - Mobile performance optimizations */
 @media (max-width: 768px) {
   .page-container {
     padding: 16px;
   }
 
+  .glow-orb {
+    opacity: 0.15;
+    animation: none;
+    filter: blur(25px);
+  }
+
   .glass-card {
     padding: 44px 22px;
     border-radius: 20px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .cyber-divider {
@@ -325,6 +336,8 @@
   .glass-card {
     padding: 36px 16px;
     border-radius: 18px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .brand-title {

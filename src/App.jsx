@@ -1,170 +1,49 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
+import Galaxy from './components/Galaxy';
+import ElectricBorder from './components/ElectricBorder';
 import './App.css';
 
 export default function App() {
-  const canvasRef = useRef(null);
   const cardRef = useRef(null);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
-  // Handle subtle 3D card tilt
+  // Direct GPU transform manipulation: 0 React re-renders on mousemove
   const handleMouseMove = (e) => {
     if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
 
-    const normX = (e.clientX - centerX) / (window.innerWidth / 2);
-    const normY = (e.clientY - centerY) / (window.innerHeight / 2);
+    const normX = (e.clientX - centerX) / (centerX || 1);
+    const normY = (e.clientY - centerY) / (centerY || 1);
 
-    setTilt({
-      x: -normY * 6,
-      y: normX * 6,
-    });
+    const tiltX = -normY * 4.5;
+    const tiltY = normX * 4.5;
+
+    cardRef.current.style.transform = `rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg)`;
   };
 
   const handleMouseLeave = () => {
-    setTilt({ x: 0, y: 0 });
+    if (!cardRef.current) return;
+    cardRef.current.style.transform = 'rotateX(0deg) rotateY(0deg)';
   };
-
-  // Interactive Particle Canvas Network
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
-    let animationFrameId;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-      initParticles();
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    const mouse = {
-      x: width / 2,
-      y: height / 2,
-      active: false,
-      radius: 140,
-    };
-
-    const handleWindowMouseMove = (e) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-      mouse.active = true;
-    };
-
-    const handleWindowMouseLeave = () => {
-      mouse.active = false;
-    };
-
-    window.addEventListener('mousemove', handleWindowMouseMove);
-    window.addEventListener('mouseleave', handleWindowMouseLeave);
-
-    let particles = [];
-
-    class Particle {
-      constructor() {
-        this.reset(true);
-      }
-
-      reset(initial = false) {
-        this.x = initial ? Math.random() * width : Math.random() > 0.5 ? 0 : width;
-        this.y = Math.random() * height;
-        this.vx = (Math.random() - 0.5) * 0.65;
-        this.vy = (Math.random() - 0.5) * 0.65;
-        this.radius = Math.random() * 1.8 + 0.8;
-        this.alpha = Math.random() * 0.45 + 0.2;
-        this.hue = Math.random() > 0.35 ? 185 : 275;
-      }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-
-        if (this.x < 0 || this.x > width) this.vx *= -1;
-        if (this.y < 0 || this.y > height) this.vy *= -1;
-
-        if (mouse.active) {
-          const dx = mouse.x - this.x;
-          const dy = mouse.y - this.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < mouse.radius) {
-            const force = (mouse.radius - dist) / mouse.radius;
-            this.x -= (dx / dist) * force * 1.5;
-            this.y -= (dy / dist) * force * 1.5;
-          }
-        }
-      }
-
-      draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${this.hue}, 90%, 65%, ${this.alpha})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = `hsla(${this.hue}, 100%, 60%, 0.8)`;
-        ctx.fill();
-      }
-    }
-
-    const initParticles = () => {
-      particles = [];
-      const count = Math.min(Math.floor((width * height) / 13000), 80);
-      for (let i = 0; i < count; i++) {
-        particles.push(new Particle());
-      }
-    };
-
-    initParticles();
-
-    const animate = () => {
-      ctx.clearRect(0, 0, width, height);
-      ctx.shadowBlur = 0;
-
-      const maxDist = 120;
-      const count = particles.length;
-
-      for (let i = 0; i < count; i++) {
-        particles[i].update();
-        particles[i].draw();
-
-        for (let j = i + 1; j < count; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < maxDist) {
-            const lineAlpha = (1 - dist / maxDist) * 0.18;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(0, 240, 255, ${lineAlpha})`;
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-          }
-        }
-      }
-
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleWindowMouseMove);
-      window.removeEventListener('mouseleave', handleWindowMouseLeave);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
 
   return (
     <>
-      {/* Ambient background canvas */}
-      <canvas ref={canvasRef} className="bg-canvas" />
+      {/* High-Performance ReactBits Galaxy Background */}
+      <div className="galaxy-bg">
+        <Galaxy
+          starSpeed={0.35}
+          density={1.0}
+          hueShift={160}
+          glowIntensity={0.35}
+          saturation={0.5}
+          speed={0.8}
+          mouseRepulsion={true}
+          repulsionStrength={1.8}
+          twinkleIntensity={0.35}
+          rotationSpeed={0.03}
+          transparent={true}
+        />
+      </div>
 
       {/* Atmospheric glowing orbs */}
       <div className="glow-orb orb-1" />
@@ -180,37 +59,40 @@ export default function App() {
         onMouseLeave={handleMouseLeave}
       >
         <div className="card-glow-wrapper">
-          <div
-            ref={cardRef}
-            className="glass-card"
-            style={{
-              transform: `rotateX(${tilt.x.toFixed(2)}deg) rotateY(${tilt.y.toFixed(2)}deg)`,
-            }}
-          >
-            {/* Main Brand Title: Only 'H' is capital in Hackfest3.0 */}
-            <div className="brand-title">
-              <span className="brand-h">H</span>
-              <span className="brand-ackfest">ackfest</span>
-              <span className="brand-version">3.0</span>
-            </div>
+          <div ref={cardRef} className="card-tilt-container">
+            <ElectricBorder
+              color="#00f0ff"
+              speed={1.4}
+              chaos={0.15}
+              borderRadius={28}
+            >
+              <div className="electric-card">
+                {/* Main Brand Title: Only 'H' is capital in Hackfest3.0 for Avengers logo */}
+                <div className="brand-title">
+                  <span className="brand-h">H</span>
+                  <span className="brand-ackfest">ackfest</span>
+                  <span className="brand-version">3.0</span>
+                </div>
 
-            {/* Cyber Laser Divider */}
-            <div className="cyber-divider">
-              <div className="divider-line" />
-              <div className="divider-diamond" />
-              <div className="divider-line" />
-            </div>
+                {/* Cyber Laser Divider */}
+                <div className="cyber-divider">
+                  <div className="divider-line" />
+                  <div className="divider-diamond" />
+                  <div className="divider-line" />
+                </div>
 
-            {/* Primary Message: website under construction */}
-            <h1 className="construction-message">website under construction</h1>
+                {/* Primary Message: website under construction */}
+                <h2 className="construction-message">Coming Soon...</h2>
 
-            {/* High-tech Animated Construction Progress Bar */}
-            <div className="progress-module">
-              <div className="progress-bar-track">
-                <div className="progress-bar-fill" />
-                <div className="progress-laser" />
+                {/* High-tech Animated Construction Progress Bar */}
+                <div className="progress-module">
+                  <div className="progress-bar-track">
+                    <div className="progress-bar-fill" />
+                    <div className="progress-laser" />
+                  </div>
+                </div>
               </div>
-            </div>
+            </ElectricBorder>
           </div>
         </div>
       </main>
