@@ -1,0 +1,387 @@
+/* ==========================================================================
+   Hackfest3.0 — Under Construction Stylesheet
+   Font: Neo.ttf
+   ========================================================================== */
+
+@font-face {
+  font-family: 'NeoFont';
+  src: url('./Neo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+  /* Exclude 0-9 so Neo's watermark demo digits do not display */
+  unicode-range: U+0000-002F, U+003A-007E, U+00A0-FFFF;
+}
+
+:root {
+  --bg-deep: #07090e;
+  --bg-surface: rgba(14, 18, 27, 0.72);
+  --border-glow: rgba(0, 240, 255, 0.25);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --neon-cyan: #00f0ff;
+  --neon-green: #00ff88;
+  --neon-purple: #9d4edd;
+  --text-primary: #ffffff;
+  --text-secondary: #8e9bb0;
+  --text-dim: #4a5568;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Background Canvas */
+#bg-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Atmospheric Glow Orbs */
+.glow-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.35;
+  animation: orbFloat 16s ease-in-out infinite alternate;
+}
+
+.orb-1 {
+  top: -15%;
+  left: 10%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, #00f0ff 0%, rgba(0, 240, 255, 0) 70%);
+}
+
+.orb-2 {
+  bottom: -20%;
+  right: 15%;
+  width: 650px;
+  height: 650px;
+  background: radial-gradient(circle, #7928ca 0%, rgba(121, 40, 202, 0) 70%);
+  animation-duration: 20s;
+  animation-delay: -5s;
+}
+
+.orb-3 {
+  top: 40%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, #00ff88 0%, rgba(0, 255, 136, 0) 70%);
+  opacity: 0.15;
+  animation-duration: 14s;
+  animation-delay: -8s;
+}
+
+@keyframes orbFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(40px, -30px) scale(1.08);
+  }
+  100% {
+    transform: translate(-30px, 30px) scale(0.95);
+  }
+}
+
+/* Cyber Grid */
+.cyber-grid {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+  z-index: 2;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 20%, rgba(0, 0, 0, 0) 75%);
+}
+
+/* Scanline Overlay */
+.scanlines {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Page Layout */
+.page-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Glass Card with 3D Tilt */
+.card-glow-wrapper {
+  position: relative;
+  max-width: 880px;
+  width: 100%;
+  perspective: 1000px;
+  display: flex;
+  justify-content: center;
+}
+
+.glass-card {
+  position: relative;
+  width: 100%;
+  background: var(--bg-surface);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--border-glass);
+  border-radius: 28px;
+  padding: 68px 50px;
+  text-align: center;
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.65),
+    0 0 50px rgba(0, 240, 255, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform-style: preserve-3d;
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.2s ease;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+  border-radius: 28px 28px 0 0;
+  opacity: 0.85;
+}
+
+/* Brand Title: Hackfest3.0 */
+.brand-title {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-bottom: 24px;
+  line-height: 1.1;
+  user-select: none;
+  max-width: 100%;
+}
+
+/* Capital H in NeoFont */
+.brand-h {
+  font-family: 'NeoFont', sans-serif;
+  font-size: clamp(2.4rem, 8.5vw, 6.8rem);
+  color: #ffffff;
+  display: inline-block;
+  text-shadow: 
+    0 0 24px rgba(0, 240, 255, 0.75),
+    0 0 50px rgba(0, 240, 255, 0.45);
+  transform: translateY(2px);
+}
+
+/* Lowercase ackfest in NeoFont */
+.brand-ackfest {
+  font-family: 'NeoFont', sans-serif;
+  font-size: clamp(2rem, 7.2vw, 5.7rem);
+  letter-spacing: 0.5px;
+  color: #f8fafc;
+  text-shadow: 
+    0 0 20px rgba(0, 240, 255, 0.55),
+    0 0 40px rgba(0, 240, 255, 0.3);
+}
+
+/* Version 3.0 */
+.brand-version {
+  font-family: 'Orbitron', -apple-system, sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: clamp(1.6rem, 5.8vw, 4.6rem);
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #00f0ff 0%, #00ff88 60%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.7));
+  margin-left: 3px;
+}
+
+/* Cyber Laser Divider */
+.cyber-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 14px auto 36px auto;
+  max-width: 540px;
+  opacity: 0.8;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.5), transparent);
+}
+
+.divider-diamond {
+  width: 6px;
+  height: 6px;
+  background: var(--neon-cyan);
+  transform: rotate(45deg);
+  box-shadow: 0 0 10px var(--neon-cyan);
+}
+
+/* Construction Headline: NeoFont */
+.construction-message {
+  font-family: 'NeoFont', sans-serif;
+  font-size: clamp(1rem, 3.2vw, 2.5rem);
+  font-weight: normal;
+  letter-spacing: 1.5px;
+  color: #38ef7d;
+  background: linear-gradient(90deg, #00f0ff 0%, #38ef7d 50%, #00f0ff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shineGradient 6s linear infinite;
+  text-shadow: 0 0 32px rgba(0, 240, 255, 0.3);
+  margin-bottom: 44px;
+  line-height: 1.3;
+}
+
+@keyframes shineGradient {
+  to {
+    background-position: 200% center;
+  }
+}
+
+/* High-tech Construction Progress Bar */
+.progress-module {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.progress-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.progress-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #7928ca, var(--neon-cyan), var(--neon-green), #7928ca);
+  background-size: 200% 100%;
+  border-radius: 10px;
+  animation: flowGradient 3s linear infinite;
+}
+
+@keyframes flowGradient {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.progress-laser {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+  animation: laserScan 2.4s ease-in-out infinite;
+}
+
+@keyframes laserScan {
+  0% {
+    left: -50px;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+  }
+
+  .glass-card {
+    padding: 44px 22px;
+    border-radius: 20px;
+  }
+
+  .cyber-divider {
+    margin: 10px auto 26px auto;
+  }
+
+  .construction-message {
+    margin-bottom: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container {
+    padding: 12px;
+  }
+
+  .glass-card {
+    padding: 36px 16px;
+    border-radius: 18px;
+  }
+
+  .brand-title {
+    margin-bottom: 18px;
+  }
+
+  .construction-message {
+    margin-bottom: 26px;
+  }
+
+  .progress-module {
+    width: 100%;
+  }
+}
