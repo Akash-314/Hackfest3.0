@@ -1,3 +1,39 @@
+/* Background Image from img.jpg */
+.bg-image-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bg-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/img.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.7) contrast(1.15) saturate(1.1);
+  transform: scale(1.02);
+}
+
+.bg-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 60% 40%, rgba(4, 20, 10, 0.35) 0%, rgba(2, 8, 4, 0.82) 100%),
+              linear-gradient(180deg, rgba(2, 10, 5, 0.5) 0%, rgba(1, 6, 3, 0.85) 100%);
+}
+
 /* ReactBits Galaxy Background */
 .galaxy-bg {
   position: fixed;
@@ -223,13 +259,13 @@
   box-shadow: 0 0 10px var(--neon-cyan);
 }
 
-/* Construction Headline in default italic font */
+/* Construction Headline: NeoFont */
 .construction-message {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-style: italic;
-  font-size: clamp(1.15rem, 2.6vw, 1.95rem);
-  font-weight: 500;
-  letter-spacing: 0.8px;
+  font-family: 'NeoFont', sans-serif;
+  font-style: normal;
+  font-size: clamp(1.2rem, 3vw, 2.3rem);
+  font-weight: normal;
+  letter-spacing: 1.5px;
   color: #38ef7d;
   background: linear-gradient(90deg, #00f0ff 0%, #38ef7d 50%, #00f0ff 100%);
   background-size: 200% auto;

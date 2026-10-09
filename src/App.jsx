@@ -1,9 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import Galaxy from './components/Galaxy';
 import ElectricBorder from './components/ElectricBorder';
+import LoadingScreen from './components/LoadingScreen';
 import './App.css';
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const cardRef = useRef(null);
 
   // Direct GPU transform manipulation: 0 React re-renders on mousemove
@@ -28,12 +30,23 @@ export default function App() {
 
   return (
     <>
+      {/* Loading Screen: Big Hackfest3.0 with Dark Green Gradient Glowing Border */}
+      {isLoading && (
+        <LoadingScreen onFinish={() => setIsLoading(false)} />
+      )}
+
+      {/* Background Image: img.jpg with cinematic dark green grading */}
+      <div className="bg-image-container">
+        <div className="bg-image" />
+        <div className="bg-image-overlay" />
+      </div>
+
       {/* High-Performance ReactBits Galaxy Background */}
       <div className="galaxy-bg">
         <Galaxy
           starSpeed={0.35}
           density={1.0}
-          hueShift={160}
+          hueShift={140}
           glowIntensity={0.35}
           saturation={0.5}
           speed={0.8}
@@ -61,13 +74,13 @@ export default function App() {
         <div className="card-glow-wrapper">
           <div ref={cardRef} className="card-tilt-container">
             <ElectricBorder
-              color="#00f0ff"
+              color="#10b981"
               speed={1.4}
               chaos={0.15}
               borderRadius={28}
             >
               <div className="electric-card">
-                {/* Main Brand Title: Only 'H' is capital in Hackfest3.0 for Avengers logo */}
+                {/* Main Brand Title: Only 'H' is capital in Hackfest3.0 */}
                 <div className="brand-title">
                   <span className="brand-h">H</span>
                   <span className="brand-ackfest">ackfest</span>
@@ -82,7 +95,7 @@ export default function App() {
                 </div>
 
                 {/* Primary Message: website under construction */}
-                <h2 className="construction-message">Coming Soon...</h2>
+                <h2 className="construction-message">website under construction</h2>
 
                 {/* High-tech Animated Construction Progress Bar */}
                 <div className="progress-module">
