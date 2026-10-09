@@ -28,7 +28,7 @@
   pointer-events: none;
 }
 
-/* Backdrop Image with dark vignette */
+/* Backdrop Image with subtle dark vignette */
 .loading-bg-backdrop {
   position: absolute;
   top: 0;
@@ -38,7 +38,7 @@
   background-image: url('/img.jpg');
   background-size: cover;
   background-position: center;
-  filter: brightness(0.22) saturate(1.2);
+  filter: brightness(0.48) saturate(1.15);
   z-index: 1;
 }
 
@@ -49,7 +49,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at center, rgba(3, 18, 9, 0.5) 0%, rgba(1, 5, 2, 0.96) 80%);
+  background: radial-gradient(circle at center, rgba(3, 18, 9, 0.2) 0%, rgba(1, 5, 2, 0.7) 85%);
 }
 
 .loading-grid {
@@ -175,12 +175,12 @@
 }
 
 .loading-border-inner {
-  background: linear-gradient(180deg, rgba(3, 16, 9, 0.95) 0%, rgba(1, 8, 4, 0.98) 100%);
+  background: rgba(2, 10, 5, 0.38);
   border-radius: 32px;
   padding: 60px 52px;
   text-align: center;
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   position: relative;
   overflow: hidden;
 }
