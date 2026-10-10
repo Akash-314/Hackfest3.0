@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Compass, Zap, RotateCcw, Shield, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Compass, Zap, Shield, Sparkles } from 'lucide-react';
 import { eventMeta } from '../data/eventData';
 import { eventService } from '../services/eventService';
-import MarvelCinematicHero3D from './3d/MarvelCinematicHero3D';
 import HoloBadge from './ui/HoloBadge';
+import doomImg from '../assets/doom.png';
 
 export default function HeroSection() {
-  const [introPhase, setIntroPhase] = useState(0); // 0: Portal ignite, 1: Hero strike, 2: Title reveal, 3: Full controls ready
-  const [replayKey, setReplayKey] = useState(0);
   const [meta, setMeta] = useState(eventMeta);
 
   useEffect(() => {
@@ -19,24 +17,6 @@ export default function HeroSection() {
     return () => { isMounted = false; };
   }, []);
 
-  useEffect(() => {
-    // Cinematic opening sequence timeline
-    const t1 = setTimeout(() => setIntroPhase(1), 800);  // 0.8s: Heroes streak across sky
-    const t2 = setTimeout(() => setIntroPhase(2), 2200); // 2.2s: Title comic impact burst
-    const t3 = setTimeout(() => setIntroPhase(3), 3600); // 3.6s: Complete UI interactive assembly
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
-  }, [replayKey]);
-
-  const handleReplayIntro = () => {
-    setIntroPhase(0);
-    setReplayKey((prev) => prev + 1);
-  };
-
   const scrollTo = (id) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -46,15 +26,16 @@ export default function HeroSection() {
     <section id="hero" className="hero-section marvel-cinematic-hero-section">
       {/* Background Comic Sky & City Grid */}
       <div className="hero-bg-container marvel-hero-bg">
+        <div className="hero-doom-ambient-backdrop" />
         <div className="marvel-city-vignette" />
         <div className="marvel-sky-nebula" />
       </div>
 
       <div className="container marvel-hero-container">
-        {/* Top Hero Split Grid: Left Text + Right 3D Visual */}
+        {/* Top Hero Split Grid: Left Text + Right Visual Card */}
         <div className="marvel-hero-grid">
           {/* Left Column: Comic Narrative & Call to Action */}
-          <div className={`marvel-hero-narrative-col phase-${introPhase}`}>
+          <div className="marvel-hero-narrative-col phase-3">
             {/* Comic Header Strip */}
             <div className="marvel-comic-badge-strip">
               <span className="marvel-logo-badge">
@@ -68,8 +49,8 @@ export default function HeroSection() {
 
             {/* Main Headline */}
             <div className="marvel-title-wrap">
-              <h1 className="heading-display marvel-main-title">
-                <span className="marvel-title-word">HACKFEST</span>
+              <h1 className="heading-display marvel-main-title marvel-neo-heading">
+                <span className="marvel-title-word">Hackfest </span>
                 <span className="marvel-title-number">3.0</span>
               </h1>
               <div className="marvel-impact-burst-tag">
@@ -108,34 +89,70 @@ export default function HeroSection() {
 
               <button
                 type="button"
-                className="btn-replay-sequence"
-                onClick={handleReplayIntro}
-                title="Replay Cinematic Superhero Sequence"
-                aria-label="Replay Cinematic Superhero Sequence"
+                className="btn btn-reactor"
+                onClick={() => scrollTo('problems')}
+                id="hero-tracks-btn"
+                style={{ borderColor: 'rgba(0, 191, 255, 0.4)' }}
               >
-                <RotateCcw size={15} />
-                <span>REPLAY INTRO</span>
+                <Shield size={18} />
+                <span>TRACKS</span>
               </button>
             </div>
           </div>
 
-          {/* Right Column: 3D Marvel Cinematic Superhero Showcase */}
+          {/* Right Column: Doctor Doom Showcase with Hackfest 3.0 Overlaid in Neo Font */}
           <div className="marvel-hero-3d-col">
-            <div className="marvel-cinematic-viewport">
+            <div className="marvel-cinematic-viewport marvel-poster-card doom-hero-viewport">
+              <img
+                src={doomImg}
+                alt="Doctor Doom - Hackfest 3.0"
+                className="marvel-poster-bg doom-showcase-photo"
+              />
+              <div className="marvel-poster-overlay doom-showcase-overlay" />
+
               {/* Status Banner */}
               <div className="marvel-viewport-tag">
                 <span className="marvel-tag-pulse" />
-                <span>CINEMATIC SHOWCASE // INTERACTIVE 3D EXPERIENCE</span>
+                <span>MULTIVERSE PROTOCOL // DOCTOR DOOM</span>
               </div>
 
-              {/* Live 3D Scene */}
-              <MarvelCinematicHero3D key={replayKey} />
+              {/* Center Content Overlaid Directly Over Doom Photo */}
+              <div className="marvel-poster-content doom-poster-content">
+                <div className="marvel-poster-badge">REC BANDA PRESENTS</div>
+                <h2 className="doom-overlay-hero-title">
+                  Hackfest 3.0
+                </h2>
+                <p className="marvel-poster-subtitle">
+                  THE ULTIMATE CODE & INNOVATION BATTLEGROUND
+                </p>
+
+                <div className="marvel-poster-stats-grid">
+                  <div className="marvel-stat-pill">
+                    <span className="stat-pill-val">₹1,00,000+</span>
+                    <span className="stat-pill-lbl">PRIZE POOL</span>
+                  </div>
+                  <div className="marvel-stat-pill">
+                    <span className="stat-pill-val">48 HRS</span>
+                    <span className="stat-pill-lbl">NON-STOP</span>
+                  </div>
+                  <div className="marvel-stat-pill">
+                    <span className="stat-pill-val">500+</span>
+                    <span className="stat-pill-lbl">BUILDERS</span>
+                  </div>
+                </div>
+
+                <div className="marvel-tracks-preview">
+                  <span className="track-tag">WEB3 & AI</span>
+                  <span className="track-tag">CLOUD SEC</span>
+                  <span className="track-tag">IOT & ROBOTICS</span>
+                </div>
+              </div>
 
               {/* Interaction Hint */}
               <div className="marvel-viewport-footer">
                 <span className="marvel-hint-pill">
                   <Sparkles size={13} color="#f5b642" />
-                  DRAG TO ROTATE 3D CAMERA
+                  SDC REC BANDA // INNOVATION ARENA
                 </span>
               </div>
             </div>

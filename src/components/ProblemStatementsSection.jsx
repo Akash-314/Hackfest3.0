@@ -3,7 +3,6 @@ import { ChevronRight, ShieldAlert, AlertTriangle, Skull, Flame } from 'lucide-r
 import { problemCategories as defaultCategories } from '../data/eventData';
 import { eventService } from '../services/eventService';
 import ProblemDetailModal from './ProblemDetailModal';
-import DoomThreatNexus3D from './3d/DoomThreatNexus3D';
 import SuperheroPanel from './ui/SuperheroPanel';
 import HoloBadge from './ui/HoloBadge';
 
@@ -78,25 +77,8 @@ export default function ProblemStatementsSection() {
           </p>
         </div>
 
-        {/* Doctor Doom 3D Villain Presence Stage */}
-        <div className="doom-villain-stage-card">
-          <div className="doom-stage-header">
-            <span className="doom-status-dot" />
-            <span>INTERACTIVE 3D SHOWCASE // DOCTOR DOOM</span>
-          </div>
-
-          <DoomThreatNexus3D />
-
-          <div className="doom-stage-footer">
-            <span className="doom-warning-text">
-              <AlertTriangle size={15} color="#00ff77" />
-              SELECT A TRACK BELOW TO VIEW DETAILED PROBLEM STATEMENTS
-            </span>
-          </div>
-        </div>
-
         {/* 6 Track Cards Grid */}
-        <div className="problems-grid doom-threats-grid" style={{ marginTop: '3rem' }}>
+        <div className="problems-grid doom-threats-grid" style={{ marginTop: '2rem' }}>
           {categories.map((prob, idx) => {
             const threatLevel = threatLevels[idx % threatLevels.length];
             const variant = variants[idx % variants.length];

@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import CinematicIntro from '../components/cinematic/CinematicIntro';
 import AnnouncementTicker from '../components/AnnouncementTicker';
 import HeroSection from '../components/HeroSection';
 import AboutSection from '../components/AboutSection';
@@ -34,13 +33,10 @@ export default function HomePage() {
 
   return (
     <main>
-      {/* 00. MARVEL CINEMATIC 3D INTRO SEQUENCE */}
-      <CinematicIntro />
-
       {/* 00B. LIVE MISSION BROADCAST & ANNOUNCEMENTS */}
       <AnnouncementTicker />
 
-      {/* 01. HERO / HOME */}
+      {/* 01. HERO / HOME - FEATURING DOOM IMAGE & HACKFEST 3.0 IN NEO FONT */}
       <HeroSection />
 
       {/* 02. ABOUT EVENT */}

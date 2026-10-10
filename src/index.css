@@ -12,16 +12,34 @@
    2. Uncomment the @font-face block below and specify the format
    -------------------------------------------------------------------------- */
 @font-face {
+  font-family: 'Neo';
+  src: url('/fonts/Neo.ttf') format('truetype'),
+       url('/Neo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NeoFont';
+  src: url('/fonts/Neo.ttf') format('truetype'),
+       url('/Neo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'HackfestCustomFont';
-  /* Fallback to local and modern display alternatives until provided */
-  src: local('Syne'), local('Impact'), local('Arial Black'), sans-serif;
-  /* Uncomment when file is provided:
-  src: url('/fonts/hackfest-custom-heading.woff2') format('woff2'); */
-  font-weight: 700 900;
+  src: url('/fonts/Neo.ttf') format('truetype'),
+       url('/Neo.ttf') format('truetype'),
+       local('Syne'), local('Impact'), sans-serif;
+  font-weight: 400 900;
   font-display: swap;
 }
 
 :root {
+  --font-neo: 'Neo', 'NeoFont', sans-serif;
   /* ------------------------------------------------------------------------
      1. COLOR SYSTEM — MARVEL MULTIVERSE × STARK INDUSTRIES
      ------------------------------------------------------------------------ */
@@ -1813,5 +1831,82 @@ textarea:focus {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   width: fit-content;
+}
+
+/* ==========================================================================
+   HOMEPAGE PURE EXPERIENCE: DOOM IMAGE & HACKFEST NEO FONT TITLE ONLY
+   ========================================================================== */
+.site-wrapper-home-pure {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.homepage-pure-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000000;
+  z-index: 10;
+}
+
+.homepage-pure-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 1;
+  filter: contrast(1.15) brightness(0.95);
+  user-select: none;
+  pointer-events: none;
+}
+
+.homepage-pure-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.12) 0%,
+    rgba(0, 0, 0, 0.4) 65%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+.homepage-pure-content {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  padding: 1.5rem;
+  user-select: none;
+}
+
+.homepage-pure-title {
+  font-family: 'Neo', 'NeoFont', sans-serif !important;
+  font-size: clamp(3.5rem, 11vw, 9rem);
+  font-weight: 700;
+  text-transform: none !important; /* CRITICAL: ONLY H in capital */
+  color: #ffffff;
+  letter-spacing: 0.04em;
+  margin: 0;
+  padding: 0;
+  line-height: 1.05;
+  text-shadow: 
+    0 0 20px rgba(0, 255, 119, 0.85),
+    0 0 50px rgba(0, 217, 255, 0.65),
+    0 0 90px rgba(0, 255, 119, 0.45),
+    4px 4px 14px rgba(0, 0, 0, 0.95);
 }
 

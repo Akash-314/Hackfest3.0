@@ -1,7 +1,6 @@
 import React from 'react';
 import { Trophy, Medal, Sparkles, Flame, Shield } from 'lucide-react';
 import { prizesData } from '../data/eventData';
-import InfinityVault3D from './3d/InfinityVault3D';
 import SuperheroPanel from './ui/SuperheroPanel';
 import HoloBadge from './ui/HoloBadge';
 
@@ -23,28 +22,19 @@ export default function PrizesSection() {
           </p>
         </div>
 
-        {/* 3D Infinity Power Cores Showcase */}
-        <div className="infinity-3d-vault-card">
-          <div className="vault-telemetry-strip">
-            <span className="marvel-tag-pulse" />
-            <span>INTERACTIVE 3D PODIUM // 1ST • 2ND • 3RD PLACE</span>
+        {/* Top 3 Honor Podiums */}
+        <div className="vault-pedestal-labels" style={{ margin: '1.5rem auto 2.5rem', maxWidth: '750px' }}>
+          <div className="vault-podium-label left" style={{ borderColor: 'rgba(0, 191, 255, 0.4)' }}>
+            <span className="podium-rank" style={{ color: 'var(--color-arc-blue)' }}>2ND PLACE</span>
+            <span className="podium-title">1ST RUNNER UP // SILVER</span>
           </div>
-
-          <InfinityVault3D />
-
-          <div className="vault-pedestal-labels">
-            <div className="vault-podium-label left" style={{ borderColor: 'rgba(0, 191, 255, 0.4)' }}>
-              <span className="podium-rank" style={{ color: 'var(--color-arc-blue)' }}>2ND PLACE</span>
-              <span className="podium-title">1ST RUNNER UP // SILVER</span>
-            </div>
-            <div className="vault-podium-label center" style={{ borderColor: 'rgba(245, 182, 66, 0.6)' }}>
-              <span className="podium-rank champion" style={{ color: 'var(--color-stark-gold)' }}>1ST PLACE</span>
-              <span className="podium-title">CHAMPION // GOLD</span>
-            </div>
-            <div className="vault-podium-label right" style={{ borderColor: 'rgba(230, 36, 41, 0.4)' }}>
-              <span className="podium-rank" style={{ color: 'var(--color-energy-red)' }}>3RD PLACE</span>
-              <span className="podium-title">2ND RUNNER UP // BRONZE</span>
-            </div>
+          <div className="vault-podium-label center" style={{ borderColor: 'rgba(245, 182, 66, 0.6)' }}>
+            <span className="podium-rank champion" style={{ color: 'var(--color-stark-gold)' }}>1ST PLACE</span>
+            <span className="podium-title">CHAMPION // GOLD</span>
+          </div>
+          <div className="vault-podium-label right" style={{ borderColor: 'rgba(230, 36, 41, 0.4)' }}>
+            <span className="podium-rank" style={{ color: 'var(--color-energy-red)' }}>3RD PLACE</span>
+            <span className="podium-title">2ND RUNNER UP // BRONZE</span>
           </div>
         </div>
 

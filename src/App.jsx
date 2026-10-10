@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
@@ -51,16 +51,17 @@ import AdminUsersPage from './pages/admin/AdminUsersPage';
 import AdminAuditPage from './pages/admin/AdminAuditPage';
 import SdcMembersPage from './pages/SdcMembersPage';
 
-export default function App() {
+function AppContent() {
+  const location = useLocation();
+  const isHome = location.pathname === '/';
+
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="site-wrapper">
-          <CursorTrail />
-          <CyberNoiseBackground />
-          <ComicHalftoneOverlay />
-          <Navbar />
-          <Routes>
+    <div className={`site-wrapper ${isHome ? 'site-wrapper-home-pure' : ''}`}>
+      <CursorTrail />
+      {!isHome && <CyberNoiseBackground />}
+      {!isHome && <ComicHalftoneOverlay />}
+      {!isHome && <Navbar />}
+      <Routes>
             {/* Main Cinematic Landing Page */}
             <Route path="/" element={<HomePage />} />
 
@@ -243,8 +244,16 @@ export default function App() {
             {/* Fallback */}
             <Route path="*" element={<HomePage />} />
           </Routes>
-          <Footer />
+          {!isHome && <Footer />}
         </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <AppContent />
       </BrowserRouter>
     </AuthProvider>
   );
