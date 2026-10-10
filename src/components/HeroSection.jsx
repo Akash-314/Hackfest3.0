@@ -1,179 +1,195 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowUpRight, Compass, Zap, Shield, Sparkles } from 'lucide-react';
-import { eventMeta } from '../data/eventData';
-import { eventService } from '../services/eventService';
-import HoloBadge from './ui/HoloBadge';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import doomImg from '../assets/doom.png';
+import ironImg from '../assets/iron.png';
 
 export default function HeroSection() {
-  const [meta, setMeta] = useState(eventMeta);
+  const heroRef = useRef(null);
+  const animFrameRef = useRef(null);
+  const touchTimerRef = useRef(null);
 
-  useEffect(() => {
-    let isMounted = true;
-    eventService.getSettings().then((res) => {
-      if (isMounted && res) setMeta(res);
-    });
-    return () => { isMounted = false; };
-  }, []);
+  // Fallback image sources
+  const [doomSrc, setDoomSrc] = useState(doomImg);
+  const [ironSrc, setIronSrc] = useState(ironImg);
 
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  // Smooth cursor tracking coordinates (rAF-driven, zero React re-renders)
+  const posRef = useRef({
+    targetX: -9999,
+    targetY: -9999,
+    currentX: -9999,
+    currentY: -9999,
+    isHovering: false,
+    settled: true,
+  });
+
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const updatePosition = useCallback(() => {
+    const p = posRef.current;
+    const heroEl = heroRef.current;
+    if (!heroEl) return;
+
+    if (prefersReducedMotion) {
+      p.currentX = p.targetX;
+      p.currentY = p.targetY;
+      heroEl.style.setProperty('--mouse-x', `${p.currentX.toFixed(1)}px`);
+      heroEl.style.setProperty('--mouse-y', `${p.currentY.toFixed(1)}px`);
+      p.settled = true;
+      return;
+    }
+
+    // Responsive, silky smooth glide damping
+    const lerpDamp = 0.28;
+    p.currentX += (p.targetX - p.currentX) * lerpDamp;
+    p.currentY += (p.targetY - p.currentY) * lerpDamp;
+
+    heroEl.style.setProperty('--mouse-x', `${p.currentX.toFixed(1)}px`);
+    heroEl.style.setProperty('--mouse-y', `${p.currentY.toFixed(1)}px`);
+
+    const diffX = Math.abs(p.targetX - p.currentX);
+    const diffY = Math.abs(p.targetY - p.currentY);
+
+    if (diffX > 0.1 || diffY > 0.1 || p.isHovering) {
+      animFrameRef.current = requestAnimationFrame(updatePosition);
+      p.settled = false;
+    } else {
+      p.currentX = p.targetX;
+      p.currentY = p.targetY;
+      heroEl.style.setProperty('--mouse-x', `${p.currentX.toFixed(1)}px`);
+      heroEl.style.setProperty('--mouse-y', `${p.currentY.toFixed(1)}px`);
+      p.settled = true;
+    }
+  }, [prefersReducedMotion]);
+
+  const wakeLoop = useCallback(() => {
+    if (posRef.current.settled) {
+      posRef.current.settled = false;
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = requestAnimationFrame(updatePosition);
+    }
+  }, [updatePosition]);
+
+  const setPointerPos = (clientX, clientY, instant = false) => {
+    const heroEl = heroRef.current;
+    if (!heroEl) return;
+    const rect = heroEl.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+
+    const p = posRef.current;
+    p.targetX = x;
+    p.targetY = y;
+    if (instant || p.currentX < -5000) {
+      p.currentX = x;
+      p.currentY = y;
+    }
+    p.isHovering = true;
+    heroEl.style.setProperty('--reveal-opacity', '1');
+    wakeLoop();
   };
 
+  const handleMouseMove = (e) => {
+    setPointerPos(e.clientX, e.clientY);
+  };
+
+  const handleMouseEnter = (e) => {
+    setPointerPos(e.clientX, e.clientY, true);
+  };
+
+  const handleMouseLeave = () => {
+    const p = posRef.current;
+    p.isHovering = false;
+    const heroEl = heroRef.current;
+    if (heroEl) {
+      heroEl.style.setProperty('--reveal-opacity', '0');
+    }
+  };
+
+  // Mobile touch handling (reveals circular lens at touch position without blocking scrolling)
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      const touch = e.touches[0];
+      setPointerPos(touch.clientX, touch.clientY, true);
+      if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      const touch = e.touches[0];
+      setPointerPos(touch.clientX, touch.clientY);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    touchTimerRef.current = setTimeout(() => {
+      handleMouseLeave();
+    }, 1800);
+  };
+
+  useEffect(() => {
+    const heroEl = heroRef.current;
+    if (heroEl) {
+      heroEl.style.setProperty('--mouse-x', '-9999px');
+      heroEl.style.setProperty('--mouse-y', '-9999px');
+      heroEl.style.setProperty('--reveal-opacity', '0');
+      heroEl.style.setProperty('--reveal-radius', '320px');
+    }
+
+    return () => {
+      cancelAnimationFrame(animFrameRef.current);
+      if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
+    };
+  }, []);
+
   return (
-    <section id="hero" className="hero-section marvel-cinematic-hero-section">
-      {/* Background Comic Sky & City Grid */}
-      <div className="hero-bg-container marvel-hero-bg">
-        <div className="hero-doom-ambient-backdrop" />
-        <div className="marvel-city-vignette" />
-        <div className="marvel-sky-nebula" />
+    <section
+      id="hero"
+      ref={heroRef}
+      className="doom-iron-hero"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      aria-label="HackFest 3.0 Hero"
+    >
+      {/* 1. LAYER 1: Permanent Full-Screen DOOM Background */}
+      <div className="hero-doom-layer" aria-hidden="true">
+        <img
+          src={doomSrc}
+          alt="Doctor Doom - Hackfest 3.0"
+          className="hero-character-img hero-doom-img"
+          loading="eager"
+          fetchPriority="high"
+          onError={() => setDoomSrc('/doom.png')}
+        />
       </div>
 
-      <div className="container marvel-hero-container">
-        {/* Top Hero Split Grid: Left Text + Right Visual Card */}
-        <div className="marvel-hero-grid">
-          {/* Left Column: Comic Narrative & Call to Action */}
-          <div className="marvel-hero-narrative-col phase-3">
-            {/* Comic Header Strip */}
-            <div className="marvel-comic-badge-strip">
-              <span className="marvel-logo-badge">
-                HACKFEST
-              </span>
-              <HoloBadge variant="red" icon={Shield}>
-                EDITION 3.0 // ANNUAL HACKATHON
-              </HoloBadge>
-              <span className="marvel-hero-inst">REC BANDA • SDC</span>
-            </div>
+      {/* 2. LAYER 2: Localized Circular Reveal of Iron Man (Masked Around Cursor) */}
+      <div className="hero-iron-layer" aria-hidden="true">
+        <img
+          src={ironSrc}
+          alt="Iron Man - Hackfest 3.0"
+          className="hero-character-img hero-iron-img"
+          loading="eager"
+          fetchPriority="high"
+          onError={() => setIronSrc('/iron.png')}
+        />
+      </div>
 
-            {/* Main Headline */}
-            <div className="marvel-title-wrap">
-              <h1 className="heading-display marvel-main-title marvel-neo-heading">
-                <span className="marvel-title-word">Hackfest </span>
-                <span className="marvel-title-number">3.0</span>
-              </h1>
-              <div className="marvel-impact-burst-tag">
-                THE NEXT GENERATION OF BUILDERS
-              </div>
-            </div>
+      {/* 3. LAYER 3: Cinematic Atmospheric Vignette (Protects Text Contrast) */}
+      <div className="hero-cinematic-atmosphere" aria-hidden="true" />
 
-            {/* Subheading Narrative */}
-            <p className="marvel-hero-desc">
-              Join hundreds of student innovators, developers, and designers from across India.
-              Compete in high-speed algorithms in <strong>Codeathon</strong>, present visionary ideas in the <strong>Ideathon</strong>,
-              and build groundbreaking software in the <strong>Flagship 48-Hour Hackathon</strong>.
-            </p>
-
-            {/* Action Buttons */}
-            <div className="marvel-hero-actions">
-              <Link
-                to="/register"
-                className="btn btn-avenger marvel-assemble-btn"
-                id="hero-register-btn"
-              >
-                <Zap size={20} />
-                <span>REGISTER NOW</span>
-                <ArrowUpRight size={20} />
-              </Link>
-
-              <button
-                type="button"
-                className="btn btn-reactor"
-                onClick={() => scrollTo('about')}
-                id="hero-explore-btn"
-              >
-                <Compass size={18} />
-                <span>EXPLORE EVENT</span>
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-reactor"
-                onClick={() => scrollTo('problems')}
-                id="hero-tracks-btn"
-                style={{ borderColor: 'rgba(0, 191, 255, 0.4)' }}
-              >
-                <Shield size={18} />
-                <span>TRACKS</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Right Column: Doctor Doom Showcase with Hackfest 3.0 Overlaid in Neo Font */}
-          <div className="marvel-hero-3d-col">
-            <div className="marvel-cinematic-viewport marvel-poster-card doom-hero-viewport">
-              <img
-                src={doomImg}
-                alt="Doctor Doom - Hackfest 3.0"
-                className="marvel-poster-bg doom-showcase-photo"
-              />
-              <div className="marvel-poster-overlay doom-showcase-overlay" />
-
-              {/* Status Banner */}
-              <div className="marvel-viewport-tag">
-                <span className="marvel-tag-pulse" />
-                <span>MULTIVERSE PROTOCOL // DOCTOR DOOM</span>
-              </div>
-
-              {/* Center Content Overlaid Directly Over Doom Photo */}
-              <div className="marvel-poster-content doom-poster-content">
-                <div className="marvel-poster-badge">REC BANDA PRESENTS</div>
-                <h2 className="doom-overlay-hero-title">
-                  Hackfest 3.0
-                </h2>
-                <p className="marvel-poster-subtitle">
-                  THE ULTIMATE CODE & INNOVATION BATTLEGROUND
-                </p>
-
-                <div className="marvel-poster-stats-grid">
-                  <div className="marvel-stat-pill">
-                    <span className="stat-pill-val">₹1,00,000+</span>
-                    <span className="stat-pill-lbl">PRIZE POOL</span>
-                  </div>
-                  <div className="marvel-stat-pill">
-                    <span className="stat-pill-val">48 HRS</span>
-                    <span className="stat-pill-lbl">NON-STOP</span>
-                  </div>
-                  <div className="marvel-stat-pill">
-                    <span className="stat-pill-val">500+</span>
-                    <span className="stat-pill-lbl">BUILDERS</span>
-                  </div>
-                </div>
-
-                <div className="marvel-tracks-preview">
-                  <span className="track-tag">WEB3 & AI</span>
-                  <span className="track-tag">CLOUD SEC</span>
-                  <span className="track-tag">IOT & ROBOTICS</span>
-                </div>
-              </div>
-
-              {/* Interaction Hint */}
-              <div className="marvel-viewport-footer">
-                <span className="marvel-hint-pill">
-                  <Sparkles size={13} color="#f5b642" />
-                  SDC REC BANDA // INNOVATION ARENA
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Key Stats */}
-        <div className="marvel-roster-strip">
-          <div className="marvel-roster-item">
-            <span className="marvel-roster-lbl">VENUE</span>
-            <span className="marvel-roster-val">{meta.venueShort}</span>
-          </div>
-          <div className="marvel-roster-item">
-            <span className="marvel-roster-lbl">PARTICIPANTS</span>
-            <span className="marvel-roster-val">500+ PAN-INDIA</span>
-          </div>
-          <div className="marvel-roster-item">
-            <span className="marvel-roster-lbl">EVENT DURATION</span>
-            <span className="marvel-roster-val">48 CONTINUOUS HOURS</span>
-          </div>
-        </div>
+      {/* 4. LAYER 4: Prominent Centered Title (HACKFEST 3.0 in Project Font) */}
+      <div className="hero-center-stage">
+        <h1 className="hero-cinematic-title">
+          <span className="title-text-main">HACKFEST</span>
+          <span className="title-text-accent"> 3.0</span>
+        </h1>
       </div>
     </section>
   );

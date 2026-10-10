@@ -33,11 +33,11 @@ export default function HomePage() {
 
   return (
     <main>
+      {/* 01. HERO / HOME - FULL-SCREEN DOOM HERO WITH INTERACTIVE IRON MAN REVEAL */}
+      <HeroSection />
+
       {/* 00B. LIVE MISSION BROADCAST & ANNOUNCEMENTS */}
       <AnnouncementTicker />
-
-      {/* 01. HERO / HOME - FEATURING DOOM IMAGE & HACKFEST 3.0 IN NEO FONT */}
-      <HeroSection />
 
       {/* 02. ABOUT EVENT */}
       <AboutSection />

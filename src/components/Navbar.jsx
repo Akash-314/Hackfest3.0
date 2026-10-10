@@ -27,7 +27,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [pastIntro, setPastIntro] = useState(false);
+  const [pastIntro, setPastIntro] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user, profile, role, isAdmin, isSuperAdmin, isJudge, signOut } = useAuth();
   const location = useLocation();

@@ -56,11 +56,11 @@ function AppContent() {
   const isHome = location.pathname === '/';
 
   return (
-    <div className={`site-wrapper ${isHome ? 'site-wrapper-home-pure' : ''}`}>
+    <div className="site-wrapper">
       <CursorTrail />
       {!isHome && <CyberNoiseBackground />}
       {!isHome && <ComicHalftoneOverlay />}
-      {!isHome && <Navbar />}
+      <Navbar />
       <Routes>
             {/* Main Cinematic Landing Page */}
             <Route path="/" element={<HomePage />} />
@@ -244,7 +244,7 @@ function AppContent() {
             {/* Fallback */}
             <Route path="*" element={<HomePage />} />
           </Routes>
-          {!isHome && <Footer />}
+          <Footer />
         </div>
   );
 }
