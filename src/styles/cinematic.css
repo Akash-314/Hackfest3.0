@@ -1,0 +1,638 @@
+/* ==========================================================================
+   HACKFEST 3.0 — CINEMATIC 3D INTRO STYLESHEET
+   Stark-Tech Holographic HUD, Cinematic Title Reveal, Loading Sequence
+   ========================================================================== */
+
+/* --- 1. Top-Level Intro Container --- */
+#cinematic-intro {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  background-color: #020308;
+  color: #ffffff;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.cinematic-sticky-viewport {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  max-width: 100%;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Minimalist HUD Navbar Mode during Cinematic Intro: strictly hidden until intro finishes */
+.navbar.navbar-in-intro {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+
+/* --- 2. Cinematic Loading Screen Overlay --- */
+.cinematic-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #070c18 0%, #020308 100%);
+  padding: 1.5rem;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s ease;
+}
+
+.cinematic-loading-overlay.loaded {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loading-hud-card {
+  width: 100%;
+  max-width: 480px;
+  background: rgba(10, 15, 29, 0.88);
+  border: 1px solid rgba(0, 191, 255, 0.25);
+  box-shadow: 0 0 35px rgba(0, 191, 255, 0.15), inset 0 0 20px rgba(0, 0, 0, 0.8);
+  border-radius: 16px;
+  padding: 2rem 2.2rem;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-hud-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00bfff, #e62429, transparent);
+}
+
+.loading-brand-strip {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.loading-reactor-pulse {
+  animation: pulse-glow 2.5s infinite ease-in-out;
+}
+
+.loading-titles {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.loading-series-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: #00bfff;
+  letter-spacing: 0.1em;
+}
+
+.loading-main-title {
+  font-family: 'HackfestCustomFont', 'Impact', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.loading-stage-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: #f5b642;
+  letter-spacing: 0.08em;
+  background: rgba(245, 182, 66, 0.08);
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 182, 66, 0.2);
+}
+
+.loading-progress-track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 191, 255, 0.2);
+}
+
+.loading-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00bfff 0%, #f5b642 60%, #e62429 100%);
+  border-radius: 999px;
+  transition: width 0.1s linear;
+}
+
+.loading-metrics-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #8b9bb4;
+}
+
+.loading-percent {
+  color: #00bfff;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.btn-enter-mission {
+  margin-top: 0.5rem;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: linear-gradient(135deg, #e62429 0%, #a31418 100%);
+  color: #ffffff;
+  font-family: monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.85rem 1.4rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 20px rgba(230, 36, 41, 0.4);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  animation: pulse-btn 2s infinite ease-in-out;
+}
+
+.btn-enter-mission:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(230, 36, 41, 0.7);
+  background: linear-gradient(135deg, #ff3338 0%, #bf191e 100%);
+}
+
+/* --- 3. Cinematic Overlay HUD Layer --- */
+.cinematic-overlay-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.cinematic-hud-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+}
+
+.cinematic-hud-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(8, 13, 24, 0.82);
+  border: 1px solid rgba(0, 191, 255, 0.25);
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.1);
+}
+
+.hud-beacon-pulse {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+}
+
+.beacon-ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #00bfff;
+  opacity: 0.75;
+  animation: beacon-ping-anim 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.beacon-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00f0ff;
+}
+
+.hud-badge-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.hud-badge-phase {
+  font-family: monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #00bfff;
+  letter-spacing: 0.1em;
+}
+
+.hud-badge-detail {
+  font-family: monospace;
+  font-size: 0.65rem;
+  color: #8b9bb4;
+  letter-spacing: 0.05em;
+}
+
+.cinematic-hud-center-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(8, 13, 24, 0.7);
+  border: 1px solid rgba(230, 36, 41, 0.25);
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: rgba(255, 120, 120, 0.9);
+  letter-spacing: 0.12em;
+  backdrop-filter: blur(8px);
+}
+
+.cinematic-hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  pointer-events: auto;
+}
+
+.hud-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 13, 24, 0.85);
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.hud-sound-btn {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(0, 191, 255, 0.3);
+  color: #00bfff;
+}
+
+.hud-sound-btn:hover {
+  border-color: #00bfff;
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
+}
+
+.hud-skip-btn {
+  gap: 0.45rem;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid rgba(230, 36, 41, 0.45);
+  background: linear-gradient(135deg, rgba(80, 10, 15, 0.8) 0%, rgba(13, 17, 26, 0.85) 100%);
+  color: #ff9999;
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  box-shadow: 0 0 15px rgba(230, 36, 41, 0.2);
+}
+
+.hud-skip-btn:hover {
+  background: linear-gradient(135deg, rgba(140, 20, 25, 0.9) 0%, rgba(20, 25, 36, 0.9) 100%);
+  color: #ffffff;
+  border-color: #e62429;
+  box-shadow: 0 0 20px rgba(230, 36, 41, 0.5);
+  transform: translateY(-1px);
+}
+
+/* --- 4. Center Movie Title Reveal --- */
+.cinematic-title-reveal {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.75rem;
+  pointer-events: none;
+  max-width: 900px;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.cinematic-title-reveal.reveal-active {
+  pointer-events: auto;
+}
+
+.cinematic-title-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(10, 15, 29, 0.9);
+  border: 1px solid rgba(245, 182, 66, 0.4);
+  padding: 0.4rem 1.1rem;
+  border-radius: 999px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #f5b642;
+  letter-spacing: 0.14em;
+  box-shadow: 0 0 25px rgba(245, 182, 66, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+.cinematic-title-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cinematic-title-text {
+  font-family: 'HackfestCustomFont', 'Impact', sans-serif;
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  margin: 0;
+  text-transform: uppercase;
+  text-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+}
+
+.title-hackfest {
+  background: linear-gradient(180deg, #ffffff 15%, #b5c5dd 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.title-number {
+  background: linear-gradient(135deg, #e62429 20%, #f5b642 60%, #e62429 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 25px rgba(230, 36, 41, 0.8));
+}
+
+.cinematic-title-glow-line {
+  margin-top: 0.75rem;
+  width: clamp(120px, 30vw, 280px);
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #00bfff, transparent);
+  box-shadow: 0 0 15px #00bfff;
+}
+
+.cinematic-subtitle-tag {
+  font-family: monospace;
+  font-size: clamp(0.85rem, 2.2vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  color: #00f0ff;
+  margin: 0;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.7);
+}
+
+.cinematic-inst-tag {
+  font-size: clamp(0.72rem, 1.6vw, 0.92rem);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: #d1d8e6;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.cinematic-enter-indicator {
+  margin-top: 1rem;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: #00bfff;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color 0.2s ease;
+}
+
+.cinematic-enter-indicator:hover {
+  color: #ffffff;
+}
+
+.bounce-arrow {
+  animation: arrow-bounce 1.5s infinite ease-in-out;
+}
+
+/* --- 5. Bottom Timeline HUD --- */
+.cinematic-hud-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.cinematic-scroll-hint {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #00bfff;
+  letter-spacing: 0.12em;
+  background: rgba(8, 13, 24, 0.75);
+  border: 1px solid rgba(0, 191, 255, 0.3);
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+.cinematic-timeline-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: #6b7c96;
+}
+
+.timeline-stages-desktop {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stage-sep {
+  opacity: 0.4;
+}
+
+.active-stage {
+  color: #00bfff;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.active-stage-cyan {
+  color: #00e5ff;
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.7);
+}
+
+.active-stage-amber {
+  color: #f5b642;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(245, 182, 66, 0.5);
+}
+
+.active-stage-emerald {
+  color: #00ff88;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+}
+
+.active-stage-violet {
+  color: #c850ff;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(200, 80, 255, 0.6);
+}
+
+.active-stage-red {
+  color: #e62429;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(230, 36, 41, 0.5);
+}
+
+.active-stage-white {
+  color: #ffffff;
+  font-weight: 800;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+}
+
+.cinematic-progress-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cinematic-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #00bfff 0%, #f5b642 60%, #e62429 100%);
+  border-radius: 999px;
+  box-shadow: 0 0 10px #00bfff;
+  transition: width 0.08s linear;
+}
+
+/* --- Keyframe Animations --- */
+@keyframes beacon-ping-anim {
+  75%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px rgba(0, 191, 255, 0.6));
+  }
+}
+
+@keyframes pulse-btn {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(230, 36, 41, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(230, 36, 41, 0.8);
+  }
+}
+
+@keyframes arrow-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+.spin-slow {
+  animation: spin-kf 8s linear infinite;
+}
+
+@keyframes spin-kf {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.pulse {
+  animation: pulse-simple 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-simple {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+  .cinematic-overlay-hud {
+    padding: 0.85rem 1rem;
+  }
+  .hud-badge-detail {
+    display: none;
+  }
+  .cinematic-hud-center-pill {
+    display: none;
+  }
+  .timeline-stages-desktop {
+    display: none;
+  }
+  .cinematic-scroll-hint {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.6rem;
+  }
+  .hud-skip-btn span {
+    display: inline;
+  }
+}
