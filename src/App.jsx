@@ -1,114 +1,251 @@
-import React, { useRef, useState } from 'react';
-import Galaxy from './components/Galaxy';
-import ElectricBorder from './components/ElectricBorder';
-import LoadingScreen from './components/LoadingScreen';
-import './App.css';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import CyberNoiseBackground from './components/ui/CyberNoiseBackground';
+import ComicHalftoneOverlay from './components/ui/ComicHalftoneOverlay';
+import CursorTrail from './components/cinematic/CursorTrail';
+
+// Existing Pages
+import HomePage from './pages/HomePage';
+import CompetitionDetailPage from './pages/CompetitionDetailPage';
+import CompetitionsListPage from './pages/CompetitionsListPage';
+import MissionsPage from './pages/MissionsPage';
+import SchedulePage from './pages/SchedulePage';
+import PrizesPage from './pages/PrizesPage';
+import RulesFaqPage from './pages/RulesFaqPage';
+import AboutPage from './pages/AboutPage';
+import MentorsJudgesPage from './pages/MentorsJudgesPage';
+import SponsorsPage from './pages/SponsorsPage';
+import RegisterPage from './pages/RegisterPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+
+// Auth Pages
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+
+// Participant Dashboard Pages
+import DashboardOverviewPage from './pages/dashboard/DashboardOverviewPage';
+import DashboardProfilePage from './pages/dashboard/DashboardProfilePage';
+import DashboardTeamPage from './pages/dashboard/DashboardTeamPage';
+import DashboardRegistrationPage from './pages/dashboard/DashboardRegistrationPage';
+import DashboardSubmissionPage from './pages/dashboard/DashboardSubmissionPage';
+
+// Judge Arena Pages
+import JudgeDashboardPage from './pages/judge/JudgeDashboardPage';
+import JudgeEvaluatePage from './pages/judge/JudgeEvaluatePage';
+
+// Admin / Organizer Pages
+import AdminOverviewPage from './pages/admin/AdminOverviewPage';
+import AdminParticipantsPage from './pages/admin/AdminParticipantsPage';
+import AdminTeamsPage from './pages/admin/AdminTeamsPage';
+import AdminRegistrationsPage from './pages/admin/AdminRegistrationsPage';
+import AdminSubmissionsPage from './pages/admin/AdminSubmissionsPage';
+import AdminJudgingPage from './pages/admin/AdminJudgingPage';
+import AdminCmsPage from './pages/admin/AdminCmsPage';
+import AdminSdcMembersPage from './pages/admin/AdminSdcMembersPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminAuditPage from './pages/admin/AdminAuditPage';
+import SdcMembersPage from './pages/SdcMembersPage';
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const cardRef = useRef(null);
-
-  // Direct GPU transform manipulation: 0 React re-renders on mousemove
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-
-    const normX = (e.clientX - centerX) / (centerX || 1);
-    const normY = (e.clientY - centerY) / (centerY || 1);
-
-    const tiltX = -normY * 4.5;
-    const tiltY = normX * 4.5;
-
-    cardRef.current.style.transform = `rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg)`;
-  };
-
-  const handleMouseLeave = () => {
-    if (!cardRef.current) return;
-    cardRef.current.style.transform = 'rotateX(0deg) rotateY(0deg)';
-  };
-
   return (
-    <>
-      {/* Loading Screen: Big Hackfest3.0 with Dark Green Gradient Glowing Border */}
-      {isLoading && (
-        <LoadingScreen onFinish={() => setIsLoading(false)} />
-      )}
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="site-wrapper">
+          <CursorTrail />
+          <CyberNoiseBackground />
+          <ComicHalftoneOverlay />
+          <Navbar />
+          <Routes>
+            {/* Main Cinematic Landing Page */}
+            <Route path="/" element={<HomePage />} />
 
-      {/* Background Image: img.jpg with cinematic dark green grading */}
-      <div className="bg-image-container">
-        <div className="bg-image" />
-        <div className="bg-image-overlay" />
-      </div>
+            {/* Dedicated Sections & Details */}
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/competitions" element={<CompetitionsListPage />} />
+            <Route path="/codeathon" element={<CompetitionDetailPage competitionId="codeathon" />} />
+            <Route path="/ideathon" element={<CompetitionDetailPage competitionId="ideathon" />} />
+            <Route path="/hackathon" element={<CompetitionDetailPage competitionId="hackathon" />} />
+            
+            <Route path="/missions" element={<MissionsPage />} />
+            <Route path="/problems" element={<MissionsPage />} />
+            <Route path="/schedule" element={<SchedulePage />} />
+            <Route path="/prizes" element={<PrizesPage />} />
+            <Route path="/rules" element={<RulesFaqPage />} />
+            <Route path="/faq" element={<RulesFaqPage />} />
+            <Route path="/mentors" element={<MentorsJudgesPage />} />
+            <Route path="/judges" element={<MentorsJudgesPage />} />
+            <Route path="/sponsors" element={<SponsorsPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/sdc-members" element={<SdcMembersPage />} />
+            <Route path="/members" element={<SdcMembersPage />} />
 
-      {/* High-Performance ReactBits Galaxy Background */}
-      <div className="galaxy-bg">
-        <Galaxy
-          starSpeed={0.35}
-          density={1.0}
-          hueShift={140}
-          glowIntensity={0.35}
-          saturation={0.5}
-          speed={0.8}
-          mouseRepulsion={true}
-          repulsionStrength={1.8}
-          twinkleIntensity={0.35}
-          rotationSpeed={0.03}
-          transparent={true}
-        />
-      </div>
+            {/* Auth Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-      {/* Atmospheric glowing orbs */}
-      <div className="glow-orb orb-1" />
-      <div className="glow-orb orb-2" />
-      <div className="glow-orb orb-3" />
-      <div className="cyber-grid" />
-      <div className="scanlines" />
+            {/* Participant Dashboard Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardOverviewPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/profile"
+              element={
+                <ProtectedRoute>
+                  <DashboardProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/team"
+              element={
+                <ProtectedRoute>
+                  <DashboardTeamPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/registration"
+              element={
+                <ProtectedRoute>
+                  <DashboardRegistrationPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/submission"
+              element={
+                <ProtectedRoute>
+                  <DashboardSubmissionPage />
+                </ProtectedRoute>
+              }
+            />
 
-      {/* Main page container */}
-      <main
-        className="page-container"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-      >
-        <div className="card-glow-wrapper">
-          <div ref={cardRef} className="card-tilt-container">
-            <ElectricBorder
-              color="#10b981"
-              speed={1.4}
-              chaos={0.15}
-              borderRadius={28}
-            >
-              <div className="electric-card">
-                {/* Main Brand Title: Only 'H' is capital in Hackfest3.0 */}
-                <div className="brand-title">
-                  <span className="brand-h">H</span>
-                  <span className="brand-ackfest">ackfest</span>
-                  <span className="brand-version">3.0</span>
-                </div>
+            {/* Judge Routes */}
+            <Route
+              path="/judge"
+              element={
+                <ProtectedRoute allowedRoles={['judge', 'admin', 'organizer']}>
+                  <JudgeDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/judge/submissions"
+              element={
+                <ProtectedRoute allowedRoles={['judge', 'admin', 'organizer']}>
+                  <JudgeDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/judge/evaluate/:submissionId"
+              element={
+                <ProtectedRoute allowedRoles={['judge', 'admin', 'organizer']}>
+                  <JudgeEvaluatePage />
+                </ProtectedRoute>
+              }
+            />
 
-                {/* Cyber Laser Divider */}
-                <div className="cyber-divider">
-                  <div className="divider-line" />
-                  <div className="divider-diamond" />
-                  <div className="divider-line" />
-                </div>
+            {/* Admin / Organizer Routes */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminOverviewPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/participants"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminParticipantsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/teams"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminTeamsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/registrations"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminRegistrationsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/submissions"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminSubmissionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/judging"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminJudgingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/cms"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminCmsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/sdc-members"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminSdcMembersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute allowedRoles={['super_admin']}>
+                  <AdminUsersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/audit"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'organizer']}>
+                  <AdminAuditPage />
+                </ProtectedRoute>
+              }
+            />
 
-                {/* Primary Message: website under construction */}
-                <h2 className="construction-message">website under construction</h2>
-
-                {/* High-tech Animated Construction Progress Bar */}
-                <div className="progress-module">
-                  <div className="progress-bar-track">
-                    <div className="progress-bar-fill" />
-                    <div className="progress-laser" />
-                  </div>
-                </div>
-              </div>
-            </ElectricBorder>
-          </div>
+            {/* Fallback */}
+            <Route path="*" element={<HomePage />} />
+          </Routes>
+          <Footer />
         </div>
-      </main>
-    </>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
