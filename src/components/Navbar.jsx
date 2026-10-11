@@ -199,10 +199,9 @@ export default function Navbar() {
             aria-label="HackFest 3.0 Home"
           >
             <img
-              src="/favicon.svg"
+              src="/logo.png"
               alt="Hackfest 3.0 Logo"
-              className="nav-favicon-logo"
-              width="38"
+              className="nav-brand-logo-img"
               height="38"
             />
             <div className="brand-text-wrap">
@@ -347,10 +346,9 @@ export default function Navbar() {
         <div className="drawer-header">
           <div className="drawer-header-brand">
             <img
-              src="/favicon.svg"
+              src="/logo.png"
               alt="Hackfest 3.0 Logo"
-              className="nav-favicon-logo"
-              width="30"
+              className="nav-brand-logo-img"
               height="30"
             />
             <div>
