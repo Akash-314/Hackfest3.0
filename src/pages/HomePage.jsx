@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { ChevronDown } from 'lucide-react';
 import doomImg from '../assets/doom.png';
 import ironImg from '../assets/iron.png';
 
@@ -64,11 +63,6 @@ export default function HomePage() {
     containerRef.current.style.setProperty('--cursor-y', `${y}px`);
   };
 
-  const scrollToExplore = () => {
-    const el = document.getElementById('about') || document.getElementById('announcements');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
     <main>
       {/* 01. FULL-SCREEN INTERACTIVE HERO: DOOM × IRON MAN REVEAL + HACKFEST 3.0 */}
@@ -108,17 +102,6 @@ export default function HomePage() {
             <span className="title-number-version"> 3.0</span>
           </h1>
         </div>
-
-        {/* Scroll Indicator Button at Bottom of Hero */}
-        <button
-          type="button"
-          onClick={scrollToExplore}
-          className="hero-scroll-explore-pill"
-          aria-label="Scroll to explore event details"
-        >
-          <span>SCROLL TO EXPLORE</span>
-          <ChevronDown size={15} className="scroll-chevron-bounce" />
-        </button>
       </section>
 
       {/* 02. ANNOUNCEMENTS TICKER */}
