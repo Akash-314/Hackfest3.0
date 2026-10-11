@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { ChevronDown } from 'lucide-react';
+import ParticleText from './ui/ParticleText';
 import doomImg from '../assets/doom.png';
 import ironImg from '../assets/iron.png';
 
@@ -185,11 +186,32 @@ export default function HeroSection() {
       {/* 3. LAYER 3: Cinematic Atmospheric Vignette (Protects Text Contrast) */}
       <div className="hero-cinematic-atmosphere" aria-hidden="true" />
 
-      {/* 4. LAYER 4: Prominent Centered Title (HACKFEST 3.0 in Project Font) */}
+      {/* 4. LAYER 4: Prominent Centered Title (Futuristic Outlined HACKFEST 3.0 via React Bits ParticleText) */}
       <div className="hero-center-stage">
-        <h1 className="hero-cinematic-title">
-          <span className="title-text-main">HACKFEST</span>
-          <span className="title-text-accent"> 3.0</span>
+        <h1 className="hero-particle-h1">
+          <ParticleText
+            text="HACKFEST 3.0"
+            fontFamily="'Orbitron', 'Neo', sans-serif"
+            fontWeight={900}
+            fontStyle="italic"
+            fontSize="clamp(2.4rem, 7.8vw, 7.2rem)"
+            letterSpacing="0.06em"
+            outlined={true}
+            outlineWidth={2.4}
+            particleSize={1.9}
+            density={2.2}
+            color="#F4F7FB"
+            highlightColor="#00D9FF"
+            scatter={130}
+            gatherDuration={1400}
+            stagger={300}
+            pointerRepel={32}
+            repelRadius={120}
+            idleDrift={0.3}
+            trigger="mount"
+            glow={true}
+            className="hero-particle-text"
+          />
         </h1>
       </div>
 
