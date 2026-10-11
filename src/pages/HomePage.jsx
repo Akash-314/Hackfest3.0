@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import AnnouncementTicker from '../components/AnnouncementTicker';
+
+// All Previous Sections (Scrollable below interactive hero)
 import HeroSection from '../components/HeroSection';
+import AnnouncementTicker from '../components/AnnouncementTicker';
 import AboutSection from '../components/AboutSection';
 import HighlightsSection from '../components/HighlightsSection';
 import CompetitionsSection from '../components/CompetitionsSection';
@@ -17,6 +19,7 @@ import RegisterSection from '../components/RegisterSection';
 export default function HomePage() {
   const location = useLocation();
 
+  // Smooth scroll handler for anchor links (#about, #competitions, etc.)
   useEffect(() => {
     if (location.hash) {
       const id = location.hash.replace('#', '');
@@ -33,43 +36,45 @@ export default function HomePage() {
 
   return (
     <main>
-      {/* 01. HERO / HOME - FULL-SCREEN DOOM HERO WITH INTERACTIVE IRON MAN REVEAL */}
+      {/* 01. FULL-SCREEN INTERACTIVE HERO: DOOM × IRON MAN REVEAL + HACKFEST 3.0 */}
       <HeroSection />
 
-      {/* 00B. LIVE MISSION BROADCAST & ANNOUNCEMENTS */}
-      <AnnouncementTicker />
+      {/* 02. ANNOUNCEMENTS TICKER */}
+      <div id="announcements">
+        <AnnouncementTicker />
+      </div>
 
-      {/* 02. ABOUT EVENT */}
+      {/* 03. ABOUT EVENT */}
       <AboutSection />
 
-      {/* 03. EVENT HIGHLIGHTS */}
+      {/* 04. EVENT HIGHLIGHTS */}
       <HighlightsSection />
 
-      {/* 04. COMPETITIONS (CODEATHON, IDEATHON, HACKATHON) */}
+      {/* 05. COMPETITIONS (CODEATHON, IDEATHON, HACKATHON) */}
       <CompetitionsSection />
 
-      {/* 05. PROBLEM STATEMENTS (6 CATEGORIES) */}
+      {/* 06. PROBLEM STATEMENTS / TRACKS */}
       <ProblemStatementsSection />
 
-      {/* 06. SCHEDULE (DAY 1 & DAY 2) */}
+      {/* 07. SCHEDULE */}
       <ScheduleSection />
 
-      {/* 07. HOW THE EVENT WORKS (3 WORKFLOWS) */}
+      {/* 08. HOW IT WORKS */}
       <HowItWorksSection />
 
-      {/* 08. MENTORS & JUDGES */}
+      {/* 09. MENTORS & JUDGES */}
       <MentorsJudgesSection />
 
-      {/* 09. PRIZES (THE FINAL VERDICT) */}
+      {/* 10. PRIZES */}
       <PrizesSection />
 
-      {/* 10. RULES & FAQ */}
+      {/* 11. RULES & FAQ */}
       <RulesFaqSection />
 
-      {/* 11. SPONSORS */}
+      {/* 12. SPONSORS */}
       <SponsorsSection />
 
-      {/* 12. REGISTER */}
+      {/* 13. REGISTER */}
       <RegisterSection />
     </main>
   );

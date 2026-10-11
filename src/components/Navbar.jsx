@@ -198,31 +198,17 @@ export default function Navbar() {
             onClick={() => handleNavAction({ path: '/' })}
             aria-label="HackFest 3.0 Home"
           >
-            <div className="stark-reactor-crest" aria-hidden="true">
-              <svg viewBox="0 0 44 44" width="38" height="38">
-                {/* Outer Hexagon Shield */}
-                <polygon
-                  points="22,2 40,12 40,32 22,42 4,32 4,12"
-                  fill="#0D111A"
-                  stroke="#00BFFF"
-                  strokeWidth="1.6"
-                  strokeDasharray="4 2"
-                />
-                {/* Inner Energy Triangle */}
-                <polygon
-                  points="22,10 33,29 11,29"
-                  fill="rgba(230, 36, 41, 0.25)"
-                  stroke="#E62429"
-                  strokeWidth="1.8"
-                />
-                {/* Arc Reactor Core Center */}
-                <circle cx="22" cy="22" r="4.5" fill="#00BFFF" />
-                <circle cx="22" cy="22" r="7.5" fill="none" stroke="#F5B642" strokeWidth="1" />
-              </svg>
-            </div>
+            <img
+              src="/favicon.svg"
+              alt="Hackfest 3.0 Logo"
+              className="nav-favicon-logo"
+              width="38"
+              height="38"
+            />
             <div className="brand-text-wrap">
               <span className="brand-title stark-brand-title">
-                HACKFEST <span style={{ color: 'var(--color-arc-blue)' }}>3.0</span>
+                <span className="nav-brand-word-hackfest">Hackfest</span>
+                <span className="nav-brand-version-number">3.0</span>
               </span>
               <span className="brand-sub stark-brand-sub">
                 SDC // REC BANDA
@@ -360,20 +346,19 @@ export default function Navbar() {
         {/* Drawer Header */}
         <div className="drawer-header">
           <div className="drawer-header-brand">
-            <div className="stark-reactor-crest" aria-hidden="true" style={{ width: 28, height: 28 }}>
-              <svg viewBox="0 0 44 44" width="28" height="28">
-                <polygon
-                  points="22,2 40,12 40,32 22,42 4,32 4,12"
-                  fill="#0D111A"
-                  stroke="#00BFFF"
-                  strokeWidth="1.6"
-                />
-                <circle cx="22" cy="22" r="4.5" fill="#00BFFF" />
-              </svg>
-            </div>
+            <img
+              src="/favicon.svg"
+              alt="Hackfest 3.0 Logo"
+              className="nav-favicon-logo"
+              width="30"
+              height="30"
+            />
             <div>
-              <div className="drawer-header-title">HACKFEST 3.0</div>
-              <div className="drawer-header-sub">NAVIGATION DIRECTORY</div>
+              <div className="drawer-header-title">
+                <span className="nav-brand-word-hackfest" style={{ fontSize: '1.15rem' }}>Hackfest</span>{' '}
+                <span className="nav-brand-version-number" style={{ fontSize: '1.05rem' }}>3.0</span>
+              </div>
+              <div className="drawer-header-sub">SDC // REC BANDA</div>
             </div>
           </div>
 

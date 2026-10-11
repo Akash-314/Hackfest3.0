@@ -30,6 +30,32 @@
 }
 
 @font-face {
+  font-family: 'Monday';
+  src: url('/fonts/Monday.ttf') format('truetype'),
+       url('/Monday.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MondayFont';
+  src: url('/fonts/Monday.ttf') format('truetype'),
+       url('/Monday.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'VersionFont';
+  src: url('/fonts/Orbitron.ttf') format('truetype');
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'HackfestCustomFont';
   src: url('/fonts/Neo.ttf') format('truetype'),
        url('/Neo.ttf') format('truetype'),
@@ -40,6 +66,7 @@
 
 :root {
   --font-neo: 'Neo', 'NeoFont', sans-serif;
+  --font-monday: 'Monday', 'MondayFont', 'Orbitron', sans-serif;
   /* ------------------------------------------------------------------------
      1. COLOR SYSTEM — MARVEL MULTIVERSE × STARK INDUSTRIES
      ------------------------------------------------------------------------ */
@@ -585,6 +612,48 @@ img {
   color: var(--color-warm-amber);
   margin-top: 3px;
   text-transform: uppercase;
+}
+
+.nav-favicon-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.45));
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.nav-brand:hover .nav-favicon-logo {
+  transform: scale(1.08) rotate(3deg);
+}
+
+.nav-brand-word-hackfest {
+  font-family: 'Neo', 'NeoFont', sans-serif !important;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-transform: none !important; /* H in capital only */
+  color: #ffffff !important;
+  -webkit-text-stroke: 0 !important;
+  text-stroke: 0 !important;
+  letter-spacing: 0.04em;
+  display: inline-block;
+  line-height: 1;
+}
+
+.nav-brand-version-number {
+  font-family: 'VersionFont', 'Orbitron', 'Audiowide', sans-serif !important;
+  font-size: 1.25rem;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: none !important;
+  color: #00d9ff !important;
+  -webkit-text-stroke: 0 !important;
+  text-stroke: 0 !important;
+  margin-left: 0.35rem;
+  display: inline-block;
+  transform: skewX(-5deg);
+  line-height: 1;
+  text-shadow: 0 0 12px rgba(0, 217, 255, 0.5);
 }
 
 /* --- Center Inline Navigation Links (Desktop Only) --- */
@@ -1993,6 +2062,54 @@ textarea:focus {
   }
 }
 
+/* Scroll explore pill button */
+.hero-scroll-explore-pill {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.15rem;
+  background: rgba(10, 15, 29, 0.75);
+  border: 1px solid rgba(0, 217, 255, 0.4);
+  border-radius: 999px;
+  color: #00d9ff;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  user-select: none;
+}
+
+.hero-scroll-explore-pill:hover {
+  background: rgba(0, 217, 255, 0.18);
+  border-color: #00d9ff;
+  color: #ffffff;
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+}
+
+@keyframes scrollBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(4px);
+  }
+}
+
+.scroll-chevron-bounce {
+  animation: scrollBounce 1.5s infinite ease-in-out;
+}
+
 /* Responsiveness */
 @media (max-width: 991px) {
   .doom-iron-hero {
@@ -2031,5 +2148,155 @@ textarea:focus {
   .hero-iron-layer {
     transition: opacity 0.25s ease !important;
   }
+}
+
+/* Upstream compatibility: homepage-hero-interactive & stroke title classes */
+.homepage-hero-interactive,
+.homepage-pure-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000000;
+  cursor: crosshair;
+  box-sizing: border-box;
+}
+
+.homepage-iron-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.homepage-iron-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: contrast(1.18) brightness(1.02) saturate(1.15);
+  user-select: none;
+  pointer-events: none;
+}
+
+.homepage-iron-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.05) 0%,
+    rgba(0, 0, 0, 0.3) 65%,
+    rgba(0, 0, 0, 0.72) 100%
+  );
+  pointer-events: none;
+}
+
+.homepage-doom-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(
+    circle 200px at var(--cursor-x, -9999px) var(--cursor-y, -9999px),
+    transparent 0%,
+    transparent 75px,
+    rgba(0, 0, 0, 0.4) 140px,
+    black 200px
+  );
+  mask-image: radial-gradient(
+    circle 200px at var(--cursor-x, -9999px) var(--cursor-y, -9999px),
+    transparent 0%,
+    transparent 75px,
+    rgba(0, 0, 0, 0.4) 140px,
+    black 200px
+  );
+}
+
+.homepage-doom-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: contrast(1.16) brightness(0.95);
+  user-select: none;
+  pointer-events: none;
+}
+
+.homepage-doom-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.08) 0%,
+    rgba(0, 0, 0, 0.35) 65%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+  pointer-events: none;
+}
+
+.homepage-pure-content {
+  position: relative;
+  z-index: 4;
+  text-align: center;
+  padding: 1.5rem;
+  user-select: none;
+  pointer-events: none;
+}
+
+.homepage-pure-title {
+  font-size: clamp(5rem, 15vw, 13.5rem);
+  font-weight: 700;
+  text-transform: none !important;
+  letter-spacing: 0.04em;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
+  text-shadow: none !important;
+}
+
+.title-word-hackfest {
+  font-family: 'Neo', 'NeoFont', sans-serif !important;
+  text-transform: none !important;
+  color: transparent !important;
+  -webkit-text-stroke: clamp(2px, 0.32vw, 3.2px) #ffffff;
+  text-stroke: clamp(2px, 0.32vw, 3.2px) #ffffff;
+  text-shadow: none !important;
+  filter: drop-shadow(2px 3px 6px rgba(0, 0, 0, 0.95));
+  display: inline-block;
+}
+
+.title-number-version {
+  font-family: 'VersionFont', 'Orbitron', 'Audiowide', sans-serif !important;
+  font-weight: 900;
+  font-style: italic;
+  text-transform: none !important;
+  color: transparent !important;
+  -webkit-text-stroke: clamp(4.5px, 0.68vw, 6.8px) #ffffff;
+  text-stroke: clamp(4.5px, 0.68vw, 6.8px) #ffffff;
+  paint-order: stroke fill;
+  text-shadow: none !important;
+  filter: drop-shadow(2px 3px 6px rgba(0, 0, 0, 0.95));
+  margin-left: 0.22em;
+  display: inline-block;
+  transform: skewX(-5deg);
 }
 

@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { ChevronDown } from 'lucide-react';
 import doomImg from '../assets/doom.png';
 import ironImg from '../assets/iron.png';
 
@@ -191,6 +192,20 @@ export default function HeroSection() {
           <span className="title-text-accent"> 3.0</span>
         </h1>
       </div>
+
+      {/* 5. Scroll Indicator Button at Bottom of Hero */}
+      <button
+        type="button"
+        onClick={() => {
+          const el = document.getElementById('announcements') || document.getElementById('about');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
+        className="hero-scroll-explore-pill"
+        aria-label="Scroll to explore event details"
+      >
+        <span>SCROLL TO EXPLORE</span>
+        <ChevronDown size={15} className="scroll-chevron-bounce" />
+      </button>
     </section>
   );
 }

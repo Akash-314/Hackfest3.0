@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
@@ -52,14 +52,11 @@ import AdminAuditPage from './pages/admin/AdminAuditPage';
 import SdcMembersPage from './pages/SdcMembersPage';
 
 function AppContent() {
-  const location = useLocation();
-  const isHome = location.pathname === '/';
-
   return (
     <div className="site-wrapper">
       <CursorTrail />
-      {!isHome && <CyberNoiseBackground />}
-      {!isHome && <ComicHalftoneOverlay />}
+      <CyberNoiseBackground />
+      <ComicHalftoneOverlay />
       <Navbar />
       <Routes>
             {/* Main Cinematic Landing Page */}
