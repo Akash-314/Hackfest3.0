@@ -1,0 +1,222 @@
+/* ==========================================================================
+   HACKFEST 3.0 — PREVIOUS SPONSORS LOGO MARQUEE
+   Aesthetic: Marvel HUD / Stark Arc Reactor with Continuous Seamless Loop
+   ========================================================================== */
+
+.previous-sponsors-section {
+  margin-top: 4.5rem;
+  margin-bottom: 4.5rem;
+  position: relative;
+}
+
+.previous-sponsors-header {
+  text-align: center;
+  margin-bottom: 2.6rem;
+}
+
+.previous-sponsors-title {
+  font-family: var(--font-heading, 'Rajdhani', sans-serif);
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  color: #FFFFFF;
+  letter-spacing: 0.06em;
+  margin: 0.6rem 0 0.4rem 0;
+  text-transform: uppercase;
+}
+
+.previous-sponsors-subtitle {
+  color: var(--color-text-secondary, #A5B0C0);
+  font-size: 0.95rem;
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.marquee-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+}
+
+.marquee-row {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+  user-select: none;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.marquee-track-left {
+  animation: marqueeScrollLeft 32s linear infinite;
+}
+
+.marquee-row:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding-right: 1.25rem; /* Matches the gap so there is zero jump between groups */
+  flex-shrink: 0;
+}
+
+/* Sponsor Logo Card / Tile (Non-clickable visual showcase) */
+.sponsor-marquee-card {
+  width: clamp(230px, 20vw, 275px);
+  height: 132px;
+  background: linear-gradient(135deg, rgba(16, 22, 32, 0.9) 0%, rgba(8, 10, 16, 0.95) 100%);
+  border: 1px solid rgba(0, 217, 255, 0.2);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  cursor: default;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+  box-sizing: border-box;
+}
+
+.sponsor-marquee-card:hover {
+  border-color: var(--color-arc-cyan, #00D9FF);
+  box-shadow: 0 0 25px rgba(0, 217, 255, 0.3), 0 8px 24px rgba(0, 0, 0, 0.7);
+  transform: translateY(-3px);
+}
+
+/* Logo Image Container */
+.sponsor-logo-box {
+  height: 52px;
+  width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.65rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  transition: transform 0.2s ease;
+}
+
+.sponsor-marquee-card:hover .sponsor-logo-box {
+  transform: scale(1.04);
+}
+
+.sponsor-logo-box-light {
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.sponsor-logo-box-dark {
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.sponsor-logo-img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Sponsor Name & Tag */
+.sponsor-info-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  width: 100%;
+}
+
+.sponsor-marquee-name {
+  font-family: var(--font-heading, 'Rajdhani', sans-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.sponsor-marquee-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  color: var(--color-arc-cyan, #00D9FF);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Keyframe animation for continuous right-to-left seamless loop */
+@keyframes marqueeScrollLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Accessibility & Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track-left {
+    animation: none !important;
+  }
+  .marquee-row {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 768px) {
+  .previous-sponsors-section {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .sponsor-marquee-card {
+    width: 200px;
+    height: 120px;
+    padding: 0.75rem 0.9rem;
+  }
+
+  .sponsor-logo-box {
+    height: 44px;
+    width: 120px;
+    margin-bottom: 0.5rem;
+  }
+
+  .sponsor-marquee-name {
+    font-size: 0.92rem;
+  }
+
+  .sponsor-marquee-tag {
+    font-size: 0.64rem;
+  }
+
+  .marquee-track-left {
+    animation-duration: 22s;
+  }
+}

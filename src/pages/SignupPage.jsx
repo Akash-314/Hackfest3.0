@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, ArrowUpRight, Lock, Mail, User, Phone, School, AlertCircle, CheckCircle2, Loader2, Zap, Shield } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Lock, Mail, User, Phone, School, AlertCircle, CheckCircle2, Loader2, Zap, Shield, ShieldCheck } from 'lucide-react';
 import { eventMeta } from '../data/eventData';
 import HudPanel from '../components/ui/HudPanel';
 import HoloBadge from '../components/ui/HoloBadge';
+import { getSafeRedirectPath, getRegistrationIntent } from '../utils/authRedirect';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -22,6 +23,11 @@ export default function SignupPage() {
 
   const { signUp, isConfigured } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const targetPath = getSafeRedirectPath(location.state?.from, searchParams, '/dashboard');
+  const regIntent = getRegistrationIntent(targetPath);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,7 +51,7 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await signUp({
+      const authData = await signUp({
         email: formData.email,
         password: formData.password,
         fullName: formData.fullName,
@@ -53,6 +59,13 @@ export default function SignupPage() {
         phone: formData.phone,
         role: 'participant',
       });
+
+      // If user session is created immediately (auto-login/no verification delay)
+      if (authData?.session) {
+        navigate(targetPath, { replace: true });
+        return;
+      }
+
       setSuccess(true);
     } catch (err) {
       setError(err.message || 'Registration failed. Please check details and try again.');
@@ -85,6 +98,15 @@ export default function SignupPage() {
             </p>
           </div>
 
+          {regIntent.isRegistration && (
+            <div style={{ background: 'rgba(230, 36, 41, 0.12)', border: '1px solid rgba(230, 36, 41, 0.45)', borderRadius: '4px', padding: '0.85rem 1rem', marginBottom: '1.4rem', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 4px 18px rgba(230, 36, 41, 0.15)' }}>
+              <ShieldCheck size={20} color="var(--color-energy-red)" style={{ flexShrink: 0 }} />
+              <div style={{ fontSize: '0.85rem', color: '#FFFFFF', lineHeight: '1.45' }}>
+                <strong style={{ color: 'var(--color-energy-red)' }}>AUTHENTICATION REQUIRED:</strong> Create an account to register for <strong>{regIntent.competitionName}</strong>. Once authenticated, you will be taken directly to the registration form.
+              </div>
+            </div>
+          )}
+
           {!isConfigured && (
             <div style={{ background: 'rgba(245, 182, 66, 0.1)', border: '1px solid var(--color-stark-gold)', borderRadius: '4px', padding: '0.9rem 1rem', marginBottom: '1.5rem', fontSize: '0.82rem', color: '#F5F7FA', lineHeight: '1.5', fontFamily: 'var(--font-mono)' }}>
               <strong>Notice:</strong> Supabase environment configuration pending.
@@ -105,12 +127,14 @@ export default function SignupPage() {
               </div>
               <h3 className="heading-display" style={{ fontSize: '1.5rem', marginBottom: '0.6rem', color: '#FFFFFF' }}>ACCOUNT CREATED SUCCESSFULLY</h3>
               <p style={{ color: '#94A3B8', fontSize: '0.92rem', marginBottom: '1.8rem', lineHeight: '1.6' }}>
-                Your account is ready. Sign in with your credentials to access your dashboard and register for events.
+                {regIntent.isRegistration
+                  ? `Your account is ready. Please log in with your credentials to complete registration for ${regIntent.competitionName}.`
+                  : 'Your account is ready. Sign in with your credentials to access your dashboard and register for events.'}
               </p>
               <button
                 type="button"
                 className="btn btn-avenger"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate('/login', { state: { from: location.state?.from } })}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
                 PROCEED TO LOGIN
@@ -253,7 +277,7 @@ export default function SignupPage() {
 
           <div style={{ marginTop: '1.8rem', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.2rem', fontSize: '0.88rem', color: 'var(--color-text-secondary)' }}>
             Already have an account?{' '}
-            <Link to="/login" style={{ color: 'var(--color-arc-cyan)', fontWeight: 600 }}>
+            <Link to="/login" state={{ from: location.state?.from }} style={{ color: 'var(--color-arc-cyan)', fontWeight: 600 }}>
               Sign In
             </Link>
           </div>

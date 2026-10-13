@@ -7,6 +7,13 @@ export const teamService = {
       throw new Error('Supabase is not configured.');
     }
 
+    // Verify authenticated session
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    if (authError || !authUser) {
+      throw new Error('Authentication required. You must be signed in to create a team.');
+    }
+    const verifiedUserId = authUser.id;
+
     // Resolve competition ID if passed as slug (e.g. 'hackathon')
     let resolvedCompId = competitionId;
     if (competitionId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(competitionId)) {
@@ -29,7 +36,7 @@ export const teamService = {
       const { data: rpcData, error: rpcError } = await supabase.rpc('create_team_with_leader', {
         p_name: name,
         p_competition_id: resolvedCompId,
-        p_user_id: userId,
+        p_user_id: verifiedUserId,
       });
 
       if (!rpcError && rpcData) {
@@ -46,7 +53,7 @@ export const teamService = {
       .insert({
         name,
         code,
-        leader_id: userId,
+        leader_id: verifiedUserId,
         competition_id: resolvedCompId,
       })
       .select()
@@ -59,7 +66,7 @@ export const teamService = {
       .from('team_members')
       .insert({
         team_id: team.id,
-        user_id: userId,
+        user_id: verifiedUserId,
         role: 'leader',
       });
 
@@ -78,10 +85,17 @@ export const teamService = {
       throw new Error('Supabase is not configured.');
     }
 
+    // Verify authenticated session
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    if (authError || !authUser) {
+      throw new Error('Authentication required. You must be signed in to join a team.');
+    }
+    const verifiedUserId = authUser.id;
+
     try {
       const { data: rpcData, error: rpcError } = await supabase.rpc('join_team_by_code', {
         p_code: code.trim(),
-        p_user_id: userId,
+        p_user_id: verifiedUserId,
       });
 
       if (!rpcError && rpcData) {
@@ -114,7 +128,7 @@ export const teamService = {
         .from('team_members')
         .insert({
           team_id: team.id,
-          user_id: userId,
+          user_id: verifiedUserId,
           role: 'member',
         });
 

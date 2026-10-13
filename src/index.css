@@ -56,6 +56,14 @@
 }
 
 @font-face {
+  font-family: 'Orbitron';
+  src: url('/fonts/Orbitron.ttf') format('truetype');
+  font-weight: 500 900;
+  font-style: normal, italic;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'HackfestCustomFont';
   src: url('/fonts/Neo.ttf') format('truetype'),
        url('/Neo.ttf') format('truetype'),
@@ -594,7 +602,8 @@ img {
 
 .brand-text-wrap {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .brand-title {
@@ -603,15 +612,8 @@ img {
   letter-spacing: 0.06em;
   color: var(--color-warm-off-white);
   line-height: 1;
-}
-
-.brand-sub {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
-  color: var(--color-warm-amber);
-  margin-top: 3px;
-  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
 }
 
 .nav-favicon-logo,
@@ -1428,9 +1430,6 @@ a[href*="/register"].btn:hover {
   .brand-title {
     font-size: 0.95rem;
   }
-  .brand-sub {
-    display: none !important;
-  }
 }
 
 @media (max-width: 640px) {
@@ -1957,31 +1956,149 @@ textarea:focus {
 }
 
 /* ==========================================================================
-   HOMEPAGE INTERACTIVE HERO: DOOM × IRON MAN REVEAL + HACKFEST 3.0
+   HOMEPAGE HERO: FULL-SCREEN DOOM WITH LOCALIZED CIRCULAR IRON MAN REVEAL
    ========================================================================== */
-.homepage-hero-interactive,
-.homepage-pure-container {
+.doom-iron-hero {
   position: relative;
   width: 100%;
   height: 100vh;
-  min-height: 100vh;
+  height: 100svh;
+  min-height: 100svh;
   margin: 0;
   padding: 0;
   overflow: hidden;
+  background-color: #030407;
   display: flex;
-  justify-content: center;
   align-items: center;
-  background-color: #000000;
-  cursor: crosshair;
-  box-sizing: border-box;
+  justify-content: center;
+  user-select: none;
+  contain: layout paint;
+  --reveal-radius: 320px;
 }
 
+/* Character image layers */
+.hero-doom-layer,
+.hero-iron-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-character-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Layer 1: Doctor Doom (Permanent Full-Screen Background - Always 100% visible) */
+.hero-doom-layer {
+  z-index: 1;
+}
+
+.hero-doom-img {
+  filter: contrast(1.1) brightness(0.96);
+  transform: translateZ(0);
+}
+
+/* Layer 2: Iron Man (Localized Circular Reveal around Cursor) */
+.hero-iron-layer {
+  z-index: 2;
+  opacity: var(--reveal-opacity, 0);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: mask-image, -webkit-mask-image, opacity;
+  -webkit-mask-image: radial-gradient(
+    circle var(--reveal-radius, 320px) at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
+    #000000 0%,
+    rgba(0, 0, 0, 0.98) 48%,
+    rgba(0, 0, 0, 0.45) 76%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle var(--reveal-radius, 320px) at var(--mouse-x, -9999px) var(--mouse-y, -9999px),
+    #000000 0%,
+    rgba(0, 0, 0, 0.98) 48%,
+    rgba(0, 0, 0, 0.45) 76%,
+    transparent 100%
+  );
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.hero-iron-img {
+  filter: contrast(1.12) brightness(1.04);
+  transform: translateZ(0);
+}
+
+/* Layer 3: Atmospheric Vignette & Contrast Control */
+.hero-cinematic-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 90% 80% at 50% 50%,
+    rgba(3, 4, 7, 0.12) 0%,
+    rgba(3, 4, 7, 0.4) 65%,
+    rgba(3, 4, 7, 0.88) 100%
+  ),
+  linear-gradient(
+    to bottom,
+    rgba(3, 4, 7, 0.6) 0%,
+    transparent 18%,
+    transparent 80%,
+    rgba(3, 4, 7, 0.98) 100%
+  );
+}
+
+/* Layer 4: Center Title Stage */
+.hero-center-stage {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 1rem;
+  width: 100%;
+  max-width: 1400px;
+  height: clamp(140px, 20vw, 240px);
+  margin-top: calc(var(--nav-height, 72px) * 0.15);
+  pointer-events: auto;
+}
+
+/* React Bits ParticleText Container for Outlined HACKFEST 3.0 */
+.hero-particle-h1 {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-particle-text {
+  width: 100%;
+  height: 100%;
+  min-height: 140px;
+  pointer-events: auto;
+}
+
+/* Scroll explore pill button */
 .hero-scroll-explore-pill {
   position: absolute;
   bottom: 28px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 5;
+  z-index: 15;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -2023,7 +2140,70 @@ textarea:focus {
   animation: scrollBounce 1.5s infinite ease-in-out;
 }
 
-/* 1. Background Layer: Iron Man */
+/* Responsiveness */
+@media (max-width: 991px) {
+  .doom-iron-hero {
+    --reveal-radius: 260px;
+  }
+  .hero-character-img {
+    object-position: center 25%;
+  }
+  .hero-center-stage {
+    height: clamp(110px, 18vw, 180px);
+    padding: 0 0.75rem;
+  }
+  .hero-particle-text {
+    min-height: 110px;
+  }
+}
+
+@media (max-width: 480px) {
+  .doom-iron-hero {
+    --reveal-radius: 190px;
+  }
+  .hero-character-img {
+    object-position: center 25%;
+  }
+  .hero-center-stage {
+    height: clamp(80px, 16vw, 130px);
+    padding: 0 0.5rem;
+  }
+  .hero-particle-text {
+    min-height: 80px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero-cinematic-title {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .hero-iron-layer {
+    transition: opacity 0.25s ease !important;
+  }
+}
+
+/* Upstream compatibility: homepage-hero-interactive & stroke title classes */
+.homepage-hero-interactive,
+.homepage-pure-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000000;
+  cursor: crosshair;
+  box-sizing: border-box;
+}
+
 .homepage-iron-layer {
   position: absolute;
   inset: 0;
@@ -2057,7 +2237,6 @@ textarea:focus {
   pointer-events: none;
 }
 
-/* 2. Foreground Layer: Doctor Doom with Mask that disappears around cursor */
 .homepage-doom-layer {
   position: absolute;
   inset: 0;
@@ -2065,7 +2244,6 @@ textarea:focus {
   height: 100%;
   z-index: 2;
   pointer-events: none;
-  /* Circle hole mask at cursor location */
   -webkit-mask-image: radial-gradient(
     circle 200px at var(--cursor-x, -9999px) var(--cursor-y, -9999px),
     transparent 0%,
@@ -2106,14 +2284,13 @@ textarea:focus {
   pointer-events: none;
 }
 
-/* 3. Pure Title Presentation: Hackfest in Neo (Stroke, No Glow) & 3.0 in Monday (Similar Font) */
 .homepage-pure-content {
   position: relative;
   z-index: 4;
   text-align: center;
   padding: 1.5rem;
   user-select: none;
-  pointer-events: none; /* Allows continuous mouse move through title text */
+  pointer-events: none;
 }
 
 .homepage-pure-title {
@@ -2129,17 +2306,17 @@ textarea:focus {
   align-items: baseline;
   flex-wrap: wrap;
   row-gap: 0.5rem;
-  text-shadow: none !important; /* NO GLOWING EFFECT */
+  text-shadow: none !important;
 }
 
 /* Hackfest in Neo.ttf font - Stroke in Vibrant Neon Mint (#35F8AC), H in capital only */
 .title-word-hackfest {
   font-family: 'Neo', 'NeoFont', sans-serif !important;
-  text-transform: none !important; /* ONLY H in capital */
+  text-transform: none !important;
   color: transparent !important;
   -webkit-text-stroke: clamp(2px, 0.32vw, 3.2px) #35F8AC;
   text-stroke: clamp(2px, 0.32vw, 3.2px) #35F8AC;
-  text-shadow: none !important; /* REMOVED GLOW */
+  text-shadow: none !important;
   filter: drop-shadow(2px 3px 6px rgba(0, 0, 0, 0.95));
   display: inline-block;
 }
@@ -2154,7 +2331,7 @@ textarea:focus {
   -webkit-text-stroke: clamp(4.5px, 0.68vw, 6.8px) #35F8AC;
   text-stroke: clamp(4.5px, 0.68vw, 6.8px) #35F8AC;
   paint-order: stroke fill;
-  text-shadow: none !important; /* REMOVED GLOW */
+  text-shadow: none !important;
   filter: drop-shadow(2px 3px 6px rgba(0, 0, 0, 0.95));
   margin-left: 0.22em;
   display: inline-block;

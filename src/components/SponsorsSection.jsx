@@ -5,6 +5,7 @@ import { eventMeta } from '../data/eventData';
 import { supabase } from '../lib/supabase';
 import HudPanel from './ui/HudPanel';
 import HoloBadge from './ui/HoloBadge';
+import SponsorMarquee from './SponsorMarquee';
 
 export default function SponsorsSection() {
   const [loading, setLoading] = useState(true);
@@ -339,6 +340,9 @@ export default function SponsorsSection() {
             })}
           </div>
         )}
+
+        {/* Previous Sponsors & Partners Continuous Logo Marquee */}
+        <SponsorMarquee />
 
         {/* Become a Sponsor Call-To-Action Banner */}
         <HudPanel variant="cyan" tag="STRATEGIC INVITATION" scan={true} className="sponsor-cta-banner">
