@@ -190,7 +190,7 @@ export default function Navbar() {
       >
         <div className="navbar-inner">
           {/* ============================================================== */}
-          {/* 1. LEFT: HackFest 3.0 Logo and SDC / REC Banda Branding        */}
+          {/* 1. LEFT: HackFest 3.0 Logo and SDC Branding                    */}
           {/* ============================================================== */}
           <Link
             to="/"
@@ -208,9 +208,6 @@ export default function Navbar() {
               <span className="brand-title stark-brand-title">
                 <span className="nav-brand-word-hackfest">Hackfest</span>
                 <span className="nav-brand-version-number">3.0</span>
-              </span>
-              <span className="brand-sub stark-brand-sub">
-                SDC // REC BANDA
               </span>
             </div>
           </Link>
