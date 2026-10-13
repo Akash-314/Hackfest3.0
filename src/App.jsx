@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import RegistrationAuthGuard from './components/RegistrationAuthGuard';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CyberNoiseBackground from './components/ui/CyberNoiseBackground';
@@ -78,7 +79,14 @@ function AppContent() {
             <Route path="/mentors" element={<MentorsJudgesPage />} />
             <Route path="/judges" element={<MentorsJudgesPage />} />
             <Route path="/sponsors" element={<SponsorsPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route
+              path="/register"
+              element={
+                <RegistrationAuthGuard>
+                  <RegisterPage />
+                </RegistrationAuthGuard>
+              }
+            />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/sdc-members" element={<SdcMembersPage />} />
             <Route path="/members" element={<SdcMembersPage />} />

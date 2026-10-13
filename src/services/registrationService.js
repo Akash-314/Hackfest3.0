@@ -15,6 +15,13 @@ export const registrationService = {
       throw new Error('Supabase is not configured.');
     }
 
+    // 1. Mandatory authenticated session check directly from Supabase auth
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+    if (authError || !authUser) {
+      throw new Error('Authentication required. You must have an active, verified account session to register for an event. Please log in first.');
+    }
+    const verifiedUserId = authUser.id;
+
     // Resolve competition ID if passed as slug
     let resolvedCompId = competitionId;
     if (competitionId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(competitionId)) {
@@ -65,7 +72,7 @@ export const registrationService = {
     const { data: existing } = await supabase
       .from('registrations')
       .select('id, registration_status')
-      .eq('user_id', userId)
+      .eq('user_id', verifiedUserId)
       .eq('competition_id', resolvedCompId)
       .maybeSingle();
 
@@ -76,7 +83,7 @@ export const registrationService = {
     const { data, error } = await supabase
       .from('registrations')
       .insert({
-        user_id: userId,
+        user_id: verifiedUserId,
         competition_id: resolvedCompId,
         team_id: teamId,
         problem_category_id: resolvedProbCatId,
