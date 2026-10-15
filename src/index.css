@@ -75,84 +75,76 @@
 :root {
   --font-neo: 'Neo', 'NeoFont', sans-serif;
   --font-monday: 'Monday', 'MondayFont', 'Orbitron', sans-serif;
-  /* ------------------------------------------------------------------------
-     1. COLOR SYSTEM — MARVEL MULTIVERSE × STARK INDUSTRIES
-     ------------------------------------------------------------------------ */
-  /* Primary Dark Obsidian Bases */
-  --color-obsidian: #080A10;
-  --color-surface-elevated: #101620;
-  --color-surface-secondary: #151D29;
-  --color-surface-tertiary: #1C2636;
-  --color-surface-glass: rgba(16, 22, 32, 0.85);
-  --color-surface-overlay: rgba(8, 10, 16, 0.88);
+  /* ========================================================================
+     MASTER DESIGN PALETTE — SOPHISTICATED DARK-THEME TECHNOLOGY PLATFORM
+     ======================================================================== */
+  /* Foundation */
+  --bg-primary: #08090D;
+  --bg-secondary: #0D1017;
+  --color-obsidian: #08090D;
+  --color-surface-elevated: rgba(255, 255, 255, 0.045);
+  --color-surface-secondary: #0D1017;
+  --color-surface-tertiary: #131722;
+  --color-surface-glass: rgba(13, 16, 23, 0.72);
+  --color-surface-overlay: rgba(8, 9, 13, 0.88);
 
-  /* Signature Energy Accents */
-  --color-arc-cyan: #00D9FF;
-  --color-stark-crimson: #E62429;
-  --color-infinity-gold: #F5C451;
-  --color-nebula-violet: #8B5CF6;
-  
-  /* Text & Typography Colors */
-  --color-text-primary: #F4F7FB;
-  --color-text-secondary: #A5B0C0;
-  --color-text-muted: #64748B;
-  --color-text-dim: #475569;
+  /* Primary Accent & Highlights */
+  --color-accent-teal: #63E6D1;
+  --color-silver-highlight: #C7CED8;
+  --color-muted-violet: #9B8AFB;
+  --color-restrained-emerald: #10B981;
+  --color-muted-amber: #F59E0B;
+  --color-muted-red: #EF4444;
 
-  /* Backward Compatibility Mapping */
-  --color-abyss-black: #080A10;
-  --color-deep-space: #080A10;
-  --color-command-dark: #101620;
-  --color-stark-metal: #151D29;
-  --color-cyber-slate: #1C2636;
-  --color-deep-navy: #080A10;
-  --color-graphite: #151D29;
-  --color-charcoal: #101620;
-  --color-steel-blue: #00D9FF;
-  --color-arc-blue: #00D9FF;
-  --color-holo-cyan: #00D9FF;
-  --color-energy-red: #E62429;
-  --color-muted-crimson: #E62429;
+  /* Legacy Mapping for Seamless Consistency */
+  --color-arc-cyan: #63E6D1;
+  --color-arc-blue: #63E6D1;
+  --color-holo-cyan: #63E6D1;
+  --color-steel-blue: #63E6D1;
   --color-stark-gold: #F5C451;
-  --color-warm-amber: #F5C451;
-  --color-muted-gold: #F5C451;
-  --color-warm-off-white: #F4F7FB;
-  --color-tech-white: #F4F7FB;
-  --color-soft-gray: #A5B0C0;
-  --color-metallic-silver: #A5B0C0;
+  --color-warm-amber: #F59E0B;
+  --color-muted-gold: #C7CED8;
+  --color-stark-crimson: #EF4444;
+  --color-energy-red: #EF4444;
+  --color-muted-crimson: #EF4444;
+  --color-nebula-violet: #9B8AFB;
 
-  /* Semantic Theme Tokens */
-  --bg-primary: #080A10;
-  --bg-secondary: #101620;
-  --bg-tertiary: #151D29;
-  
-  --surface-card: rgba(16, 22, 32, 0.82);
-  --surface-card-hover: rgba(21, 29, 41, 0.95);
-  --surface-glass: rgba(16, 22, 32, 0.85);
-  --surface-overlay: rgba(8, 10, 16, 0.92);
+  /* Typography Colors */
+  --text-primary: #F5F5F7;
+  --text-secondary: #A1A6B3;
+  --text-muted: #747B89;
+  --text-dim: #555B68;
+  --color-text-primary: #F5F5F7;
+  --color-text-secondary: #A1A6B3;
+  --color-text-muted: #747B89;
+  --color-text-dim: #555B68;
 
-  --text-primary: #F4F7FB;
-  --text-secondary: #A5B0C0;
-  --text-muted: #64748B;
-  --text-inverse: #080A10;
+  /* Card Surfaces & Glassmorphism */
+  --surface-card: rgba(255, 255, 255, 0.042);
+  --surface-card-hover: rgba(255, 255, 255, 0.075);
+  --surface-glass: rgba(13, 16, 23, 0.75);
+  --surface-overlay: rgba(8, 9, 13, 0.88);
 
-  /* Stark Precision Translucent Borders */
-  --border-subtle: rgba(0, 217, 255, 0.15);
-  --border-medium: rgba(0, 217, 255, 0.32);
-  --border-strong: rgba(0, 217, 255, 0.55);
+  /* Refined Low-Opacity Neutral Borders */
+  --border-subtle: rgba(255, 255, 255, 0.065);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.22);
   --border-glass: rgba(255, 255, 255, 0.08);
-  --border-accent-crimson: rgba(230, 36, 41, 0.55);
-  --border-accent-steel: rgba(0, 217, 255, 0.45);
-  --border-accent-amber: rgba(245, 196, 81, 0.5);
-  --border-accent-violet: rgba(139, 92, 246, 0.45);
+  --border-accent-teal: rgba(99, 230, 209, 0.35);
+  --border-accent-silver: rgba(199, 206, 216, 0.25);
+  --border-accent-crimson: rgba(239, 68, 68, 0.35);
+  --border-accent-steel: rgba(99, 230, 209, 0.35);
+  --border-accent-amber: rgba(245, 158, 11, 0.35);
+  --border-accent-violet: rgba(155, 138, 251, 0.35);
 
-  /* HUD Holographic Energy Glows */
-  --shadow-card: 0 16px 40px -10px rgba(0, 0, 0, 0.85), 0 0 1px 1px var(--border-subtle);
-  --shadow-hover: 0 24px 50px -10px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 217, 255, 0.28);
-  --shadow-arc-cyan: 0 0 20px rgba(0, 217, 255, 0.35);
-  --shadow-arc-blue: 0 0 20px rgba(0, 217, 255, 0.35);
-  --shadow-crimson: 0 8px 30px rgba(230, 36, 41, 0.38);
-  --shadow-stark-gold: 0 8px 30px rgba(245, 196, 81, 0.38);
-  --shadow-nebula-violet: 0 8px 30px rgba(139, 92, 246, 0.35);
+  /* Ambient Soft Shadows & Specular Highlights */
+  --shadow-card: 0 16px 40px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-hover: 0 24px 50px -10px rgba(0, 0, 0, 0.85), 0 0 24px rgba(99, 230, 209, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --shadow-arc-cyan: 0 0 18px rgba(99, 230, 209, 0.25);
+  --shadow-arc-blue: 0 0 18px rgba(99, 230, 209, 0.25);
+  --shadow-crimson: 0 8px 24px rgba(239, 68, 68, 0.25);
+  --shadow-stark-gold: 0 8px 24px rgba(245, 158, 11, 0.25);
+  --shadow-nebula-violet: 0 8px 24px rgba(155, 138, 251, 0.25);
 
   /* ------------------------------------------------------------------------
      2. TYPOGRAPHY SYSTEM
@@ -169,7 +161,7 @@
      ------------------------------------------------------------------------ */
   --container-max: 1400px;
   --container-wide: 1400px;
-  --nav-height: 80px;
+  --nav-height: 70px;
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 14px;
@@ -416,52 +408,38 @@ img {
   white-space: normal;
 }
 
-/* Primary CTA: Stark Crimson (#E62429) with Energy Sheen and Gold Hover Border */
+/* Primary Action CTA: Refined Accent Teal (#63E6D1) */
 .btn-primary {
-  background: linear-gradient(135deg, #E62429 0%, #A01519 100%);
-  color: #FFFFFF;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 4px 20px rgba(230, 36, 41, 0.45);
-}
-
-.btn-primary::after {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -60%;
-  width: 40%;
-  height: 200%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  transform: rotate(25deg);
-  transition: transform 0.65s ease;
+  background: linear-gradient(135deg, #63E6D1 0%, #35C4AC 100%);
+  color: #08090D;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow: 0 4px 18px rgba(99, 230, 209, 0.32);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  background: linear-gradient(135deg, #FF2E34 0%, #B8191E 100%);
-  border-color: var(--color-infinity-gold);
-  box-shadow: 0 6px 30px rgba(230, 36, 41, 0.7);
-  color: #FFFFFF;
+  background: linear-gradient(135deg, #74ECD8 0%, #44D4BD 100%);
+  border-color: #FFFFFF;
+  box-shadow: 0 6px 26px rgba(99, 230, 209, 0.48);
+  color: #08090D;
 }
 
-.btn-primary:hover::after {
-  transform: translateX(350%) rotate(25deg);
-}
-
-/* Secondary CTA: Elevated Obsidian Surface with Stark Cyan Border */
+/* Secondary CTA: Translucent Glass Surface with Subtle Silver/Teal Border */
 .btn-secondary {
-  background: rgba(16, 22, 32, 0.85);
-  color: var(--color-text-primary);
-  border: 1px solid rgba(0, 217, 255, 0.32);
-  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.045);
+  color: #F5F5F7;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .btn-secondary:hover {
-  background: rgba(21, 29, 41, 0.95);
-  border-color: var(--color-arc-cyan);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(99, 230, 209, 0.45);
   color: #FFFFFF;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 217, 255, 0.28);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
 }
 
 /* Tertiary / Infinity Gold Accent CTA */
@@ -529,7 +507,7 @@ img {
 .corner-br { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
 
 /* --------------------------------------------------------------------------
-   STICKY NAVBAR
+   STICKY NAVBAR — FLOATING SLEEK CAPSULE BAR (TECHKRITI REFERENCE)
    -------------------------------------------------------------------------- */
 .navbar {
   position: fixed;
@@ -542,21 +520,24 @@ img {
   z-index: 1000;
   transition: background-color var(--transition-fast), border-color var(--transition-fast), backdrop-filter var(--transition-fast);
   box-sizing: border-box;
+  background: transparent;
 }
 
 .navbar.scrolled {
-  background: rgba(17, 24, 39, 0.92);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border-subtle);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  background: rgba(8, 9, 13, 0.88);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.75);
 }
 
 .navbar-inner {
+  position: relative;
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding-left: 32px;
-  padding-right: 32px;
+  max-width: 100%;
+  margin: 0;
+  padding-left: clamp(16px, 2.8vw, 40px);
+  padding-right: clamp(16px, 2.8vw, 40px);
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -564,173 +545,197 @@ img {
   height: 100%;
 }
 
-@media (max-width: 1200px) {
-  .navbar-inner {
-    padding-left: 24px;
-    padding-right: 24px;
-  }
-}
-
-@media (max-width: 991px) {
-  .navbar-inner {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-}
-
-@media (max-width: 767px) {
-  .navbar-inner {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-}
-
+/* --- Brand Section with Recovered Reactor Crest Emblem --- */
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
   text-decoration: none;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
-.brand-crest {
-  width: 36px;
-  height: 36px;
+.nav-reactor-crest {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 10px rgba(99, 230, 209, 0.35));
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-brand:hover .nav-reactor-crest {
+  transform: scale(1.06) rotate(3deg);
 }
 
 .brand-text-wrap {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  line-height: 1.12;
 }
 
-.brand-title {
+.brand-title.stark-brand-title {
   font-family: var(--font-heading);
-  font-size: 1.25rem;
-  letter-spacing: 0.06em;
-  color: var(--color-warm-off-white);
-  line-height: 1;
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #FFFFFF;
+  line-height: 1.1;
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
 }
 
-.nav-favicon-logo,
-.nav-brand-logo-img {
-  height: 38px;
-  width: auto;
-  max-width: 95px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(245, 180, 0, 0.35));
-  transition: transform 0.3s ease;
-  flex-shrink: 0;
-}
-
-.nav-brand:hover .nav-favicon-logo,
-.nav-brand:hover .nav-brand-logo-img {
-  transform: scale(1.05);
-}
-
-.nav-brand-word-hackfest {
-  font-family: 'Neo', 'NeoFont', sans-serif !important;
-  font-size: 1.35rem;
+.brand-sub.stark-brand-sub {
+  font-family: var(--font-subheading);
+  font-size: 0.62rem;
   font-weight: 700;
-  text-transform: none !important; /* H in capital only */
-  color: #ffffff !important;
-  -webkit-text-stroke: 0 !important;
-  text-stroke: 0 !important;
-  letter-spacing: 0.04em;
-  display: inline-block;
-  line-height: 1;
+  letter-spacing: 0.12em;
+  color: #A1A6B3;
+  text-transform: uppercase;
+  margin-top: 2px;
+  white-space: nowrap;
 }
 
-.nav-brand-version-number {
-  font-family: 'VersionFont', 'Orbitron', 'Audiowide', sans-serif !important;
-  font-size: 1.25rem;
-  font-weight: 900;
-  font-style: italic;
-  text-transform: none !important;
-  color: #00d9ff !important;
-  -webkit-text-stroke: 0 !important;
-  text-stroke: 0 !important;
-  margin-left: 0.35rem;
-  display: inline-block;
-  transform: skewX(-5deg);
-  line-height: 1;
-  text-shadow: 0 0 12px rgba(0, 217, 255, 0.5);
-}
-
-/* --- Center Inline Navigation Links (Desktop Only) --- */
-.nav-center-links {
+/* --- Center Floating Nav Capsule (Mathematically Centered in Screen) --- */
+.nav-capsule-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
-  gap: clamp(0.6rem, 1.1vw, 1.25rem);
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 10;
   flex-shrink: 0;
 }
 
-.nav-link-btn,
-.nav-link-anchor {
+.nav-capsule-list {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 4px 6px;
+  background: rgba(18, 21, 29, 0.82);
+  backdrop-filter: blur(20px) saturate(135%);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 9999px;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  gap: 3px;
+}
+
+.nav-capsule-item {
+  display: flex;
+  align-items: center;
+}
+
+.nav-capsule-link {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0.35rem 0.45rem;
-  position: relative;
-  transition: color var(--transition-fast);
+  color: #A1A6B3;
+  padding: 0.42rem 0.95rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  text-decoration: none;
 }
 
-.nav-link-btn:hover,
-.nav-link-btn.active,
-.nav-link-anchor:hover,
-.nav-link-anchor.active {
-  color: #35F8AC;
+.nav-capsule-link:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.07);
 }
 
-.nav-link-btn::after,
-.nav-link-anchor::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0%;
-  height: 2px;
-  background-color: #35F8AC;
-  box-shadow: 0 0 10px rgba(53, 248, 172, 0.85);
-  transition: width var(--transition-fast);
+.nav-capsule-link.active {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-.nav-link-btn:hover::after,
-.nav-link-btn.active::after,
-.nav-link-anchor:hover::after,
-.nav-link-anchor.active::after {
-  width: 100%;
-}
-
-@media (max-width: 1080px) {
-  .nav-center-links {
+/* Responsive Capsule Breakpoint: Hide capsule on screens < 980px */
+@media (max-width: 980px) {
+  .nav-capsule-wrapper {
     display: none !important;
   }
 }
 
-/* --- Right Action Hub --- */
+/* --- Right Action Pill Buttons (Techkriti Reference Style: [ SIGN IN (↗) ]) --- */
 .nav-actions {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: clamp(0.5rem, 0.9vw, 0.85rem);
+  gap: 0.65rem;
   flex-shrink: 0;
+  z-index: 15;
+}
+
+.nav-ref-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(22, 25, 34, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9999px;
+  padding: 0.32rem 0.45rem 0.32rem 1.15rem;
+  color: #FFFFFF;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.nav-ref-pill-btn:hover {
+  background: rgba(30, 34, 46, 0.95);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  transform: translateY(-1px);
+}
+
+.nav-pill-arrow-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease;
+}
+
+.nav-ref-pill-btn:hover .nav-pill-arrow-circle {
+  transform: scale(1.08) rotate(4deg);
+  background: #63E6D1;
+}
+
+.nav-ref-pill-admin {
+  background: rgba(143, 48, 53, 0.25);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #ffb4b7;
+}
+
+.nav-ref-pill-admin .nav-pill-arrow-circle {
+  background: #ffb4b7;
+}
+
+.nav-ref-pill-admin:hover .nav-pill-arrow-circle {
+  background: #EF4444;
 }
 
 /* --- Three-Line Hamburger Button --- */
@@ -739,23 +744,23 @@ img {
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  background: rgba(21, 26, 36, 0.75);
-  border: 1px solid rgba(0, 191, 255, 0.35);
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.8rem;
-  min-height: 38px;
+  background: rgba(22, 25, 34, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  padding: 0.42rem 0.85rem;
+  min-height: 36px;
   cursor: pointer;
   transition: all var(--transition-fast);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: var(--color-tech-white);
   box-sizing: border-box;
 }
 
 .stark-hamburger-btn:hover {
-  background: rgba(0, 191, 255, 0.15);
-  border-color: var(--color-arc-blue);
-  box-shadow: 0 0 16px rgba(0, 191, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(99, 230, 209, 0.4);
+  box-shadow: 0 0 16px rgba(99, 230, 209, 0.15);
   transform: translateY(-1px);
 }
 
@@ -1683,46 +1688,50 @@ p, span, h1, h2, h3, h4, h5, h6, label {
   box-shadow: 0 0 10px rgba(245, 182, 66, 0.15);
 }
 
-/* High-Impact Superhero Buttons */
+/* Refined Modern Buttons */
 .btn-reactor {
-  background: linear-gradient(135deg, rgba(0, 191, 255, 0.22) 0%, rgba(0, 191, 255, 0.08) 100%);
-  color: var(--color-tech-white);
-  border: 1px solid var(--color-arc-blue);
-  box-shadow: 0 0 20px rgba(0, 191, 255, 0.3), inset 0 0 12px rgba(0, 191, 255, 0.15);
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  background: rgba(255, 255, 255, 0.05);
+  color: #F5F5F7;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
   position: relative;
-  font-family: var(--font-display);
-  font-size: 0.88rem;
-  letter-spacing: 0.08em;
-  padding: 0.95rem 2rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.06em;
+  padding: 0.75rem 1.6rem;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-reactor:hover {
-  background: linear-gradient(135deg, rgba(0, 191, 255, 0.35) 0%, rgba(0, 191, 255, 0.15) 100%);
-  box-shadow: 0 0 32px rgba(0, 191, 255, 0.55), inset 0 0 18px rgba(0, 191, 255, 0.25);
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(99, 230, 209, 0.45);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(99, 230, 209, 0.18);
   transform: translateY(-2px);
   color: #ffffff;
 }
 
 .btn-avenger {
-  background: linear-gradient(135deg, #e62429 0%, #a01519 100%);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 4px 24px rgba(230, 36, 41, 0.45);
-  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-  font-family: var(--font-display);
-  font-size: 0.88rem;
-  letter-spacing: 0.08em;
-  padding: 0.95rem 2rem;
+  background: linear-gradient(135deg, #63E6D1 0%, #35C4AC 100%);
+  color: #08090D;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(99, 230, 209, 0.35);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 0.86rem;
+  letter-spacing: 0.06em;
+  padding: 0.75rem 1.6rem;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-avenger:hover {
-  background: linear-gradient(135deg, #ff2e34 0%, #b8191e 100%);
-  box-shadow: 0 6px 36px rgba(230, 36, 41, 0.7);
+  background: linear-gradient(135deg, #74ECD8 0%, #44D4BD 100%);
+  box-shadow: 0 6px 28px rgba(99, 230, 209, 0.5);
   transform: translateY(-2px);
-  border-color: var(--color-stark-gold);
+  border-color: #ffffff;
+  color: #08090D;
 }
 
 /* Reduced Motion Respect */
@@ -2276,10 +2285,10 @@ textarea:focus {
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    circle at center,
-    rgba(0, 0, 0, 0.08) 0%,
-    rgba(0, 0, 0, 0.35) 65%,
-    rgba(0, 0, 0, 0.75) 100%
+    circle at 50% 45%,
+    rgba(8, 9, 13, 0.2) 0%,
+    rgba(8, 9, 13, 0.6) 60%,
+    rgba(8, 9, 13, 0.95) 100%
   );
   pointer-events: none;
 }
@@ -2294,7 +2303,7 @@ textarea:focus {
 }
 
 .homepage-pure-title {
-  font-size: clamp(5rem, 15vw, 13.5rem);
+  font-size: clamp(4.5rem, 14vw, 12.5rem);
   font-weight: 700;
   text-transform: none !important;
   letter-spacing: 0.04em;
@@ -2309,30 +2318,30 @@ textarea:focus {
   text-shadow: none !important;
 }
 
-/* Hackfest in Neo.ttf font - Stroke in Vibrant Neon Mint (#35F8AC), H in capital only */
+/* Hackfest in Neo font - Stroke in Refined Accent Teal (#63E6D1) */
 .title-word-hackfest {
   font-family: 'Neo', 'NeoFont', sans-serif !important;
   text-transform: none !important;
   color: transparent !important;
-  -webkit-text-stroke: clamp(2px, 0.32vw, 3.2px) #35F8AC;
-  text-stroke: clamp(2px, 0.32vw, 3.2px) #35F8AC;
+  -webkit-text-stroke: clamp(2px, 0.32vw, 3.2px) #63E6D1;
+  text-stroke: clamp(2px, 0.32vw, 3.2px) #63E6D1;
   text-shadow: none !important;
-  filter: drop-shadow(2px 3px 6px rgba(0, 0, 0, 0.95));
+  filter: drop-shadow(0 4px 20px rgba(99, 230, 209, 0.25)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.95));
   display: inline-block;
 }
 
-/* 3.0 in VersionFont (Orbitron 900) - Stroke in Vibrant Neon Mint (#35F8AC) */
+/* 3.0 in VersionFont (Orbitron 900) - Stroke in Refined Accent Teal (#63E6D1) */
 .title-number-version {
   font-family: 'VersionFont', 'Orbitron', 'Audiowide', sans-serif !important;
   font-weight: 900;
   font-style: italic;
   text-transform: none !important;
   color: transparent !important;
-  -webkit-text-stroke: clamp(4.5px, 0.68vw, 6.8px) #35F8AC;
-  text-stroke: clamp(4.5px, 0.68vw, 6.8px) #35F8AC;
+  -webkit-text-stroke: clamp(4.5px, 0.68vw, 6.8px) #63E6D1;
+  text-stroke: clamp(4.5px, 0.68vw, 6.8px) #63E6D1;
   paint-order: stroke fill;
   text-shadow: none !important;
-  filter: drop-shadow(2px 3px 6px rgba(0, 0, 0, 0.95));
+  filter: drop-shadow(0 4px 20px rgba(99, 230, 209, 0.25)) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.95));
   margin-left: 0.22em;
   display: inline-block;
   transform: skewX(-5deg);
@@ -2430,7 +2439,7 @@ textarea:focus {
 }
 
 /* ==========================================================================
-   DOOM EVENT QUICK META BAR (CHAMFERED HUD RIBBON AT BOTTOM OF DOOM)
+   EVENT QUICK META BAR (REFINED GLASS HUD RIBBON AT BOTTOM OF HERO)
    ========================================================================== */
 .doom-event-meta-wrapper {
   position: absolute;
@@ -2439,50 +2448,38 @@ textarea:focus {
   transform: translateX(-50%);
   width: min(1340px, calc(100% - 2.5rem));
   z-index: 10;
-  padding: 1.5px 1.5px 0 1.5px;
+  padding: 1px 1px 0 1px;
   background: linear-gradient(
     90deg,
-    rgba(53, 248, 172, 0.25) 0%,
-    rgba(53, 248, 172, 0.65) 15%,
-    rgba(53, 248, 172, 0.8) 50%,
-    rgba(53, 248, 172, 0.65) 85%,
-    rgba(53, 248, 172, 0.25) 100%
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(99, 230, 209, 0.45) 30%,
+    rgba(99, 230, 209, 0.6) 50%,
+    rgba(99, 230, 209, 0.45) 70%,
+    rgba(255, 255, 255, 0.04) 100%
   );
-  clip-path: polygon(
-    32px 0%,
-    calc(100% - 32px) 0%,
-    100% 32px,
-    100% 100%,
-    0% 100%,
-    0% 32px
-  );
-  filter: drop-shadow(0 -8px 24px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 14px rgba(53, 248, 172, 0.12));
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  filter: drop-shadow(0 -8px 24px rgba(0, 0, 0, 0.85));
 }
 
 .doom-event-meta-bar {
   width: 100%;
-  background: linear-gradient(180deg, rgba(6, 16, 18, 0.9) 0%, rgba(3, 8, 9, 0.96) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  clip-path: polygon(
-    32px 0%,
-    calc(100% - 32px) 0%,
-    100% 32px,
-    100% 100%,
-    0% 100%,
-    0% 32px
-  );
+  background: rgba(13, 16, 23, 0.82);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: space-evenly;
-  padding: 0.85rem clamp(1rem, 2.5vw, 2.5rem);
+  padding: 0.95rem clamp(1rem, 2.5vw, 2.5rem);
   box-sizing: border-box;
 }
 
 .doom-meta-item {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.85rem;
   padding: 0.2rem 0.6rem;
   transition: transform var(--transition-fast, 180ms ease);
 }
@@ -2492,9 +2489,9 @@ textarea:focus {
 }
 
 .doom-meta-icon {
-  color: #35f8ac;
+  color: #63E6D1;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 6px rgba(53, 248, 172, 0.65));
+  filter: drop-shadow(0 0 8px rgba(99, 230, 209, 0.4));
 }
 
 .doom-meta-info {
@@ -2505,21 +2502,21 @@ textarea:focus {
 
 .doom-meta-label {
   font-family: var(--font-body), 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #7e95a5;
+  color: #747B89;
   line-height: 1.15;
   margin-bottom: 2px;
 }
 
 .doom-meta-value {
   font-family: var(--font-body), 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: #ffffff;
+  color: #F5F5F7;
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -2527,22 +2524,22 @@ textarea:focus {
 .doom-meta-divider {
   width: 1px;
   height: 26px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
 }
 
 @media (max-width: 1024px) {
   .doom-event-meta-wrapper {
     width: 100%;
-    clip-path: none;
+    border-radius: 0;
     padding: 1px 0 0 0;
   }
   .doom-event-meta-bar {
-    clip-path: none;
+    border-radius: 0;
     overflow-x: auto;
     justify-content: flex-start;
-    gap: 1.2rem;
-    padding: 0.75rem 1.2rem;
+    gap: 1.4rem;
+    padding: 0.85rem 1.2rem;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
@@ -2551,6 +2548,81 @@ textarea:focus {
   }
   .doom-meta-divider {
     margin: 0 0.2rem;
+  }
+}
+
+/* ==========================================================================
+   HEADER INSTITUTIONAL BRAND CLUSTER & PARTNER LOGOS
+   ========================================================================== */
+.navbar-brand-cluster {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.6rem, 1.2vw, 1.25rem);
+  flex-shrink: 0;
+}
+
+.nav-brand-pipe {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nav-partner-logos-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.nav-partner-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  text-decoration: none;
+}
+
+.nav-partner-badge:hover {
+  transform: translateY(-1px);
+  border-color: rgba(99, 230, 209, 0.4);
+}
+
+.nav-partner-badge.inno-hub-badge {
+  background: rgba(255, 255, 255, 0.94);
+  padding: 3px 7px;
+  border-color: transparent;
+}
+
+.nav-partner-badge.inno-hub-badge:hover {
+  background: #ffffff;
+}
+
+.nav-partner-img {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.nav-aktu-img {
+  height: 27px;
+}
+
+.nav-inno-img {
+  height: 21px;
+}
+
+.nav-sdc-img {
+  height: 22px;
+}
+
+@media (max-width: 1240px) {
+  .nav-partner-logos-strip,
+  .nav-brand-pipe {
+    display: none;
   }
 }
 

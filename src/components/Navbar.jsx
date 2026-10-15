@@ -24,10 +24,13 @@ import {
   Scale,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import sdcLogo from '../assets/logo.png';
+import aktuLogo from '../assets/aktu-logo.png';
+import innovationHubLogo from '../assets/innovation-hub-logo.png';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [pastIntro, setPastIntro] = useState(true);
+  const [pastIntro, setPastIntro] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { user, profile, role, isAdmin, isSuperAdmin, isJudge, signOut } = useAuth();
   const location = useLocation();
@@ -128,16 +131,13 @@ export default function Navbar() {
     }
   };
 
-  // Top header center links (core navigation for desktop)
+  // Top header center links (only main core sections for clean centered capsule)
   const desktopNavItems = [
     { label: 'HOME', path: '/' },
     { label: 'ABOUT', path: '/about' },
     { label: 'COMPETITIONS', path: '/competitions' },
     { label: 'PROBLEMS', path: '/problems' },
     { label: 'SCHEDULE', path: '/schedule' },
-    { label: 'PRIZES', path: '/prizes' },
-    { label: 'SPONSORS', path: '/sponsors' },
-    { label: 'LEADERBOARD', path: '/leaderboard' },
   ];
 
   // Drawer Group 1: Main Pages
@@ -190,40 +190,107 @@ export default function Navbar() {
       >
         <div className="navbar-inner">
           {/* ============================================================== */}
-          {/* 1. LEFT: HackFest 3.0 Logo and SDC Branding                    */}
+          {/* 1. LEFT: Recovered Hackfest 3.0 Logo + Partners Cluster       */}
           {/* ============================================================== */}
-          <Link
-            to="/"
-            className="nav-brand"
-            onClick={() => handleNavAction({ path: '/' })}
-            aria-label="HackFest 3.0 Home"
-          >
-            <img
-              src="/logo.png"
-              alt="Hackfest 3.0 Logo"
-              className="nav-brand-logo-img"
-              height="38"
-            />
-            <div className="brand-text-wrap">
-              <span className="brand-title stark-brand-title">
-                <span className="nav-brand-word-hackfest">Hackfest</span>
-                <span className="nav-brand-version-number">3.0</span>
-              </span>
+          <div className="navbar-brand-cluster">
+            <Link
+              to="/"
+              className="nav-brand"
+              onClick={() => handleNavAction({ path: '/' })}
+              aria-label="HackFest 3.0 Home"
+            >
+              {/* Recovered Original Hackfest 3.0 Reactor Crest Emblem */}
+              <div className="nav-reactor-crest" aria-hidden="true">
+                <svg viewBox="0 0 44 44" width="34" height="34">
+                  {/* Outer Hexagon Shield */}
+                  <polygon
+                    points="22,2 40,12 40,32 22,42 4,32 4,12"
+                    fill="#0D111A"
+                    stroke="#63E6D1"
+                    strokeWidth="1.6"
+                    strokeDasharray="4 2"
+                  />
+                  {/* Inner Energy Triangle */}
+                  <polygon
+                    points="22,10 33,29 11,29"
+                    fill="rgba(99, 230, 209, 0.15)"
+                    stroke="#63E6D1"
+                    strokeWidth="1.8"
+                  />
+                  {/* Arc Reactor Core Center */}
+                  <circle cx="22" cy="22" r="4.5" fill="#63E6D1" />
+                  <circle cx="22" cy="22" r="7.5" fill="none" stroke="#C7CED8" strokeWidth="1" />
+                </svg>
+              </div>
+
+              <div className="brand-text-wrap">
+                <span className="brand-title stark-brand-title">
+                  HACKFEST <span style={{ color: '#63E6D1' }}>3.0</span>
+                </span>
+                <span className="brand-sub stark-brand-sub">
+                  REC BANDA
+                </span>
+              </div>
+            </Link>
+
+            {/* Subtle Divider Pipe */}
+            <div className="nav-brand-pipe" aria-hidden="true" />
+
+            {/* Institutional Partner Logos: SDC, AKTU, Innovation Hub */}
+            <div className="nav-partner-logos-strip" aria-label="Organizing & Academic Partners">
+              <a
+                href="https://sdcrecbanda.in"
+                target="_blank"
+                rel="noreferrer"
+                className="nav-partner-badge sdc-badge"
+                title="Student Developer Club (SDC)"
+              >
+                <img
+                  src={sdcLogo}
+                  alt="Student Developer Club"
+                  className="nav-partner-img nav-sdc-img"
+                />
+              </a>
+
+              <a
+                href="https://aktu.ac.in"
+                target="_blank"
+                rel="noreferrer"
+                className="nav-partner-badge aktu-badge"
+                title="Dr. A.P.J. Abdul Kalam Technical University, Lucknow"
+              >
+                <img
+                  src={aktuLogo}
+                  alt="AKTU Lucknow"
+                  className="nav-partner-img nav-aktu-img"
+                />
+              </a>
+
+              <div
+                className="nav-partner-badge inno-hub-badge"
+                title="Innovation Hub Uttar Pradesh"
+              >
+                <img
+                  src={innovationHubLogo}
+                  alt="Innovation Hub Uttar Pradesh"
+                  className="nav-partner-img nav-inno-img"
+                />
+              </div>
             </div>
-          </Link>
+          </div>
 
           {/* ============================================================== */}
-          {/* 2. CENTER: Core Navigation Links (Desktop Wide Screens)        */}
+          {/* 2. CENTER: Floating Navigation Capsule (Reference Style)       */}
           {/* ============================================================== */}
-          <nav aria-label="Main Navigation">
-            <ul className="nav-center-links">
+          <nav className="nav-capsule-wrapper" aria-label="Main Navigation">
+            <ul className="nav-capsule-list">
               {desktopNavItems.map((item) => {
                 const isActive = isRouteActive(item.path);
                 return (
-                  <li key={item.label} className="nav-item">
+                  <li key={item.label} className="nav-capsule-item">
                     <NavLink
                       to={item.path}
-                      className={`nav-link-anchor ${isActive ? 'active' : ''}`}
+                      className={`nav-capsule-link ${isActive ? 'active' : ''}`}
                       onClick={() => setDrawerOpen(false)}
                     >
                       {item.label}
@@ -235,68 +302,45 @@ export default function Navbar() {
           </nav>
 
           {/* ============================================================== */}
-          {/* 3. RIGHT: Account CTA & Three-Line Hamburger Button           */}
+          {/* 3. RIGHT: Reference Pill Action Button [ SIGN IN (↗) ] & Menu  */}
           {/* ============================================================== */}
           <div className="nav-actions">
             {user ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 {(isAdmin || isSuperAdmin) && (
                   <Link
                     to="/admin"
-                    className="btn btn-secondary stark-cta-btn hidden-mobile"
-                    style={{
-                      background: 'rgba(143, 48, 53, 0.25)',
-                      borderColor: 'var(--color-muted-crimson)',
-                      color: '#ffb4b7',
-                      fontSize: '0.78rem',
-                      padding: '0.45rem 0.85rem',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.4rem',
-                    }}
+                    className="nav-ref-pill-btn nav-ref-pill-admin hidden-mobile"
                     title={isSuperAdmin ? 'Super Admin Console' : 'Admin Console'}
                   >
-                    <ShieldCheck size={14} color="#ffb4b7" />
-                    <span>{isSuperAdmin ? 'SUPER ADMIN' : 'ADMIN CONSOLE'}</span>
+                    <span>{isSuperAdmin ? 'SUPER ADMIN' : 'ADMIN'}</span>
+                    <span className="nav-pill-arrow-circle" aria-hidden="true">
+                      <ShieldCheck size={13} color="#08090D" />
+                    </span>
                   </Link>
                 )}
                 <Link
                   to="/dashboard"
-                  className="btn btn-primary stark-cta-btn"
-                  style={{
-                    padding: '0.48rem 0.95rem',
-                    fontSize: '0.8rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.45rem',
-                  }}
+                  className="nav-ref-pill-btn"
                   title="Participant Dashboard"
                 >
-                  <LayoutDashboard size={15} />
                   <span>DASHBOARD</span>
+                  <span className="nav-pill-arrow-circle" aria-hidden="true">
+                    <ArrowUpRight size={14} color="#08090D" strokeWidth={2.5} />
+                  </span>
                 </Link>
               </div>
             ) : (
-              <div className="nav-auth-actions">
+              <div className="nav-auth-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <Link
                   to="/login"
-                  className="stark-login-link"
+                  className="nav-ref-pill-btn"
+                  aria-label="Sign In to HackFest 3.0"
                 >
-                  LOG IN
-                </Link>
-                <Link
-                  to="/register"
-                  className="btn btn-primary stark-cta-btn"
-                  style={{
-                    padding: '0.48rem 1.05rem',
-                    fontSize: '0.82rem',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.45rem',
-                  }}
-                >
-                  <span>REGISTER</span>
-                  <ArrowUpRight size={15} />
+                  <span>SIGN IN</span>
+                  <span className="nav-pill-arrow-circle" aria-hidden="true">
+                    <ArrowUpRight size={14} color="#08090D" strokeWidth={2.5} />
+                  </span>
                 </Link>
               </div>
             )}
@@ -342,18 +386,20 @@ export default function Navbar() {
         {/* Drawer Header */}
         <div className="drawer-header">
           <div className="drawer-header-brand">
-            <img
-              src="/logo.png"
-              alt="Hackfest 3.0 Logo"
-              className="nav-brand-logo-img"
-              height="30"
-            />
+            <div className="stark-reactor-crest" aria-hidden="true" style={{ width: 28, height: 28 }}>
+              <svg viewBox="0 0 44 44" width="28" height="28">
+                <polygon
+                  points="22,2 40,12 40,32 22,42 4,32 4,12"
+                  fill="#0D111A"
+                  stroke="#00BFFF"
+                  strokeWidth="1.6"
+                />
+                <circle cx="22" cy="22" r="4.5" fill="#00BFFF" />
+              </svg>
+            </div>
             <div>
-              <div className="drawer-header-title">
-                <span className="nav-brand-word-hackfest" style={{ fontSize: '1.15rem' }}>Hackfest</span>{' '}
-                <span className="nav-brand-version-number" style={{ fontSize: '1.05rem' }}>3.0</span>
-              </div>
-              <div className="drawer-header-sub">SDC // REC BANDA</div>
+              <div className="drawer-header-title">HACKFEST 3.0</div>
+              <div className="drawer-header-sub">NAVIGATION DIRECTORY</div>
             </div>
           </div>
 

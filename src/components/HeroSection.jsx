@@ -1,233 +1,163 @@
-import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { ChevronDown } from 'lucide-react';
-import ParticleText from './ui/ParticleText';
-import doomImg from '../assets/doom.png';
-import ironImg from '../assets/iron.png';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowUpRight, Compass, Zap, RotateCcw, Shield, Sparkles } from 'lucide-react';
+import { eventMeta } from '../data/eventData';
+import { eventService } from '../services/eventService';
+import MarvelCinematicHero3D from './3d/MarvelCinematicHero3D';
+import HoloBadge from './ui/HoloBadge';
 
 export default function HeroSection() {
-  const heroRef = useRef(null);
-  const animFrameRef = useRef(null);
-  const touchTimerRef = useRef(null);
-
-  // Fallback image sources
-  const [doomSrc, setDoomSrc] = useState(doomImg);
-  const [ironSrc, setIronSrc] = useState(ironImg);
-
-  // Smooth cursor tracking coordinates (rAF-driven, zero React re-renders)
-  const posRef = useRef({
-    targetX: -9999,
-    targetY: -9999,
-    currentX: -9999,
-    currentY: -9999,
-    isHovering: false,
-    settled: true,
-  });
-
-  const prefersReducedMotion =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  const updatePosition = useCallback(() => {
-    const p = posRef.current;
-    const heroEl = heroRef.current;
-    if (!heroEl) return;
-
-    if (prefersReducedMotion) {
-      p.currentX = p.targetX;
-      p.currentY = p.targetY;
-      heroEl.style.setProperty('--mouse-x', `${p.currentX.toFixed(1)}px`);
-      heroEl.style.setProperty('--mouse-y', `${p.currentY.toFixed(1)}px`);
-      p.settled = true;
-      return;
-    }
-
-    // Responsive, silky smooth glide damping
-    const lerpDamp = 0.28;
-    p.currentX += (p.targetX - p.currentX) * lerpDamp;
-    p.currentY += (p.targetY - p.currentY) * lerpDamp;
-
-    heroEl.style.setProperty('--mouse-x', `${p.currentX.toFixed(1)}px`);
-    heroEl.style.setProperty('--mouse-y', `${p.currentY.toFixed(1)}px`);
-
-    const diffX = Math.abs(p.targetX - p.currentX);
-    const diffY = Math.abs(p.targetY - p.currentY);
-
-    if (diffX > 0.1 || diffY > 0.1 || p.isHovering) {
-      animFrameRef.current = requestAnimationFrame(updatePosition);
-      p.settled = false;
-    } else {
-      p.currentX = p.targetX;
-      p.currentY = p.targetY;
-      heroEl.style.setProperty('--mouse-x', `${p.currentX.toFixed(1)}px`);
-      heroEl.style.setProperty('--mouse-y', `${p.currentY.toFixed(1)}px`);
-      p.settled = true;
-    }
-  }, [prefersReducedMotion]);
-
-  const wakeLoop = useCallback(() => {
-    if (posRef.current.settled) {
-      posRef.current.settled = false;
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = requestAnimationFrame(updatePosition);
-    }
-  }, [updatePosition]);
-
-  const setPointerPos = (clientX, clientY, instant = false) => {
-    const heroEl = heroRef.current;
-    if (!heroEl) return;
-    const rect = heroEl.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    const p = posRef.current;
-    p.targetX = x;
-    p.targetY = y;
-    if (instant || p.currentX < -5000) {
-      p.currentX = x;
-      p.currentY = y;
-    }
-    p.isHovering = true;
-    heroEl.style.setProperty('--reveal-opacity', '1');
-    wakeLoop();
-  };
-
-  const handleMouseMove = (e) => {
-    setPointerPos(e.clientX, e.clientY);
-  };
-
-  const handleMouseEnter = (e) => {
-    setPointerPos(e.clientX, e.clientY, true);
-  };
-
-  const handleMouseLeave = () => {
-    const p = posRef.current;
-    p.isHovering = false;
-    const heroEl = heroRef.current;
-    if (heroEl) {
-      heroEl.style.setProperty('--reveal-opacity', '0');
-    }
-  };
-
-  // Mobile touch handling (reveals circular lens at touch position without blocking scrolling)
-  const handleTouchStart = (e) => {
-    if (e.touches && e.touches.length > 0) {
-      const touch = e.touches[0];
-      setPointerPos(touch.clientX, touch.clientY, true);
-      if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
-    }
-  };
-
-  const handleTouchMove = (e) => {
-    if (e.touches && e.touches.length > 0) {
-      const touch = e.touches[0];
-      setPointerPos(touch.clientX, touch.clientY);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
-    touchTimerRef.current = setTimeout(() => {
-      handleMouseLeave();
-    }, 1800);
-  };
+  const [introPhase, setIntroPhase] = useState(0); // 0: Portal ignite, 1: Hero strike, 2: Title reveal, 3: Full controls ready
+  const [replayKey, setReplayKey] = useState(0);
+  const [meta, setMeta] = useState(eventMeta);
 
   useEffect(() => {
-    const heroEl = heroRef.current;
-    if (heroEl) {
-      heroEl.style.setProperty('--mouse-x', '-9999px');
-      heroEl.style.setProperty('--mouse-y', '-9999px');
-      heroEl.style.setProperty('--reveal-opacity', '0');
-      heroEl.style.setProperty('--reveal-radius', '320px');
-    }
-
-    return () => {
-      cancelAnimationFrame(animFrameRef.current);
-      if (touchTimerRef.current) clearTimeout(touchTimerRef.current);
-    };
+    let isMounted = true;
+    eventService.getSettings().then((res) => {
+      if (isMounted && res) setMeta(res);
+    });
+    return () => { isMounted = false; };
   }, []);
 
+  useEffect(() => {
+    // Cinematic opening sequence timeline
+    const t1 = setTimeout(() => setIntroPhase(1), 800);  // 0.8s: Heroes streak across sky
+    const t2 = setTimeout(() => setIntroPhase(2), 2200); // 2.2s: Title comic impact burst
+    const t3 = setTimeout(() => setIntroPhase(3), 3600); // 3.6s: Complete UI interactive assembly
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [replayKey]);
+
+  const handleReplayIntro = () => {
+    setIntroPhase(0);
+    setReplayKey((prev) => prev + 1);
+  };
+
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <section
-      id="hero"
-      ref={heroRef}
-      className="doom-iron-hero"
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      aria-label="HackFest 3.0 Hero"
-    >
-      {/* 1. LAYER 1: Permanent Full-Screen DOOM Background */}
-      <div className="hero-doom-layer" aria-hidden="true">
-        <img
-          src={doomSrc}
-          alt="Doctor Doom - Hackfest 3.0"
-          className="hero-character-img hero-doom-img"
-          loading="eager"
-          fetchPriority="high"
-          onError={() => setDoomSrc('/doom.png')}
-        />
+    <section id="hero" className="hero-section marvel-cinematic-hero-section">
+      {/* Background Comic Sky & City Grid */}
+      <div className="hero-bg-container marvel-hero-bg">
+        <div className="marvel-city-vignette" />
+        <div className="marvel-sky-nebula" />
       </div>
 
-      {/* 2. LAYER 2: Localized Circular Reveal of Iron Man (Masked Around Cursor) */}
-      <div className="hero-iron-layer" aria-hidden="true">
-        <img
-          src={ironSrc}
-          alt="Iron Man - Hackfest 3.0"
-          className="hero-character-img hero-iron-img"
-          loading="eager"
-          fetchPriority="high"
-          onError={() => setIronSrc('/iron.png')}
-        />
+      <div className="container marvel-hero-container">
+        {/* Top Hero Split Grid: Left Text + Right 3D Visual */}
+        <div className="marvel-hero-grid">
+          {/* Left Column: Comic Narrative & Call to Action */}
+          <div className={`marvel-hero-narrative-col phase-${introPhase}`}>
+            {/* Comic Header Strip */}
+            <div className="marvel-comic-badge-strip">
+              <span className="marvel-logo-badge">
+                HACKFEST
+              </span>
+              <HoloBadge variant="red" icon={Shield}>
+                EDITION 3.0 // ANNUAL HACKATHON
+              </HoloBadge>
+              <span className="marvel-hero-inst">REC BANDA • SDC</span>
+            </div>
+
+            {/* Main Headline */}
+            <div className="marvel-title-wrap">
+              <h1 className="heading-display marvel-main-title">
+                <span className="marvel-title-word">HACKFEST</span>
+                <span className="marvel-title-number">3.0</span>
+              </h1>
+              <div className="marvel-impact-burst-tag">
+                THE NEXT GENERATION OF BUILDERS
+              </div>
+            </div>
+
+            {/* Subheading Narrative */}
+            <p className="marvel-hero-desc">
+              Join hundreds of student innovators, developers, and designers from across India.
+              Compete in high-speed algorithms in <strong>Codeathon</strong>, present visionary ideas in the <strong>Ideathon</strong>,
+              and build groundbreaking software in the <strong>Flagship 48-Hour Hackathon</strong>.
+            </p>
+
+            {/* Action Buttons */}
+            <div className="marvel-hero-actions">
+              <Link
+                to="/register"
+                className="btn btn-avenger marvel-assemble-btn"
+                id="hero-register-btn"
+              >
+                <Zap size={20} />
+                <span>REGISTER NOW</span>
+                <ArrowUpRight size={20} />
+              </Link>
+
+              <button
+                type="button"
+                className="btn btn-reactor"
+                onClick={() => scrollTo('about')}
+                id="hero-explore-btn"
+              >
+                <Compass size={18} />
+                <span>EXPLORE EVENT</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn-replay-sequence"
+                onClick={handleReplayIntro}
+                title="Replay Cinematic Superhero Sequence"
+                aria-label="Replay Cinematic Superhero Sequence"
+              >
+                <RotateCcw size={15} />
+                <span>REPLAY INTRO</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Right Column: 3D Marvel Cinematic Superhero Showcase */}
+          <div className="marvel-hero-3d-col">
+            <div className="marvel-cinematic-viewport">
+              {/* Status Banner */}
+              <div className="marvel-viewport-tag">
+                <span className="marvel-tag-pulse" />
+                <span>CINEMATIC SHOWCASE // INTERACTIVE 3D EXPERIENCE</span>
+              </div>
+
+              {/* Live 3D Scene */}
+              <MarvelCinematicHero3D key={replayKey} />
+
+              {/* Interaction Hint */}
+              <div className="marvel-viewport-footer">
+                <span className="marvel-hint-pill">
+                  <Sparkles size={13} color="#f5b642" />
+                  DRAG TO ROTATE 3D CAMERA
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Key Stats */}
+        <div className="marvel-roster-strip">
+          <div className="marvel-roster-item">
+            <span className="marvel-roster-lbl">VENUE</span>
+            <span className="marvel-roster-val">{meta.venueShort}</span>
+          </div>
+          <div className="marvel-roster-item">
+            <span className="marvel-roster-lbl">PARTICIPANTS</span>
+            <span className="marvel-roster-val">500+ PAN-INDIA</span>
+          </div>
+          <div className="marvel-roster-item">
+            <span className="marvel-roster-lbl">EVENT DURATION</span>
+            <span className="marvel-roster-val">48 CONTINUOUS HOURS</span>
+          </div>
+        </div>
       </div>
-
-      {/* 3. LAYER 3: Cinematic Atmospheric Vignette (Protects Text Contrast) */}
-      <div className="hero-cinematic-atmosphere" aria-hidden="true" />
-
-      {/* 4. LAYER 4: Prominent Centered Title (Futuristic Outlined HACKFEST 3.0 via React Bits ParticleText) */}
-      <div className="hero-center-stage">
-        <h1 className="hero-particle-h1">
-          <ParticleText
-            text="HACKFEST 3.0"
-            fontFamily="'Orbitron', 'Neo', sans-serif"
-            fontWeight={900}
-            fontStyle="italic"
-            fontSize="clamp(2.4rem, 7.8vw, 7.2rem)"
-            letterSpacing="0.06em"
-            outlined={true}
-            outlineWidth={2.4}
-            particleSize={1.9}
-            density={2.2}
-            color="#F4F7FB"
-            highlightColor="#00D9FF"
-            scatter={130}
-            gatherDuration={1400}
-            stagger={300}
-            pointerRepel={32}
-            repelRadius={120}
-            idleDrift={0.3}
-            trigger="mount"
-            glow={true}
-            className="hero-particle-text"
-          />
-        </h1>
-      </div>
-
-      {/* 5. Scroll Indicator Button at Bottom of Hero */}
-      <button
-        type="button"
-        onClick={() => {
-          const el = document.getElementById('announcements') || document.getElementById('about');
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }}
-        className="hero-scroll-explore-pill"
-        aria-label="Scroll to explore event details"
-      >
-        <span>SCROLL TO EXPLORE</span>
-        <ChevronDown size={15} className="scroll-chevron-bounce" />
-      </button>
     </section>
   );
 }

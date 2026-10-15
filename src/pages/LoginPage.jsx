@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, ArrowUpRight, Lock, Mail, AlertCircle, Loader2, ShieldCheck, Zap } from 'lucide-react';
 import { eventMeta } from '../data/eventData';
 import HudPanel from '../components/ui/HudPanel';
 import HoloBadge from '../components/ui/HoloBadge';
-import { getSafeRedirectPath, getRegistrationIntent } from '../utils/authRedirect';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -16,10 +15,7 @@ export default function LoginPage() {
   const { signIn, isConfigured } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams] = useSearchParams();
-
-  const targetPath = getSafeRedirectPath(location.state?.from, searchParams, '/dashboard');
-  const regIntent = getRegistrationIntent(targetPath);
+  const from = location.state?.from?.pathname || '/dashboard';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,7 +24,7 @@ export default function LoginPage() {
 
     try {
       await signIn({ email, password });
-      navigate(targetPath, { replace: true });
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || 'Failed to authenticate. Please check your credentials.');
     } finally {
@@ -59,15 +55,6 @@ export default function LoginPage() {
               Sign in to access your dashboard, team details, and competition submissions for {eventMeta.name}.
             </p>
           </div>
-
-          {regIntent.isRegistration && (
-            <div style={{ background: 'rgba(0, 217, 255, 0.12)', border: '1px solid rgba(0, 217, 255, 0.45)', borderRadius: '4px', padding: '0.85rem 1rem', marginBottom: '1.4rem', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 4px 18px rgba(0, 217, 255, 0.15)' }}>
-              <ShieldCheck size={20} color="var(--color-arc-cyan)" style={{ flexShrink: 0 }} />
-              <div style={{ fontSize: '0.85rem', color: '#FFFFFF', lineHeight: '1.45' }}>
-                <strong style={{ color: 'var(--color-arc-cyan)' }}>AUTHENTICATION REQUIRED:</strong> Sign in to continue your registration for <strong>{regIntent.competitionName}</strong>. You will be returned immediately to complete registration.
-              </div>
-            </div>
-          )}
 
           {!isConfigured && (
             <div style={{ background: 'rgba(245, 182, 66, 0.1)', border: '1px solid var(--color-stark-gold)', borderRadius: '4px', padding: '0.9rem 1rem', marginBottom: '1.5rem', fontSize: '0.82rem', color: '#F5F7FA', lineHeight: '1.5', fontFamily: 'var(--font-mono)' }}>
@@ -145,7 +132,7 @@ export default function LoginPage() {
 
           <div style={{ marginTop: '1.8rem', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.2rem', fontSize: '0.88rem', color: 'var(--color-text-secondary)' }}>
             Don't have an account?{' '}
-            <Link to="/signup" state={{ from: location.state?.from }} style={{ color: 'var(--color-infinity-gold)', fontWeight: 600 }}>
+            <Link to="/signup" style={{ color: 'var(--color-infinity-gold)', fontWeight: 600 }}>
               Create an Account
             </Link>
           </div>

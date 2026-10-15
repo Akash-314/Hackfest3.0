@@ -49,8 +49,8 @@ export default function CompetitionDetailPage({ competitionId }) {
 
         <div className="container" style={{ position: 'relative', zIndex: 10, maxWidth: '960px' }}>
           <Link
-            to="/#competitions"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-warm-amber)', fontFamily: 'var(--font-mono)', fontSize: '0.82rem', marginBottom: '1.25rem' }}
+            to="/competitions"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#63E6D1', fontFamily: 'var(--font-mono)', fontSize: '0.82rem', marginBottom: '1.25rem' }}
           >
             <ArrowLeft size={16} />
             BACK TO ALL COMPETITIONS
@@ -74,7 +74,7 @@ export default function CompetitionDetailPage({ competitionId }) {
           </p>
 
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link to={`/register?competition=${comp.id}`} className="btn btn-primary">
+            <Link to={`/register?competition=${comp.slug || comp.id}`} state={{ arena: comp.slug || comp.id }} className="btn btn-primary">
               REGISTER FOR {comp.title}
               <ArrowUpRight size={18} />
             </Link>
@@ -247,7 +247,7 @@ export default function CompetitionDetailPage({ competitionId }) {
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
             Lock in your team, prepare your tooling, and represent your institution at HackFest 3.0 REC Banda.
           </p>
-          <Link to={`/register?competition=${comp.id}`} className="btn btn-primary" style={{ padding: '1rem 2.5rem' }}>
+          <Link to="/register" className="btn btn-primary" style={{ padding: '1rem 2.5rem' }}>
             REGISTER FOR {comp.title} NOW
             <ArrowUpRight size={18} />
           </Link>

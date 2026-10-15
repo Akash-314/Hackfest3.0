@@ -13,7 +13,7 @@ export default function PrizesPage() {
       <div className="container" style={{ paddingTop: '1.5rem' }}>
         <Link
           to="/"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-warm-amber)', fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#63E6D1', fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}
         >
           <ArrowLeft size={16} />
           RETURN TO HOME

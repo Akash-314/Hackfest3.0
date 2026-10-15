@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { Mail, MapPin } from 'lucide-react';
 import { eventMeta } from '../data/eventData';
 import { eventService } from '../services/eventService';
+import sdcLogo from '../assets/logo.png';
+import aktuLogo from '../assets/aktu-logo.png';
+import innovationHubLogo from '../assets/innovation-hub-logo.png';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -17,59 +20,119 @@ export default function Footer() {
     return () => { isMounted = false; };
   }, []);
 
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <footer className="footer" style={{ borderTop: '1px solid rgba(0, 191, 255, 0.25)', background: 'linear-gradient(180deg, rgba(8, 11, 18, 0.95) 0%, rgba(5, 7, 13, 1) 100%)', position: 'relative', overflow: 'hidden' }}>
-      {/* Top ambient glow line */}
-      <div style={{ position: 'absolute', top: 0, left: '15%', right: '15%', height: '1px', background: 'linear-gradient(90deg, transparent, #00BFFF, transparent)' }} />
+    <footer
+      className="footer"
+      style={{
+        borderTop: '1px solid rgba(255, 255, 255, 0.07)',
+        background: 'linear-gradient(180deg, #0D1017 0%, #08090D 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Top subtle highlight reflection line */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '15%',
+          right: '15%',
+          height: '1px',
+          background: 'linear-gradient(90deg, transparent, rgba(99, 230, 209, 0.35), transparent)',
+        }}
+      />
 
       <div className="container" style={{ position: 'relative', zIndex: 2, paddingTop: '4rem', paddingBottom: '3rem' }}>
         <div className="footer-grid">
           {/* Col 1: Brand & Organization */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1.2rem' }}>
-              <img
-                src="/logo.png"
-                alt="Student Developer Club Logo"
-                style={{ height: 42, width: 'auto', objectFit: 'contain' }}
-              />
-              <h3 className="heading-display" style={{ fontSize: '1.5rem', letterSpacing: '0.06em', color: '#F5F7FA' }}>
-                {eventMeta.name}
+              <h3 className="heading-display" style={{ fontSize: '1.5rem', letterSpacing: '0.04em', color: '#F5F5F7', margin: 0 }}>
+                HACKFEST <span style={{ color: '#63E6D1' }}>3.0</span>
               </h3>
             </div>
-            <p style={{ color: '#94A3B8', fontSize: '0.92rem', marginBottom: '1.2rem', lineHeight: '1.6' }}>
+            <p style={{ color: '#A1A6B3', fontSize: '0.9rem', marginBottom: '1.2rem', lineHeight: '1.6' }}>
               Orchestrated by the <strong>Student Developer Club (SDC)</strong> at {eventMeta.institution}.
-              A premier high-tech proving ground for the next generation of builders and problem solvers.
+              A premier technology proving ground for the next generation of builders and problem solvers.
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748B', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
-              <MapPin size={15} color="var(--color-stark-gold)" />
+
+            {/* Institutional Partner Logos */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.2rem', flexWrap: 'wrap' }}>
+              <a
+                href="https://sdcrecbanda.in"
+                target="_blank"
+                rel="noreferrer"
+                title="Student Developer Club (SDC)"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                }}
+              >
+                <img src={sdcLogo} alt="SDC" style={{ height: '24px', width: 'auto', objectFit: 'contain' }} />
+              </a>
+
+              <a
+                href="https://aktu.ac.in"
+                target="_blank"
+                rel="noreferrer"
+                title="Dr. A.P.J. Abdul Kalam Technical University, Lucknow"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                }}
+              >
+                <img src={aktuLogo} alt="AKTU Lucknow" style={{ height: '26px', width: 'auto', objectFit: 'contain' }} />
+              </a>
+
+              <div
+                title="Innovation Hub Uttar Pradesh"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: 'rgba(255, 255, 255, 0.92)',
+                  padding: '3px 8px',
+                  borderRadius: '6px',
+                }}
+              >
+                <img src={innovationHubLogo} alt="Innovation Hub Uttar Pradesh" style={{ height: '22px', width: 'auto', objectFit: 'contain' }} />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#747B89', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
+              <MapPin size={15} color="#63E6D1" />
               <span>{meta.venueShort}</span>
             </div>
           </div>
 
           {/* Col 2: Quick Links */}
           <div>
-            <h4 className="footer-col-title" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-arc-blue)', letterSpacing: '0.1em' }}>
+            <h4 className="footer-col-title" style={{ fontFamily: 'var(--font-heading)', color: '#63E6D1', letterSpacing: '0.1em' }}>
               QUICK LINKS
             </h4>
             <ul className="footer-links">
-              <li><Link to="/" onClick={() => scrollTo('hero')}>Home</Link></li>
-              <li><Link to="/about" onClick={() => scrollTo('about')}>About Event</Link></li>
-              <li><Link to="/competitions" onClick={() => scrollTo('competitions')}>Competitions</Link></li>
-              <li><Link to="/missions" onClick={() => scrollTo('problems')}>Problem Statements</Link></li>
-              <li><Link to="/schedule" onClick={() => scrollTo('schedule')}>Event Schedule</Link></li>
-              <li><Link to="/prizes" onClick={() => scrollTo('prizes')}>Prizes & Awards</Link></li>
-              <li><Link to="/faq" onClick={() => scrollTo('faq')}>Rules & FAQs</Link></li>
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/about">About Event</Link></li>
+              <li><Link to="/competitions">Competitions</Link></li>
+              <li><Link to="/problems">Problem Statements</Link></li>
+              <li><Link to="/schedule">Event Schedule</Link></li>
+              <li><Link to="/prizes">Prizes & Awards</Link></li>
+              <li><Link to="/sponsors">Sponsors</Link></li>
+              <li><Link to="/leaderboard">Leaderboard</Link></li>
+              <li><Link to="/faq">Rules & FAQs</Link></li>
             </ul>
           </div>
 
           {/* Col 3: Arenas */}
           <div>
-            <h4 className="footer-col-title" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-stark-gold)', letterSpacing: '0.1em' }}>
+            <h4 className="footer-col-title" style={{ fontFamily: 'var(--font-heading)', color: '#C7CED8', letterSpacing: '0.1em' }}>
               COMPETITIONS
             </h4>
             <ul className="footer-links">
@@ -83,10 +146,10 @@ export default function Footer() {
 
           {/* Col 4: Community & Connect */}
           <div>
-            <h4 className="footer-col-title" style={{ fontFamily: 'var(--font-heading)', color: 'var(--color-energy-red)', letterSpacing: '0.1em' }}>
+            <h4 className="footer-col-title" style={{ fontFamily: 'var(--font-heading)', color: '#9B8AFB', letterSpacing: '0.1em' }}>
               CONNECT WITH US
             </h4>
-            <p style={{ fontSize: '0.88rem', color: '#94A3B8', marginBottom: '1rem', lineHeight: '1.5' }}>
+            <p style={{ fontSize: '0.88rem', color: '#A1A6B3', marginBottom: '1rem', lineHeight: '1.5' }}>
               Connect with SDC community channels for real-time announcements, updates, and coordination.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem' }}>
@@ -96,21 +159,23 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 style={{
-                  padding: '0.55rem',
-                  background: 'rgba(13, 17, 26, 0.8)',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#94A3B8',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
                   display: 'flex',
                   alignItems: 'center',
-                  transition: 'all 0.2s ease'
+                  justifyContent: 'center',
+                  color: '#F5F5F7',
+                  transition: 'all 0.2s ease',
                 }}
-                aria-label="Instagram"
+                title="Instagram"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                 </svg>
               </a>
 
@@ -120,78 +185,80 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 style={{
-                  padding: '0.55rem',
-                  background: 'rgba(13, 17, 26, 0.8)',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#94A3B8',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
                   display: 'flex',
                   alignItems: 'center',
-                  transition: 'all 0.2s ease'
+                  justifyContent: 'center',
+                  color: '#F5F5F7',
+                  transition: 'all 0.2s ease',
                 }}
-                aria-label="LinkedIn"
+                title="LinkedIn"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
-                  <rect width="4" height="12" x="2" y="9"/>
-                  <circle cx="4" cy="4" r="2"/>
+                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                  <rect x="2" y="9" width="4" height="12"></rect>
+                  <circle cx="4" cy="4" r="2"></circle>
                 </svg>
               </a>
 
-              {/* X / Twitter */}
+              {/* GitHub */}
               <a
-                href={eventMeta.socials.x}
+                href={eventMeta.socials.github}
                 target="_blank"
                 rel="noreferrer"
                 style={{
-                  padding: '0.55rem',
-                  background: 'rgba(13, 17, 26, 0.8)',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#94A3B8',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '8px',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
                   display: 'flex',
                   alignItems: 'center',
-                  transition: 'all 0.2s ease'
+                  justifyContent: 'center',
+                  color: '#F5F5F7',
+                  transition: 'all 0.2s ease',
                 }}
-                aria-label="X / Twitter"
+                title="GitHub"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
                 </svg>
               </a>
-
-              {/* Email */}
-              <a
-                href={`mailto:${meta.contactEmail}`}
-                style={{
-                  padding: '0.55rem',
-                  background: 'rgba(13, 17, 26, 0.8)',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#94A3B8',
-                  display: 'flex',
-                  alignItems: 'center',
-                  transition: 'all 0.2s ease'
-                }}
-                aria-label="Email"
-              >
-                <Mail size={18} />
-              </a>
             </div>
-            <div style={{ fontSize: '0.82rem', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
-              EMAIL: <a href={`mailto:${meta.contactEmail}`} style={{ color: 'var(--color-arc-blue)' }}>{meta.contactEmail}</a>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#A1A6B3', fontSize: '0.84rem' }}>
+              <Mail size={14} color="#63E6D1" />
+              <a href={`mailto:${meta?.contactEmail || eventMeta.contactEmail || 'sdc@recbanda.ac.in'}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                {meta?.contactEmail || eventMeta.contactEmail || 'sdc@recbanda.ac.in'}
+              </a>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar with Stark Status */}
-        <div className="footer-bottom" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.5rem', marginTop: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: '#64748B' }}>
-            © {CURRENT_YEAR} {eventMeta.name} • STUDENT DEVELOPER CLUB (REC BANDA). ALL RIGHTS RESERVED.
+        {/* Bottom Bar */}
+        <div
+          style={{
+            marginTop: '3.5rem',
+            paddingTop: '1.8rem',
+            borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '1rem',
+          }}
+        >
+          <div style={{ fontSize: '0.82rem', color: '#747B89', fontFamily: 'var(--font-mono)' }}>
+            © {CURRENT_YEAR} HACKFEST 3.0 • STUDENT DEVELOPER CLUB (SDC), REC BANDA
           </div>
-          <div style={{ display: 'flex', gap: '1.5rem', fontFamily: 'var(--font-mono)', fontSize: '0.76rem' }}>
-            <span style={{ color: 'var(--color-arc-blue)' }}>GRID: ONLINE // VER 3.0</span>
-            <span style={{ color: 'var(--color-stark-gold)' }}>REBUILD THE FUTURE</span>
+          <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.82rem', color: '#747B89' }}>
+            <Link to="/rules" style={{ color: 'inherit', textDecoration: 'none' }}>Event Rules</Link>
+            <Link to="/faq" style={{ color: 'inherit', textDecoration: 'none' }}>FAQs</Link>
+            <Link to="/admin" style={{ color: 'inherit', textDecoration: 'none' }}>Admin Portal</Link>
           </div>
         </div>
       </div>

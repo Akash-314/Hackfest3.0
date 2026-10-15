@@ -1,125 +1,219 @@
 import React from 'react';
-import { Trophy, Medal, Sparkles, Flame, Shield } from 'lucide-react';
+import { Trophy, Medal, Award, Sparkles, CheckCircle2 } from 'lucide-react';
 import { prizesData } from '../data/eventData';
 import SuperheroPanel from './ui/SuperheroPanel';
 import HoloBadge from './ui/HoloBadge';
 
 export default function PrizesSection() {
+  const podiumWinners = [
+    {
+      place: '2ND PLACE',
+      title: '1ST RUNNER UP',
+      color: '#C7CED8',
+      variant: 'silver',
+      icon: Medal,
+      perks: ['Runner-up Trophy', 'Silver Medals', 'Certificates of Merit', 'Sponsor Swag Hamper'],
+    },
+    {
+      place: '1ST PLACE',
+      title: 'CHAMPION',
+      color: '#F5C451',
+      variant: 'gold',
+      icon: Trophy,
+      perks: ['Custom Metallic Trophy', 'Gold Medals', 'Excellence Certificates', 'Direct Mentorship & Hamper'],
+      dominant: true,
+    },
+    {
+      place: '3RD PLACE',
+      title: '2ND RUNNER UP',
+      color: '#CD7F32',
+      variant: 'red',
+      icon: Medal,
+      perks: ['Bronze Medals', 'Merit Certificates', 'Partner Tool Credits', 'Sponsor Gift Kit'],
+    },
+  ];
+
   return (
-    <section id="prizes" className="section prizes-section infinity-vault-section">
+    <section id="prizes" className="section prizes-section">
       <div className="section-transition-top" />
       <div className="container">
         {/* Header */}
         <div className="section-header center">
           <HoloBadge variant="gold" icon={Trophy}>
-            PRIZES & RECOGNITION
+            AWARDS & HONORS
           </HoloBadge>
-          <h2 className="heading-section marvel-section-title">
-            PRIZES & AWARDS
+          <h2 className="heading-section">
+            PRIZES & RECOGNITION
           </h2>
           <p className="section-lead">
-            {prizesData.subtitle}. Celebrating technical excellence, creative brilliance, and engineering resilience.
+            {prizesData.subtitle || 'Recognizing exceptional engineering, design innovation, and collaborative execution.'}
           </p>
         </div>
 
-        {/* Top 3 Honor Podiums */}
-        <div className="vault-pedestal-labels" style={{ margin: '1.5rem auto 2.5rem', maxWidth: '750px' }}>
-          <div className="vault-podium-label left" style={{ borderColor: 'rgba(0, 191, 255, 0.4)' }}>
-            <span className="podium-rank" style={{ color: 'var(--color-arc-blue)' }}>2ND PLACE</span>
-            <span className="podium-title">1ST RUNNER UP // SILVER</span>
-          </div>
-          <div className="vault-podium-label center" style={{ borderColor: 'rgba(245, 182, 66, 0.6)' }}>
-            <span className="podium-rank champion" style={{ color: 'var(--color-stark-gold)' }}>1ST PLACE</span>
-            <span className="podium-title">CHAMPION // GOLD</span>
-          </div>
-          <div className="vault-podium-label right" style={{ borderColor: 'rgba(230, 36, 41, 0.4)' }}>
-            <span className="podium-rank" style={{ color: 'var(--color-energy-red)' }}>3RD PLACE</span>
-            <span className="podium-title">2ND RUNNER UP // BRONZE</span>
-          </div>
-        </div>
-
-        {/* Featured Recognition Details Comic Box */}
-        <div className="prizes-featured-box marvel-vault-summary">
-          <div className="prizes-img-wrap marvel-vault-img-wrap">
-            <img
-              src="/images/prizes-verdict.jpg"
-              alt="HackFest 3.0 Championship Trophy Sculpture"
-              className="prizes-img"
-              loading="lazy"
-            />
-          </div>
-
-          <div>
-            <HoloBadge variant="gold" style={{ marginBottom: '0.8rem' }}>
-              AWARDS & HONORS
-            </HoloBadge>
-            <h3 className="heading-display" style={{ fontSize: '2.1rem', color: '#FFFFFF', marginBottom: '0.8rem', letterSpacing: '0.04em' }}>
-              AWARDS, TROPHIES & CERTIFICATES
-            </h3>
-            <p style={{ color: '#94A3B8', fontSize: '0.98rem', lineHeight: '1.7', marginBottom: '1.5rem' }}>
-              Every winning participant and team receives official honors certified by Rajkiya Engineering College, Banda. Recognition packages include custom trophies, commemorative medals, verified certificates of excellence, and sponsor swag hampers.
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '1.2rem' }}>
-              <SuperheroPanel variant="gold" tag="FIRST PLACE" issueNumber="1ST PLACE">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-stark-gold)', fontWeight: 700, fontSize: '0.92rem' }}>
-                  <Trophy size={20} />
-                  <span>1ST PLACE WINNER</span>
-                </div>
-                <div style={{ color: '#F5F7FA', fontSize: '0.94rem', marginTop: '6px', fontWeight: 600 }}>
-                  Custom Metallic Trophy + Shield + Certificates
-                </div>
-              </SuperheroPanel>
-
-              <SuperheroPanel variant="blue" tag="RUNNERS-UP" issueNumber="2ND & 3RD">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-arc-blue)', fontWeight: 700, fontSize: '0.92rem' }}>
-                  <Medal size={20} />
-                  <span>2ND & 3RD PLACE</span>
-                </div>
-                <div style={{ color: '#F5F7FA', fontSize: '0.94rem', marginTop: '6px', fontWeight: 600 }}>
-                  Commemorative Medals + Hampers + Certificates
-                </div>
-              </SuperheroPanel>
-            </div>
-          </div>
-        </div>
-
-        {/* 3 Arenas Detailed Breakdown */}
-        <div className="prizes-arenas-grid" style={{ marginTop: '3.5rem' }}>
-          {prizesData.arenas.map((arena) => {
-            const v = arena.arenaId === 'hackathon' ? 'red' : arena.arenaId === 'codeathon' ? 'blue' : 'gold';
-
+        {/* 3-Tier Podium Grid */}
+        <div
+          className="prizes-podium-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 310px), 1fr))',
+            gap: '1.5rem',
+            alignItems: 'stretch',
+            marginBottom: '3rem',
+          }}
+        >
+          {podiumWinners.map((winner) => {
+            const Icon = winner.icon;
             return (
               <SuperheroPanel
-                key={arena.arenaId}
-                variant={v}
-                tag={arena.arenaName.toUpperCase()}
-                issueNumber="EVENT PRIZES"
-                className="prize-arena-card"
+                key={winner.place}
+                variant={winner.variant}
+                tag={winner.place}
+                issueNumber={winner.title}
+                className={`podium-card ${winner.dominant ? 'dominant-podium' : ''}`}
+                style={winner.dominant ? { borderColor: 'rgba(245, 196, 81, 0.35)', background: 'rgba(255, 255, 255, 0.055)' } : {}}
               >
-                <h4 className="prize-arena-title" style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', color: '#FFFFFF' }}>
-                  {arena.arenaName}
-                </h4>
-                <div className="prize-arena-tag" style={{ color: v === 'red' ? 'var(--color-energy-red)' : v === 'blue' ? 'var(--color-arc-blue)' : 'var(--color-stark-gold)', fontWeight: 600 }}>
-                  {arena.tagline}
-                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', textAlign: 'center', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: '50%',
+                      background: `${winner.color}18`,
+                      border: `1px solid ${winner.color}45`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: winner.color,
+                      marginBottom: '1rem',
+                    }}
+                  >
+                    <Icon size={26} />
+                  </div>
 
-                <div className="prize-tier-list" style={{ marginTop: '1.2rem' }}>
-                  {arena.awards.map((tier, idx) => (
-                    <div
-                      key={idx}
-                      className={`prize-tier-item ${tier.featured ? 'champion stark-champion-tier' : ''}`}
-                    >
-                      <div className="prize-tier-label">{tier.tier}</div>
-                      <div className="prize-tier-name">{tier.prize}</div>
-                      <p className="prize-tier-desc">{tier.details}</p>
-                    </div>
-                  ))}
+                  <span
+                    style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.78rem',
+                      color: winner.color,
+                      letterSpacing: '0.12em',
+                      fontWeight: 700,
+                      marginBottom: '0.35rem',
+                    }}
+                  >
+                    {winner.place}
+                  </span>
+
+                  <h3
+                    style={{
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: '1.6rem',
+                      color: '#F5F5F7',
+                      marginBottom: '1.4rem',
+                      letterSpacing: '0.02em',
+                    }}
+                  >
+                    {winner.title}
+                  </h3>
+
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                    {winner.perks.map((perk, pIdx) => (
+                      <li
+                        key={pIdx}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.6rem',
+                          color: '#A1A6B3',
+                          fontSize: '0.88rem',
+                        }}
+                      >
+                        <CheckCircle2 size={15} color={winner.color} style={{ flexShrink: 0 }} />
+                        <span>{perk}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </SuperheroPanel>
             );
           })}
         </div>
+
+        {/* 3 Arenas Category Breakdown */}
+        {Array.isArray(prizesData.arenas) && prizesData.arenas.length > 0 && (
+          <div style={{ marginTop: '2rem' }}>
+            <h3
+              style={{
+                fontFamily: 'var(--font-heading)',
+                fontSize: '1.35rem',
+                color: '#F5F5F7',
+                marginBottom: '1.25rem',
+                textAlign: 'center',
+                letterSpacing: '0.04em',
+              }}
+            >
+              ARENA PRIZE BREAKDOWN
+            </h3>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+                gap: '1.25rem',
+              }}
+            >
+              {prizesData.arenas.map((arena) => (
+                <div
+                  key={arena.arenaId}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.035)',
+                    backdropFilter: 'blur(16px)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRadius: '10px',
+                    padding: '1.25rem',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                    <span style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', color: '#F5F5F7', fontWeight: 600 }}>
+                      {arena.arenaName}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.72rem',
+                        color: '#63E6D1',
+                        background: 'rgba(99, 230, 209, 0.08)',
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      {arena.subtitle}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {arena.rewards?.map((r, rIdx) => (
+                      <div
+                        key={rIdx}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          fontSize: '0.84rem',
+                          color: '#A1A6B3',
+                          borderBottom: rIdx < arena.rewards.length - 1 ? '1px solid rgba(255, 255, 255, 0.04)' : 'none',
+                          paddingBottom: '0.4rem',
+                        }}
+                      >
+                        <span style={{ color: '#F5F5F7', fontWeight: 500 }}>{r.position}</span>
+                        <span style={{ fontFamily: 'var(--font-mono)', color: '#C7CED8' }}>{r.details || r.amount}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
