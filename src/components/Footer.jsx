@@ -32,11 +32,13 @@ export default function Footer() {
           {/* Col 1: Brand & Organization */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1.2rem' }}>
-              <img
-                src="/logo.png"
-                alt="Student Developer Club Logo"
-                style={{ height: 42, width: 'auto', objectFit: 'contain' }}
-              />
+              <div style={{ position: 'relative', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg viewBox="0 0 40 40" width="34" height="34">
+                  <polygon points="20,2 38,12 33,34 20,39 7,34 2,12" fill="rgba(230, 36, 41, 0.2)" stroke="#E62429" strokeWidth="2" />
+                  <circle cx="20" cy="20" r="8" fill="rgba(0, 191, 255, 0.25)" stroke="#00BFFF" strokeWidth="1.5" />
+                  <circle cx="20" cy="20" r="3" fill="#00BFFF" />
+                </svg>
+              </div>
               <h3 className="heading-display" style={{ fontSize: '1.5rem', letterSpacing: '0.06em', color: '#F5F7FA' }}>
                 {eventMeta.name}
               </h3>
@@ -57,13 +59,15 @@ export default function Footer() {
               QUICK LINKS
             </h4>
             <ul className="footer-links">
-              <li><Link to="/" onClick={() => scrollTo('hero')}>Home</Link></li>
-              <li><Link to="/about" onClick={() => scrollTo('about')}>About Event</Link></li>
-              <li><Link to="/competitions" onClick={() => scrollTo('competitions')}>Competitions</Link></li>
-              <li><Link to="/missions" onClick={() => scrollTo('problems')}>Problem Statements</Link></li>
-              <li><Link to="/schedule" onClick={() => scrollTo('schedule')}>Event Schedule</Link></li>
-              <li><Link to="/prizes" onClick={() => scrollTo('prizes')}>Prizes & Awards</Link></li>
-              <li><Link to="/faq" onClick={() => scrollTo('faq')}>Rules & FAQs</Link></li>
+              <li><Link to="/">Home</Link></li>
+              <li><Link to="/about">About Event</Link></li>
+              <li><Link to="/competitions">Competitions</Link></li>
+              <li><Link to="/problems">Problem Statements</Link></li>
+              <li><Link to="/schedule">Event Schedule</Link></li>
+              <li><Link to="/prizes">Prizes & Awards</Link></li>
+              <li><Link to="/sponsors">Sponsors</Link></li>
+              <li><Link to="/leaderboard">Leaderboard</Link></li>
+              <li><Link to="/faq">Rules & FAQs</Link></li>
             </ul>
           </div>
 

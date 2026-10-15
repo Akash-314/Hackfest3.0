@@ -199,6 +199,18 @@ export default function Navbar() {
             aria-label="HackFest 3.0 Home"
           >
             <img
+              src="/src/assets/aktu-logo.png"
+              alt="Hackfest 3.0 Logo"
+              className="nav-brand-logo-img"
+              height="38"
+            />
+            <img
+              src="/src/assets/innovation-hub-logo.png"
+              alt="Hackfest 3.0 Logo"
+              className="nav-brand-logo-img"
+              height="38"
+            />
+            <img
               src="/logo.png"
               alt="Hackfest 3.0 Logo"
               className="nav-brand-logo-img"
