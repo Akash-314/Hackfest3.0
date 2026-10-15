@@ -14,7 +14,14 @@ export default function RegisterPage() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  const targetArenaParam = (searchParams.get('competition') || searchParams.get('arena') || '').toLowerCase();
+  // 1. Resolve target competition from query params, state, or session storage
+  const targetArenaParam = (
+    searchParams.get('competition') ||
+    searchParams.get('arena') ||
+    location.state?.arena ||
+    (typeof window !== 'undefined' ? sessionStorage.getItem('hf_selected_arena') : '') ||
+    ''
+  ).toLowerCase();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -47,6 +54,7 @@ export default function RegisterPage() {
       );
       if (matched) {
         setFormData((prev) => ({ ...prev, arena: matched.id }));
+        try { sessionStorage.setItem('hf_selected_arena', matched.id); } catch {}
       }
     }
   }, [targetArenaParam, availableCompetitions]);
@@ -99,6 +107,9 @@ export default function RegisterPage() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    if (name === 'arena') {
+      try { sessionStorage.setItem('hf_selected_arena', value); } catch {}
+    }
     setFormData((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -114,12 +125,17 @@ export default function RegisterPage() {
     eventSettings && (eventSettings.registrationOpen === false || eventSettings.registrationStatus === 'CLOSED' || isDeadlinePassed)
   );
 
+  const isSelectedCompClosed = Boolean(
+    selectedComp && selectedComp.registrationOpen === false
+  );
+
   const alreadyRegisteredForArena = userRegistrations.find(
     (r) =>
       r.competition_id === selectedComp?.dbId ||
       r.competition_id === selectedComp?.id ||
       r.competition_id === formData.arena ||
-      r.competition?.id === formData.arena
+      r.competition?.id === formData.arena ||
+      r.competition?.slug === formData.arena
   );
 
   const handleSubmit = async (e) => {
@@ -133,6 +149,11 @@ export default function RegisterPage() {
 
     if (isRegistrationClosed) {
       setError('Event registration has closed. New submissions are no longer accepted.');
+      return;
+    }
+
+    if (isSelectedCompClosed) {
+      setError(`Registration for ${selectedComp?.title || selectedComp?.name || formData.arena.toUpperCase()} is currently closed.`);
       return;
     }
 
@@ -275,6 +296,29 @@ export default function RegisterPage() {
               </div>
             )}
 
+            {isSelectedCompClosed && !isRegistrationClosed && (
+              <div style={{
+                background: 'rgba(143, 48, 53, 0.25)',
+                border: '1px solid var(--border-accent-crimson)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '1.2rem 1.4rem',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.85rem',
+                color: '#ffb4b7'
+              }}>
+                <AlertCircle size={22} style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.05rem', letterSpacing: '0.04em', color: '#ffb4b7', marginBottom: '0.25rem' }}>
+                    {selectedComp?.title || selectedComp?.name?.toUpperCase() || formData.arena.toUpperCase()} REGISTRATION CLOSED
+                  </div>
+                  <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                    Registration for this specific competition is currently marked as closed. You can select another available competition or contact event administration at <strong>{eventSettings?.contactEmail || 'sdc@recbanda.ac.in'}</strong>.
+                  </div>
+                </div>
+              </div>
+            )}
+
             {error && (
               <div style={{ background: 'rgba(143, 48, 53, 0.2)', border: '1px solid var(--border-accent-crimson)', borderRadius: 'var(--radius-sm)', padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#ffb4b7', fontSize: '0.88rem' }}>
                 <AlertCircle size={18} style={{ flexShrink: 0 }} />
@@ -283,17 +327,29 @@ export default function RegisterPage() {
             )}
 
             {/* Authenticated Participant Badge */}
-            <div style={{ background: 'rgba(0, 217, 255, 0.08)', border: '1px solid rgba(0, 217, 255, 0.28)', borderRadius: 'var(--radius-sm)', padding: '0.85rem 1.1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                <ShieldCheck size={18} color="var(--color-arc-cyan)" />
-                <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
-                  AUTHENTICATED PARTICIPANT: <strong style={{ color: 'var(--color-text-primary)' }}>{user?.email}</strong>
+            {user ? (
+              <div style={{ background: 'rgba(0, 217, 255, 0.08)', border: '1px solid rgba(0, 217, 255, 0.28)', borderRadius: 'var(--radius-sm)', padding: '0.85rem 1.1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                  <ShieldCheck size={18} color="var(--color-arc-cyan)" />
+                  <span style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
+                    AUTHENTICATED PARTICIPANT: <strong style={{ color: 'var(--color-text-primary)' }}>{user?.email}</strong>
+                  </span>
+                </div>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-arc-cyan)', fontFamily: 'var(--font-mono)', letterSpacing: '0.05em' }}>
+                  SESSION VERIFIED
                 </span>
               </div>
-              <span style={{ fontSize: '0.75rem', color: 'var(--color-arc-cyan)', fontFamily: 'var(--font-mono)', letterSpacing: '0.05em' }}>
-                SESSION VERIFIED
-              </span>
-            </div>
+            ) : (
+              <div style={{ background: 'rgba(60, 83, 107, 0.25)', border: '1px solid var(--border-accent-steel)', borderRadius: 'var(--radius-sm)', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem' }}>
+                <div>
+                  <div style={{ fontWeight: 600, color: 'var(--color-warm-off-white)' }}>Already have an account?</div>
+                  <div style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>Sign in to auto-link your profile and track registrations.</div>
+                </div>
+                <Link to="/login" state={{ from: location.pathname + location.search }} className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}>
+                  SIGN IN FIRST
+                </Link>
+              </div>
+            )}
 
             {/* Already Registered Notice */}
             {alreadyRegisteredForArena && (
@@ -316,7 +372,7 @@ export default function RegisterPage() {
                   You hold an active registration for <strong>{selectedComp?.name || formData.arena}</strong>. You can view your registration details, access team codes, and manage your team from your dashboard.
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
-                  <Link to="/dashboard/registration" className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}>
+                  <Link to="/dashboard" className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}>
                     VIEW IN REGISTRATION DASHBOARD
                     <ArrowUpRight size={14} />
                   </Link>
@@ -336,9 +392,18 @@ export default function RegisterPage() {
                 style={{ width: '100%', padding: '0.85rem 1rem', background: '#111827', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-sm)', color: 'var(--color-warm-off-white)', fontFamily: 'var(--font-body)', fontSize: '0.95rem' }}
                 required
               >
-                <option value="hackathon">Main Hackathon (Day 2 • Team 2-4)</option>
-                <option value="codeathon">Codeathon (Day 1 • 1.5h • Individual)</option>
-                <option value="ideathon">Ideathon (Day 1 • Pitching • Team 1-3)</option>
+                <option value="hackathon">
+                  Main Hackathon (Day 2 • Team 2-4)
+                  {availableCompetitions.find((c) => c.id === 'hackathon')?.registrationOpen === false ? ' [CLOSED]' : ''}
+                </option>
+                <option value="codeathon">
+                  Codeathon (Day 1 • 1.5h • Individual)
+                  {availableCompetitions.find((c) => c.id === 'codeathon')?.registrationOpen === false ? ' [CLOSED]' : ''}
+                </option>
+                <option value="ideathon">
+                  Ideathon (Day 1 • Pitching • Team 1-3)
+                  {availableCompetitions.find((c) => c.id === 'ideathon')?.registrationOpen === false ? ' [CLOSED]' : ''}
+                </option>
               </select>
             </div>
 
@@ -512,13 +577,13 @@ export default function RegisterPage() {
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={loading || isRegistrationClosed || Boolean(alreadyRegisteredForArena)}
+              disabled={loading || isRegistrationClosed || isSelectedCompClosed || Boolean(alreadyRegisteredForArena)}
               style={{
                 width: '100%',
                 marginTop: '1rem',
                 justifyContent: 'center',
-                opacity: (isRegistrationClosed || Boolean(alreadyRegisteredForArena)) ? 0.6 : 1,
-                cursor: (isRegistrationClosed || Boolean(alreadyRegisteredForArena)) ? 'not-allowed' : 'pointer'
+                opacity: (isRegistrationClosed || isSelectedCompClosed || Boolean(alreadyRegisteredForArena)) ? 0.6 : 1,
+                cursor: (isRegistrationClosed || isSelectedCompClosed || Boolean(alreadyRegisteredForArena)) ? 'not-allowed' : 'pointer'
               }}
             >
               {alreadyRegisteredForArena ? (
@@ -529,7 +594,12 @@ export default function RegisterPage() {
               ) : isRegistrationClosed ? (
                 <>
                   <AlertCircle size={18} />
-                  REGISTRATIONS CLOSED
+                  EVENT REGISTRATIONS CLOSED
+                </>
+              ) : isSelectedCompClosed ? (
+                <>
+                  <AlertCircle size={18} />
+                  REGISTRATION CLOSED FOR {selectedComp?.title || selectedComp?.name || formData.arena.toUpperCase()}
                 </>
               ) : loading ? (
                 <>

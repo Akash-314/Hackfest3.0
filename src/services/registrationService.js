@@ -1,5 +1,5 @@
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { isDeadlineExpired } from '../utils/eventTime';
+import { supabase, isSupabaseConfigured } from '../lib/supabase.js';
+import { isDeadlineExpired } from '../utils/eventTime.js';
 
 export const registrationService = {
   // Register for a competition
@@ -22,22 +22,43 @@ export const registrationService = {
     }
     const verifiedUserId = authUser.id;
 
-    // Resolve competition ID if passed as slug
+    // 2. Resolve competition ID if passed as slug and verify competition status
     let resolvedCompId = competitionId;
+    let targetComp = null;
     if (competitionId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(competitionId)) {
       try {
         const { data: comp } = await supabase
           .from('competitions')
-          .select('id')
+          .select('id, name, registration_open, status')
           .eq('slug', competitionId.toLowerCase())
           .maybeSingle();
-        if (comp?.id) resolvedCompId = comp.id;
+        if (comp?.id) {
+          resolvedCompId = comp.id;
+          targetComp = comp;
+        }
+      } catch {
+        // Fallback
+      }
+    } else if (resolvedCompId) {
+      try {
+        const { data: comp } = await supabase
+          .from('competitions')
+          .select('id, name, registration_open, status')
+          .eq('id', resolvedCompId)
+          .maybeSingle();
+        if (comp) targetComp = comp;
       } catch {
         // Fallback
       }
     }
 
-    // Resolve problem category ID if passed as slug
+    if (targetComp) {
+      if (targetComp.registration_open === false || targetComp.status !== 'active') {
+        throw new Error(`Registration for ${targetComp.name || 'this competition'} is currently closed.`);
+      }
+    }
+
+    // 3. Resolve problem category ID if passed as slug
     let resolvedProbCatId = problemCategoryId;
     if (problemCategoryId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(problemCategoryId)) {
       try {
@@ -52,7 +73,7 @@ export const registrationService = {
       }
     }
 
-    // Check canonical event settings for registration availability & deadline
+    // 4. Check canonical event settings for registration availability & deadline
     const { data: settings } = await supabase
       .from('event_settings')
       .select('*')
@@ -60,7 +81,11 @@ export const registrationService = {
       .maybeSingle();
 
     if (settings) {
-      if (settings.registration_open === false || settings.registration_status === 'CLOSED') {
+      const isRegOpen = settings.registration_open !== undefined
+        ? settings.registration_open
+        : (settings.registration_status !== 'CLOSED');
+
+      if (!isRegOpen || settings.registration_status === 'CLOSED') {
         throw new Error('Event registration is currently closed by event administration.');
       }
       if (settings.registration_deadline && isDeadlineExpired(settings.registration_deadline)) {
@@ -68,7 +93,7 @@ export const registrationService = {
       }
     }
 
-    // Check if already registered
+    // 5. Check if already registered
     const { data: existing } = await supabase
       .from('registrations')
       .select('id, registration_status')
@@ -80,6 +105,7 @@ export const registrationService = {
       throw new Error('You have already registered for this competition.');
     }
 
+    // 6. Insert verified registration record
     const { data, error } = await supabase
       .from('registrations')
       .insert({
