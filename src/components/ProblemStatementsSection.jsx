@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ShieldAlert, AlertTriangle, Skull, Flame } from 'lucide-react';
+import { ArrowUpRight, Sparkles, Layers } from 'lucide-react';
 import { problemCategories as defaultCategories } from '../data/eventData';
 import { eventService } from '../services/eventService';
 import ProblemDetailModal from './ProblemDetailModal';
@@ -57,42 +57,43 @@ export default function ProblemStatementsSection() {
     }
   };
 
-  const threatLevels = ['OMEGA LEVEL', 'CRITICAL LEVEL', 'GLOBAL CRISIS', 'EXTINCTION CLASS', 'OMEGA LEVEL', 'TACTICAL CRISIS'];
-  const variants = ['green', 'red', 'gold', 'green', 'red', 'gold'];
-
   return (
-    <section id="problems" className="section problems-section doom-battle-section">
+    <section id="problems" className="section problems-section">
       <div className="section-transition-top" />
       <div className="container">
-        {/* Header Briefing */}
+        {/* Header */}
         <div className="section-header center">
-          <HoloBadge variant="red" icon={ShieldAlert}>
-            HACKATHON TRACKS & THEMES
+          <HoloBadge variant="teal" icon={Layers}>
+            HACKATHON TRACKS
           </HoloBadge>
-          <h2 className="heading-section marvel-section-title">
-            PROBLEM STATEMENTS & TRACKS
+          <h2 className="heading-section">
+            PROBLEM STATEMENTS & THEMES
           </h2>
           <p className="section-lead">
-            Explore the problem tracks below, assemble your team, and develop transformative solutions during the Flagship 48-Hour Hackathon.
+            Select any theme below to examine technical specifications, sample constraints, and evaluation rubrics.
           </p>
         </div>
 
-        {/* 6 Track Cards Grid */}
-        <div className="problems-grid doom-threats-grid" style={{ marginTop: '2rem' }}>
+        {/* 6 Track Cards Grid - Minimal & Information Light */}
+        <div
+          className="problems-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
+            gap: '1.5rem',
+          }}
+        >
           {categories.map((prob, idx) => {
-            const threatLevel = threatLevels[idx % threatLevels.length];
-            const variant = variants[idx % variants.length];
-
+            const trackNum = `0${prob.number || idx + 1}`;
             return (
               <SuperheroPanel
-                key={prob.id}
-                variant={variant}
-                tag={`TRACK 0${prob.number} // ${prob.theme.toUpperCase()}`}
-                issueNumber={prob.theme.toUpperCase()}
-                className="doom-threat-panel"
+                key={prob.id || idx}
+                variant={idx % 2 === 0 ? 'teal' : 'silver'}
+                tag={`TRACK ${trackNum}`}
+                issueNumber={prob.theme ? prob.theme.toUpperCase() : 'CORE'}
+                className="problem-minimal-card"
               >
                 <div
-                  className="doom-threat-inner"
                   role="button"
                   tabIndex={0}
                   onClick={() => handleOpenCategory(prob)}
@@ -102,29 +103,63 @@ export default function ProblemStatementsSection() {
                       handleOpenCategory(prob);
                     }
                   }}
-                  style={{ cursor: 'pointer' }}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                  }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.8rem' }}>
-                    <span className="doom-threat-code">
-                      TRACK 0{prob.number}
-                    </span>
-                    <span className="doom-threat-badge">
-                      <Flame size={13} style={{ marginRight: '4px' }} />
-                      ACTIVE
-                    </span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                    <h3
+                      style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: '1.35rem',
+                        color: '#F5F5F7',
+                        margin: 0,
+                        letterSpacing: '0.02em',
+                      }}
+                    >
+                      {prob.title}
+                    </h3>
                   </div>
 
-                  <h3 className="doom-threat-title">
-                    {prob.title}
-                  </h3>
-
-                  <p className="doom-threat-brief">
+                  {/* 1-line concise focus */}
+                  <p
+                    style={{
+                      color: '#A1A6B3',
+                      fontSize: '0.88rem',
+                      lineHeight: '1.55',
+                      marginBottom: '1.4rem',
+                      flexGrow: 1,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
                     {prob.challenge}
                   </p>
 
-                  <div className="doom-threat-action-bar">
-                    <span>VIEW PROBLEM DETAILS</span>
-                    <ChevronRight size={16} />
+                  {/* Action trigger to reveal full modal */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+                      paddingTop: '0.85rem',
+                      marginTop: 'auto',
+                      color: '#63E6D1',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-mono)',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    <span>VIEW SPECIFICATIONS</span>
+                    <ArrowUpRight size={15} />
                   </div>
                 </div>
               </SuperheroPanel>
@@ -132,7 +167,7 @@ export default function ProblemStatementsSection() {
           })}
         </div>
 
-        {/* Modal Inspector */}
+        {/* Detailed Modal Inspector (Revealed on User Interaction) */}
         {activeProblem && (
           <ProblemDetailModal
             problem={activeProblem}

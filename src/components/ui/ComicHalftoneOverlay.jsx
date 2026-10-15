@@ -3,7 +3,7 @@ import React from 'react';
 export default function ComicHalftoneOverlay() {
   return (
     <div
-      className="comic-halftone-global-overlay"
+      className="atmospheric-global-overlay"
       style={{
         position: 'fixed',
         inset: 0,
@@ -13,23 +13,23 @@ export default function ComicHalftoneOverlay() {
       }}
       aria-hidden="true"
     >
-      {/* Subtle Comic Halftone Dot Matrix */}
+      {/* Subtle Micro Dot Matrix Texture */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: 'radial-gradient(rgba(230, 36, 41, 0.04) 1px, transparent 1px)',
-          backgroundSize: '24px 24px',
-          opacity: 0.6,
+          backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+          opacity: 0.5,
         }}
       />
 
-      {/* Cinematic Vignette */}
+      {/* Atmospheric Tech Vignette */}
       <div
         style={{
           position: 'absolute',
           inset: 0,
-          background: 'radial-gradient(circle at 50% 50%, transparent 60%, rgba(5, 7, 13, 0.85) 100%)',
+          background: 'radial-gradient(circle at 50% 40%, transparent 45%, rgba(8, 9, 13, 0.82) 100%)',
         }}
       />
     </div>

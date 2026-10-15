@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Clock, Award, Users, Zap, Terminal, Sparkles, Shield, Flame } from 'lucide-react';
+import { ArrowUpRight, Terminal, Sparkles, Flame, Clock, Users } from 'lucide-react';
 import { competitions } from '../data/eventData';
 import { eventService } from '../services/eventService';
 import SuperheroPanel from './ui/SuperheroPanel';
@@ -16,132 +16,160 @@ export default function CompetitionsSection() {
     });
     return () => { isMounted = false; };
   }, []);
-  const arenaThemes = {
+
+  const arenaMeta = {
     codeathon: {
-      themeName: 'SPEED CODING',
-      variant: 'blue',
-      badgeLabel: 'ALGORITHMS & SPEED',
-      accentColor: 'var(--color-arc-blue)',
+      tag: 'SPEED CODING',
+      variant: 'teal',
+      badge: 'ALGORITHMS',
       icon: Terminal,
-      subHeadline: 'ROUND 01 // INDIVIDUAL SPEED SPRINT',
+      punchline: 'High-speed algorithmic sprints and data structure challenges under time pressure.',
+      meta1: 'Individual',
+      meta2: '3 Hours',
     },
     ideathon: {
-      themeName: 'IDEATION & PITCH',
-      variant: 'gold',
-      badgeLabel: 'INNOVATION & DESIGN',
-      accentColor: 'var(--color-stark-gold)',
+      tag: 'INNOVATION PITCH',
+      variant: 'violet',
+      badge: 'IDEATION',
       icon: Sparkles,
-      subHeadline: 'ROUND 02 // PROPOSAL & PRESENTATION',
+      punchline: 'Visionary concept development, architecture planning, and executive pitch deck presentation.',
+      meta1: '1-3 Members',
+      meta2: 'Design & Pitch',
     },
     hackathon: {
-      themeName: 'FLAGSHIP HACKATHON',
-      variant: 'red',
-      badgeLabel: '48H PROTOTYPE SPRINT',
-      accentColor: 'var(--color-energy-red)',
+      tag: 'FLAGSHIP HACKATHON',
+      variant: 'teal',
+      badge: '48H SPRINT',
       icon: Flame,
-      subHeadline: 'ROUND 03 // FULL PROJECT BUILD & DEMO',
+      punchline: 'End-to-end prototype build across AI, Web3, FinTech, and open innovation tracks.',
+      meta1: '2-4 Members',
+      meta2: '48 Hours',
     },
   };
 
   return (
-    <section id="competitions" className="section competitions-section superhero-arenas-section">
+    <section id="competitions" className="section competitions-section">
       <div className="section-transition-top" />
       <div className="container">
         {/* Header */}
-        <div className="section-header">
-          <HoloBadge variant="red" icon={Shield}>
-            COMPETITIONS
+        <div className="section-header center">
+          <HoloBadge variant="teal" icon={Flame}>
+            COMPETITION ARENAS
           </HoloBadge>
-          <h2 className="heading-section marvel-section-title">THE THREE COMPETITIONS</h2>
+          <h2 className="heading-section">
+            THREE SPECIALIZED TRACKS
+          </h2>
           <p className="section-lead">
-            Three tailored competition tracks designed to test your problem-solving speed, creative ideation, and end-to-end building capabilities.
+            Select an arena to review full guidelines, evaluation criteria, problem tracks, and registration requirements.
           </p>
         </div>
 
-        {/* 3 Arenas Grid */}
-        <div className="competitions-grid marvel-arenas-grid">
+        {/* 3 Arenas Grid - Compact Minimal Cards */}
+        <div className="competitions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.5rem' }}>
           {compList.map((comp) => {
-            const isMain = comp.isDominant;
-            const theme = arenaThemes[comp.id] || {
-              themeName: 'EVENT TRACK',
-              variant: 'blue',
-              badgeLabel: comp.badge,
-              accentColor: 'var(--color-arc-blue)',
-              icon: Zap,
-              subHeadline: 'COMPETITION TRACK',
+            const meta = arenaMeta[comp.id] || {
+              tag: 'TRACK',
+              variant: 'teal',
+              badge: comp.badge || 'EVENT',
+              icon: Terminal,
+              punchline: comp.shortDescription,
+              meta1: comp.format || 'Team',
+              meta2: comp.duration || 'Sprint',
             };
-            const ThemeIcon = theme.icon;
+            const Icon = meta.icon;
 
             return (
               <SuperheroPanel
                 key={comp.id}
-                variant={theme.variant}
-                tag={theme.themeName}
-                issueNumber={comp.badge}
-                className={`marvel-arena-panel ${isMain ? 'dominant-arena' : ''}`}
+                variant={meta.variant}
+                tag={meta.tag}
+                issueNumber={meta.badge}
+                className="competition-minimal-card"
               >
-                {/* Visual Imagery Banner with comic frame */}
-                <div className="competition-image-wrap marvel-arena-img-wrap">
-                  <img
-                    src={comp.bgImage}
-                    alt={`${comp.title} Arena`}
-                    className="competition-panel-img marvel-arena-img"
-                    loading="lazy"
-                  />
-                  <div className="competition-img-overlay" />
-                  
-                  {/* Floating Hero Badge */}
-                  <div style={{ position: 'absolute', top: 12, right: 12 }}>
-                    <HoloBadge variant={theme.variant === 'blue' ? 'cyan' : theme.variant === 'gold' ? 'gold' : 'red'}>
-                      {theme.badgeLabel}
-                    </HoloBadge>
-                  </div>
-                </div>
-
-                {/* Body Content */}
-                <div className="competition-body" style={{ display: 'flex', flexDirection: 'column', height: '100%', marginTop: '1rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.4rem' }}>
-                    <ThemeIcon size={22} color={theme.accentColor} />
-                    <h3 className="heading-display" style={{ fontSize: '1.8rem', color: '#FFFFFF', letterSpacing: '0.04em' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  {/* Title & Icon */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+                    <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', color: '#F5F5F7', margin: 0, letterSpacing: '0.02em' }}>
                       {comp.title}
                     </h3>
+                    <div
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '8px',
+                        background: 'rgba(99, 230, 209, 0.08)',
+                        border: '1px solid rgba(99, 230, 209, 0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#63E6D1',
+                      }}
+                    >
+                      <Icon size={18} />
+                    </div>
                   </div>
 
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: theme.accentColor, fontWeight: 700, letterSpacing: '0.08em', marginBottom: '0.8rem' }}>
-                    {theme.subHeadline}
-                  </div>
-                  
-                  <p style={{ color: '#94A3B8', fontSize: '0.94rem', lineHeight: '1.6', marginBottom: '1.4rem' }}>
-                    {comp.shortDescription}
+                  {/* 1 concise tagline */}
+                  <p style={{ color: '#A1A6B3', fontSize: '0.9rem', lineHeight: '1.55', marginBottom: '1.25rem', flexGrow: 1 }}>
+                    {meta.punchline}
                   </p>
 
-                  {/* Operational Parameters */}
-                  <div className="competition-meta-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1.6rem', background: 'rgba(5, 7, 13, 0.6)', padding: '0.9rem', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.86rem', color: '#E2E8F0' }}>
-                      <Clock size={16} color={theme.accentColor} />
-                      <span>{comp.duration}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.86rem', color: '#E2E8F0' }}>
-                      <Users size={16} color={theme.accentColor} />
-                      <span>{comp.format}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', fontSize: '0.86rem', color: '#E2E8F0' }}>
-                      <Award size={16} color={theme.accentColor} />
-                      <span>{comp.evaluation}</span>
-                    </div>
+                  {/* 2 Essential metadata badges */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.35rem',
+                        fontSize: '0.78rem',
+                        color: '#C7CED8',
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.07)',
+                        padding: '0.25rem 0.6rem',
+                        borderRadius: '6px',
+                        fontFamily: 'var(--font-mono)',
+                      }}
+                    >
+                      <Users size={12} color="#63E6D1" />
+                      {meta.meta1}
+                    </span>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.35rem',
+                        fontSize: '0.78rem',
+                        color: '#C7CED8',
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.07)',
+                        padding: '0.25rem 0.6rem',
+                        borderRadius: '6px',
+                        fontFamily: 'var(--font-mono)',
+                      }}
+                    >
+                      <Clock size={12} color="#63E6D1" />
+                      {meta.meta2}
+                    </span>
                   </div>
 
-                  {/* Deploy Action */}
-                  <div style={{ marginTop: 'auto' }}>
-                    <Link
-                      to={`/${comp.id}`}
-                      className={`btn ${isMain ? 'btn-avenger' : 'btn-reactor'}`}
-                      style={{ width: '100%', justifyContent: 'center' }}
-                    >
-                      {comp.cta}
-                      <ArrowUpRight size={16} />
-                    </Link>
-                  </div>
+                  {/* Intentional Interaction Link */}
+                  <Link
+                    to={`/${comp.id}`}
+                    className="btn btn-secondary"
+                    style={{
+                      width: '100%',
+                      justifyContent: 'center',
+                      fontSize: '0.82rem',
+                      padding: '0.7rem 1rem',
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      borderColor: 'rgba(255, 255, 255, 0.08)',
+                      color: '#F5F5F7',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <span>EXPLORE ARENA DETAILS</span>
+                    <ArrowUpRight size={15} color="#63E6D1" />
+                  </Link>
                 </div>
               </SuperheroPanel>
             );

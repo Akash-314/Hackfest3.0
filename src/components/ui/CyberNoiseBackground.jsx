@@ -13,19 +13,24 @@ export default function CyberNoiseBackground() {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    // Particles
-    const particleCount = Math.min(width > 768 ? 60 : 25, 60);
+    // Subtle, low-density ambient drifting particles
+    const particleCount = Math.min(width > 768 ? 40 : 18, 40);
     const particles = [];
 
-    const colors = ['rgba(0, 191, 255, 0.4)', 'rgba(230, 36, 41, 0.35)', 'rgba(245, 182, 66, 0.35)'];
+    // Refined premium color system: Teal, Silver, Muted Violet
+    const colors = [
+      'rgba(99, 230, 209, 0.25)',  // #63E6D1 teal
+      'rgba(199, 206, 216, 0.20)', // #C7CED8 silver
+      'rgba(155, 138, 251, 0.18)', // #9B8AFB muted violet
+    ];
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        radius: Math.random() * 1.5 + 0.5,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
+        radius: Math.random() * 1.2 + 0.4,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25,
         color: colors[i % colors.length],
       });
     }
@@ -40,7 +45,7 @@ export default function CyberNoiseBackground() {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Render drifting energy particles
+      // Render drifting ambient light specks
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
@@ -62,28 +67,23 @@ export default function CyberNoiseBackground() {
     render();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
   return (
-    <div className="cyber-ambient-environment" aria-hidden="true">
-      <div className="cyber-grid-floor" />
-      <div className="cyber-vignette-radial" />
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'fixed',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          maxWidth: '100vw',
-          pointerEvents: 'none',
-          zIndex: 0,
-          opacity: 0.75,
-        }}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="cyber-noise-canvas"
+      style={{
+        position: 'fixed',
+        inset: 0,
+        pointerEvents: 'none',
+        zIndex: 0,
+        opacity: 0.85,
+      }}
+      aria-hidden="true"
+    />
   );
 }

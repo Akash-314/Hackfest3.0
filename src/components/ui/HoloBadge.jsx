@@ -2,16 +2,16 @@ import React from 'react';
 
 export default function HoloBadge({
   children,
-  variant = 'cyan', // 'cyan', 'red', 'gold', 'steel'
+  variant = 'teal', // 'teal', 'cyan', 'gold', 'red', 'silver', 'violet'
   icon: Icon,
   className = '',
   style = {},
 }) {
   return (
-    <span className={`holo-badge holo-badge-${variant} ${className}`} style={style}>
-      <span className="holo-badge-pulse" />
-      {Icon && <Icon size={13} className="holo-badge-icon" />}
-      <span className="holo-badge-text">{children}</span>
+    <span className={`premium-badge badge-${variant} ${className}`} style={style}>
+      <span className="premium-badge-dot" />
+      {Icon && <Icon size={12} className="premium-badge-icon" />}
+      <span className="premium-badge-text">{children}</span>
     </span>
   );
 }

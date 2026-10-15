@@ -7,6 +7,7 @@ import ScrollToTop from './components/ScrollToTop';
 import CyberNoiseBackground from './components/ui/CyberNoiseBackground';
 import ComicHalftoneOverlay from './components/ui/ComicHalftoneOverlay';
 import CursorTrail from './components/cinematic/CursorTrail';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Existing Pages
 import HomePage from './pages/HomePage';
@@ -54,8 +55,9 @@ import SdcMembersPage from './pages/SdcMembersPage';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
+    <ErrorBoundary>
+      <AuthProvider>
+        <BrowserRouter>
         <ScrollToTop />
         <div className="site-wrapper">
           <CursorTrail />
@@ -256,5 +258,6 @@ export default function App() {
         </div>
       </BrowserRouter>
     </AuthProvider>
+  </ErrorBoundary>
   );
 }

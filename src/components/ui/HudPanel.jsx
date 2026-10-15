@@ -4,68 +4,82 @@ export default function HudPanel({
   children,
   className = '',
   style = {},
-  variant = 'cyan', // 'cyan', 'red', 'gold', 'steel'
+  variant = 'teal', // 'teal', 'cyan', 'gold', 'red', 'dark', 'violet'
   tag = '',
-  scan = true,
-  tilt = true,
+  scan = false,
+  tilt = false,
   onClick,
 }) {
-  const cardRef = useRef(null);
-  const [tiltStyle, setTiltStyle] = useState({});
-
-  const handleMouseMove = (e) => {
-    if (!tilt || !cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -5;
-    const rotateY = ((x - centerX) / centerX) * 5;
-
-    setTiltStyle({
-      transform: `perspective(900px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-2px)`,
-    });
-  };
-
-  const handleMouseLeave = () => {
-    if (!tilt) return;
-    setTiltStyle({
-      transform: 'perspective(900px) rotateX(0deg) rotateY(0deg) translateY(0)',
-    });
-  };
-
   return (
     <div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       onClick={onClick}
-      className={`hud-panel-frame hud-variant-${variant} ${scan ? 'hud-scan-active' : ''} ${className}`}
+      className={`glass-card-panel ${className}`}
       style={{
-        ...tiltStyle,
+        position: 'relative',
+        background: 'rgba(255, 255, 255, 0.042)',
+        backdropFilter: 'blur(18px) saturate(125%)',
+        WebkitBackdropFilter: 'blur(18px) saturate(125%)',
+        border: '1px solid rgba(255, 255, 255, 0.065)',
+        borderRadius: '12px',
+        boxShadow: '0 14px 34px -10px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
+        overflow: 'hidden',
+        transition: 'all 0.28s cubic-bezier(0.16, 1, 0.3, 1)',
         ...style,
       }}
     >
-      {/* Corner Brackets [+] */}
-      <span className="hud-corner hud-corner-tl" />
-      <span className="hud-corner hud-corner-tr" />
-      <span className="hud-corner hud-corner-bl" />
-      <span className="hud-corner hud-corner-br" />
+      {/* Subtle top reflection line */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '12%',
+          right: '12%',
+          height: '1px',
+          background: 'linear-gradient(90deg, transparent, rgba(99, 230, 209, 0.35), transparent)',
+          pointerEvents: 'none',
+        }}
+      />
 
-      {/* Scanning beam animation */}
-      {scan && <div className="hud-scanner-beam" />}
-
-      {/* Top telemetry tag */}
+      {/* Header Tag Bar */}
       {tag && (
-        <div className="hud-telemetry-strip">
-          <span className="hud-tag-dot" />
-          <span className="hud-tag-text">{tag}</span>
+        <div
+          style={{
+            padding: '0.65rem 1.15rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+            background: 'rgba(255, 255, 255, 0.015)',
+          }}
+        >
+          <span
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.72rem',
+              letterSpacing: '0.09em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-secondary)',
+              fontWeight: 600,
+            }}
+          >
+            {tag}
+          </span>
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: '#63E6D1',
+              boxShadow: '0 0 8px rgba(99, 230, 209, 0.6)',
+            }}
+          />
         </div>
       )}
 
-      {/* Inner panel content */}
-      <div className="hud-panel-inner">{children}</div>
+      {/* Panel Content Body */}
+      <div style={{ padding: '1.4rem' }}>
+        {children}
+      </div>
     </div>
   );
 }
