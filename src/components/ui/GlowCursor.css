@@ -46,3 +46,35 @@
 .glow-cursor-background-layer * {
   pointer-events: none;
 }
+
+/* Global persistent viewport-fixed layer */
+.glow-cursor-global-layer {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99998;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.glow-cursor-global-layer .glow-cursor {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.glow-cursor-global-layer .glow-cursor__canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.glow-cursor-global-layer * {
+  pointer-events: none;
+}
+

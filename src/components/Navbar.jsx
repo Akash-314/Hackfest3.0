@@ -22,11 +22,13 @@ import {
   Globe,
   ClipboardList,
   Scale,
+  LogIn,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import sdcLogo from '../assets/logo.png';
 import aktuLogo from '../assets/aktu-logo.png';
 import innovationHubLogo from '../assets/innovation-hub-logo.png';
+import GooeyNav from './ui/GooeyNav';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -112,12 +114,13 @@ export default function Navbar() {
   // Navigation action helper that executes real route navigation and drawer closure
   const handleNavAction = (item) => {
     setDrawerOpen(false);
-    if (!item?.path) return;
+    const dest = item?.path || item?.href;
+    if (!dest) return;
 
-    if (item.path === '/' && location.pathname === '/') {
+    if (dest === '/' && location.pathname === '/') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      navigate(item.path);
+      navigate(dest);
     }
   };
 
@@ -142,40 +145,42 @@ export default function Navbar() {
     { label: 'SDC FAMILY MEMBERS', path: '/sdc-members' },
   ];
 
-  // Drawer Group 1: Main Pages
-  const mainPages = [
-    { label: 'Home', path: '/', icon: Home, tag: 'PORTAL' },
-    { label: 'About HackFest', path: '/about', icon: Info, tag: 'THEME' },
-    { label: 'Competitions & Tracks', path: '/competitions', icon: Trophy, tag: 'ARENAS' },
-    { label: 'Problem Statements', path: '/problems', icon: Target, tag: 'CHALLENGES' },
-    { label: 'Prizes & Honors', path: '/prizes', icon: Award, tag: 'REWARDS' },
-    { label: 'Event Sponsors', path: '/sponsors', icon: Sparkles, tag: 'ALLIES' },
-    { label: 'SDC Family Members', path: '/sdc-members', icon: Users2, tag: 'SDC BANDA' },
+  const activeNavIndex = desktopNavItems.findIndex((item) => isRouteActive(item.path));
+
+  // Drawer Group 1: Explore
+  const explorePages = [
+    { label: 'Home', path: '/', icon: Home },
+    { label: 'About', path: '/about', icon: Info },
+    { label: 'Competitions', path: '/competitions', icon: Trophy },
+    { label: 'Problem Statements', path: '/problems', icon: Target },
+    { label: 'Prizes', path: '/prizes', icon: Award },
+    { label: 'Sponsors', path: '/sponsors', icon: Sparkles },
   ];
 
-  // Drawer Group 2: Event Information
-  const eventInfoPages = [
-    { label: 'Live Leaderboard', path: '/leaderboard', icon: TrendingUp, tag: 'SCORES' },
-    { label: 'Rules & FAQs', path: '/rules', icon: HelpCircle, tag: 'DIRECTIVES' },
-    { label: 'Mentors & Judges', path: '/mentors', icon: Users, tag: 'COUNCIL' },
+  // Drawer Group 2: Event
+  const eventPages = [
+    { label: 'Schedule', path: '/schedule', icon: Calendar },
+    { label: 'Leaderboard', path: '/leaderboard', icon: TrendingUp },
+    { label: 'Rules & FAQs', path: '/rules', icon: HelpCircle },
+    { label: 'Mentors & Judges', path: '/mentors', icon: Users },
   ];
 
   // Drawer Group 3: Community
   const communityPages = [
-    { label: 'SDC Members & Faculty', path: '/sdc-members', icon: Users2, tag: 'SDC BANDA' },
+    { label: 'SDC Members & Faculty', path: '/sdc-members', icon: Users2 },
   ];
 
   // Drawer Group 4: Administration (Strictly Role Protected)
   const adminPages = (isAdmin || isSuperAdmin)
     ? [
-        { label: 'Admin Console Overview', path: '/admin', icon: LayoutDashboard, tag: 'DASHBOARD' },
+        { label: 'Admin Console', path: '/admin', icon: LayoutDashboard },
         ...(isSuperAdmin
-          ? [{ label: 'Admin Management', path: '/admin/users', icon: ShieldAlert, tag: 'SUPER ACCESS' }]
+          ? [{ label: 'Admin Management', path: '/admin/users', icon: ShieldAlert }]
           : []),
-        { label: 'Website CMS & Schedule', path: '/admin/cms', icon: Globe, tag: 'CONTENT' },
-        { label: 'Registration Management', path: '/admin/registrations', icon: Trophy, tag: 'RECORDS' },
-        { label: 'SDC Members Registry', path: '/admin/sdc-members', icon: Users2, tag: 'ROSTER' },
-        { label: 'Audit Log Trail', path: '/admin/audit', icon: ClipboardList, tag: 'SECURITY' },
+        { label: 'Website CMS & Schedule', path: '/admin/cms', icon: Globe },
+        { label: 'Registrations', path: '/admin/registrations', icon: Trophy },
+        { label: 'SDC Members Registry', path: '/admin/sdc-members', icon: Users2 },
+        { label: 'Audit Log Trail', path: '/admin/audit', icon: ClipboardList },
       ]
     : [];
 
@@ -212,24 +217,19 @@ export default function Navbar() {
 
             {/* Institutional Partner Logos: SDC, AKTU, Innovation Hub */}
             <div className="nav-partner-logos-strip" aria-label="Organizing & Academic Partners">
-              <a
-                href="https://sdcrecbanda.in"
-                target="_blank"
-                rel="noreferrer"
+              <div
                 className="nav-partner-badge sdc-badge"
                 title="Student Developer Club (SDC)"
+                style={{ cursor: 'default' }}
               >
                 <img
                   src={sdcLogo}
                   alt="Student Developer Club"
                   className="nav-partner-img nav-sdc-img"
                 />
-              </a>
+              </div>
 
-              <a
-                href="https://aktu.ac.in"
-                target="_blank"
-                rel="noreferrer"
+              <div
                 className="nav-partner-badge aktu-badge"
                 title="Dr. A.P.J. Abdul Kalam Technical University, Lucknow"
               >
@@ -238,7 +238,7 @@ export default function Navbar() {
                   alt="AKTU Lucknow"
                   className="nav-partner-img nav-aktu-img"
                 />
-              </a>
+              </div>
 
               <div
                 className="nav-partner-badge inno-hub-badge"
@@ -254,26 +254,33 @@ export default function Navbar() {
           </div>
 
           {/* ============================================================== */}
-          {/* 2. CENTER: Floating Navigation Capsule (Reference Style)       */}
+          {/* 2. CENTER: Floating Navigation Capsule with GooeyNav Effect    */}
           {/* ============================================================== */}
-          <nav className="nav-capsule-wrapper" aria-label="Main Navigation">
-            <ul className="nav-capsule-list">
-              {desktopNavItems.map((item) => {
-                const isActive = isRouteActive(item.path);
-                return (
-                  <li key={item.label} className="nav-capsule-item">
-                    <NavLink
-                      to={item.path}
-                      className={`nav-capsule-link ${isActive ? 'active' : ''}`}
-                      onClick={() => setDrawerOpen(false)}
-                    >
-                      {item.label}
-                    </NavLink>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
+          <div className="nav-capsule-wrapper" aria-label="Main Navigation">
+            <GooeyNav
+              items={desktopNavItems.map((item) => ({
+                label: item.label,
+                href: item.path,
+                path: item.path,
+              }))}
+              activeIndex={activeNavIndex >= 0 ? activeNavIndex : 0}
+              initialActiveIndex={0}
+              theme="dark"
+              size="sm"
+              frame={true}
+              color="#222832"
+              activeTextColor="#FFFFFF"
+              colors={['#272E3B', '#1E242E', '#323B4A']}
+              particleCount={14}
+              spread={74}
+              animationTime={550}
+              timeVariance={350}
+              gooeyness={0.7}
+              wobble={0.4}
+              hoverEffect={true}
+              onChange={(index, item) => handleNavAction(item)}
+            />
+          </div>
 
           {/* ============================================================== */}
           {/* 3. RIGHT: Reference Pill Action Button [ SIGN IN (↗) ] & Menu  */}
@@ -365,7 +372,7 @@ export default function Navbar() {
                 <span className="nav-brand-word-hackfest" style={{ fontSize: '1.25rem' }}>Hackfest</span>{' '}
                 <span className="nav-brand-version-number" style={{ fontSize: '1.1rem' }}>3.0</span>
               </div>
-              <div className="drawer-header-sub">SDC // REC BANDA</div>
+              <div className="drawer-header-sub">STUDENT DEVELOPER CLUB • REC BANDA</div>
             </div>
           </div>
 
@@ -378,15 +385,6 @@ export default function Navbar() {
             <X size={16} />
             <span>CLOSE</span>
           </button>
-        </div>
-
-        {/* Telemetry Status Strip */}
-        <div className="drawer-telemetry">
-          <div className="drawer-telemetry-badge">
-            <span className="drawer-pulse-dot" />
-            <span>PORTAL LIVE • ALL SYSTEMS NOMINAL</span>
-          </div>
-          <span className="drawer-campus-tag">REC BANDA</span>
         </div>
 
         {/* Scrollable Drawer Body */}
@@ -414,7 +412,7 @@ export default function Navbar() {
                 </span>
               </div>
 
-              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', marginTop: '0.2rem' }}>
+              <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', marginTop: '0.4rem' }}>
                 <Link
                   to="/dashboard"
                   onClick={() => setDrawerOpen(false)}
@@ -452,13 +450,12 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Section 1: Main Pages */}
+          {/* Section 1: Explore */}
           <div className="drawer-section-group">
             <div className="drawer-section-title">
-              <span>// MAIN SECTIONS</span>
-              <span style={{ fontSize: '0.62rem', opacity: 0.6 }}>PRIMARY</span>
+              <span>EXPLORE</span>
             </div>
-            {mainPages.map((item) => (
+            {explorePages.map((item) => (
               <button
                 key={item.label}
                 type="button"
@@ -469,18 +466,17 @@ export default function Navbar() {
                   <item.icon size={16} className="drawer-link-icon" />
                   <span>{item.label}</span>
                 </div>
-                <span className="drawer-link-tag">{item.tag}</span>
+                <ChevronRight size={14} className="drawer-link-chevron" />
               </button>
             ))}
           </div>
 
-          {/* Section 2: Event Information */}
+          {/* Section 2: Event */}
           <div className="drawer-section-group">
             <div className="drawer-section-title">
-              <span>// EVENT INFORMATION</span>
-              <span style={{ fontSize: '0.62rem', opacity: 0.6 }}>LOGISTICS</span>
+              <span>EVENT</span>
             </div>
-            {eventInfoPages.map((item) => (
+            {eventPages.map((item) => (
               <button
                 key={item.label}
                 type="button"
@@ -491,7 +487,7 @@ export default function Navbar() {
                   <item.icon size={16} className="drawer-link-icon" />
                   <span>{item.label}</span>
                 </div>
-                <span className="drawer-link-tag">{item.tag}</span>
+                <ChevronRight size={14} className="drawer-link-chevron" />
               </button>
             ))}
           </div>
@@ -499,8 +495,7 @@ export default function Navbar() {
           {/* Section 3: Community */}
           <div className="drawer-section-group">
             <div className="drawer-section-title">
-              <span>// COMMUNITY & CHAPTER</span>
-              <span style={{ fontSize: '0.62rem', opacity: 0.6 }}>FACULTY & ROSTER</span>
+              <span>COMMUNITY</span>
             </div>
             {communityPages.map((item) => (
               <button
@@ -513,7 +508,7 @@ export default function Navbar() {
                   <item.icon size={16} className="drawer-link-icon" />
                   <span>{item.label}</span>
                 </div>
-                <span className="drawer-link-tag">{item.tag}</span>
+                <ChevronRight size={14} className="drawer-link-chevron" />
               </button>
             ))}
           </div>
@@ -525,9 +520,6 @@ export default function Navbar() {
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                   <ShieldCheck size={14} />
                   ADMINISTRATION
-                </span>
-                <span style={{ fontSize: '0.62rem', color: 'var(--color-stark-gold)' }}>
-                  {isSuperAdmin ? 'SUPER ADMIN' : 'AUTHORIZED'}
                 </span>
               </div>
               {adminPages.map((item) => (
@@ -541,9 +533,7 @@ export default function Navbar() {
                     <item.icon size={15} style={{ color: item.superOnly ? 'var(--color-stark-gold)' : '#ffb4b7' }} />
                     <span style={{ color: item.superOnly ? 'var(--color-stark-gold)' : '#ffb4b7' }}>{item.label}</span>
                   </div>
-                  <span className="drawer-link-tag" style={{ borderColor: 'rgba(230, 36, 41, 0.3)', color: '#ffb4b7' }}>
-                    {item.tag}
-                  </span>
+                  <ChevronRight size={14} className="drawer-link-chevron" />
                 </button>
               ))}
             </div>
@@ -553,8 +543,7 @@ export default function Navbar() {
           {isJudge && !isAdmin && (
             <div className="drawer-section-group">
               <div className="drawer-section-title">
-                <span>// JUDGE CONSOLE</span>
-                <span style={{ fontSize: '0.62rem', opacity: 0.6 }}>EVALUATION</span>
+                <span>JUDGE CONSOLE</span>
               </div>
               <button
                 type="button"
@@ -565,19 +554,18 @@ export default function Navbar() {
                   <Scale size={16} className="drawer-link-icon" />
                   <span>Judge Evaluation Portal</span>
                 </div>
-                <span className="drawer-link-tag">JUDGING</span>
+                <ChevronRight size={14} className="drawer-link-chevron" />
               </button>
             </div>
           )}
 
           {/* Section 6: Guest Account Actions (If Not Logged In) */}
           {!user && (
-            <div className="drawer-section-group" style={{ marginTop: '0.5rem' }}>
+            <div className="drawer-section-group" style={{ marginTop: '0.4rem' }}>
               <div className="drawer-section-title">
-                <span>// PARTICIPANT ACCESS</span>
-                <span style={{ fontSize: '0.62rem', opacity: 0.6 }}>CLEARANCE</span>
+                <span>ACCOUNT</span>
               </div>
-              <div className="drawer-auth-actions">
+              <div className="drawer-auth-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 <Link
                   to="/register"
                   onClick={() => setDrawerOpen(false)}
@@ -591,8 +579,9 @@ export default function Navbar() {
                     gap: '0.5rem',
                   }}
                 >
+                  <Sparkles size={15} />
                   <span>REGISTER FOR HACKFEST</span>
-                  <ArrowUpRight size={16} />
+                  <ArrowUpRight size={15} />
                 </Link>
                 <Link
                   to="/login"
@@ -607,7 +596,8 @@ export default function Navbar() {
                     gap: '0.5rem',
                   }}
                 >
-                  <span>LOG IN TO ACCOUNT</span>
+                  <LogIn size={15} />
+                  <span>SIGN IN</span>
                 </Link>
               </div>
             </div>

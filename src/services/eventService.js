@@ -191,7 +191,7 @@ export const eventService = {
           const formattedItems = items.map((d, i) => {
             const timeDisplay = (d.start_time && d.end_time)
               ? `${d.start_time} – ${d.end_time}`
-              : (d.start_time || '[TO BE DECIDED]');
+              : (d.start_time || 'TO BE DECIDED');
 
             const category = d.category || d.badge?.replace('[DRAFT]', '').trim() || 'General';
             const badge = d.badge?.replace('[DRAFT]', '').trim() || category;

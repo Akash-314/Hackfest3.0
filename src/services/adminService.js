@@ -299,7 +299,7 @@ export const adminService = {
 
     const corePayload = {
       venue: settings.venue || 'Multipurpose Hall, REC Banda Campus, Atarra, Banda (U.P.)',
-      contact_email: settings.contact_email || settings.contactEmail || 'sdc@recbanda.ac.in',
+      contact_email: settings.contact_email || settings.contactEmail || 'sdc2021recbanda@gmail.com',
       registration_deadline: settings.registration_deadline || settings.registrationDeadline || 'REGISTRATION CLOSING SOON',
       live_mode_status: settings.live_mode_status || settings.liveModeStatus || 'REGISTRATION OPEN',
       leaderboard_published: Boolean(settings.leaderboard_published ?? settings.leaderboardPublished),

@@ -8,6 +8,7 @@ export default function SuperheroPanel({
   className = '',
   style = {},
   tilt = false,
+  backgroundArt = null,
 }) {
   // Premium restrained accent palette
   const accentColors = {
@@ -26,13 +27,13 @@ export default function SuperheroPanel({
 
   return (
     <div
-      className={`glass-panel-card ${className}`}
+      className={`glass-panel-card superhero-panel-card ${className}`}
       style={{
         position: 'relative',
-        background: 'rgba(255, 255, 255, 0.042)',
+        background: 'rgba(16, 20, 28, 0.88)',
         backdropFilter: 'blur(18px) saturate(125%)',
         WebkitBackdropFilter: 'blur(18px) saturate(125%)',
-        border: '1px solid rgba(255, 255, 255, 0.065)',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
         borderRadius: '12px',
         boxShadow: '0 14px 34px -10px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
         overflow: 'hidden',
@@ -50,6 +51,7 @@ export default function SuperheroPanel({
           height: '1px',
           background: `linear-gradient(90deg, transparent, ${accent}35, transparent)`,
           pointerEvents: 'none',
+          zIndex: 2,
         }}
       />
 
@@ -57,12 +59,14 @@ export default function SuperheroPanel({
       {(tag || issueNumber) && (
         <div
           style={{
+            position: 'relative',
+            zIndex: 2,
             padding: '0.65rem 1.15rem',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-            background: 'rgba(255, 255, 255, 0.015)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+            background: 'rgba(255, 255, 255, 0.02)',
           }}
         >
           <span
@@ -97,8 +101,33 @@ export default function SuperheroPanel({
         </div>
       )}
 
+      {/* Superhero-Themed Ambient Background Artwork */}
+      {backgroundArt && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            overflow: 'hidden',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+          aria-hidden="true"
+        >
+          {backgroundArt}
+          {/* Gentle dark gradient overlay for text contrast */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(135deg, rgba(12, 16, 23, 0.92) 25%, rgba(12, 16, 23, 0.72) 100%)',
+              pointerEvents: 'none',
+            }}
+          />
+        </div>
+      )}
+
       {/* Panel Content Body */}
-      <div style={{ padding: '1.35rem' }}>
+      <div style={{ position: 'relative', zIndex: 1, padding: '1.35rem', height: '100%', display: 'flex', flexDirection: 'column' }}>
         {children}
       </div>
     </div>

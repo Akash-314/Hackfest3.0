@@ -26,12 +26,11 @@ export const eventMeta = {
   },
   registrationStatus: "OPEN",
   registrationDeadline: "REGISTRATION CLOSING SOON",
-  contactEmail: "sdc@recbanda.ac.in",
+  contactEmail: "sdc2021recbanda@gmail.com",
   socials: {
-    instagram: "https://instagram.com/sdc_recb",
-    linkedin: "https://linkedin.com/company/student-developer-club-rec-banda",
-    x: "https://x.com/sdcrecbanda",
-    website: "https://recbanda.ac.in"
+    instagram: "https://www.instagram.com/student_developer_club/",
+    linkedin: "https://www.linkedin.com/company/student-developer-club-rec-banda",
+    x: "https://x.com/SDC_RECB"
   }
 };
 
@@ -112,10 +111,10 @@ export const competitions = [
       ]
     },
     timeline: [
-      { step: "01", name: "PORTAL LOGIN", time: "DAY 1 • [TO BE DECIDED]" },
-      { step: "02", name: "PROBLEM REVEAL", time: "DAY 1 • [TO BE DECIDED]" },
-      { step: "03", name: "CODING SPRINT (1.5 HRS)", time: "DAY 1 • [TO BE DECIDED]" },
-      { step: "04", name: "LEADERBOARD FREEZE & AUDIT", time: "DAY 1 • [TO BE DECIDED]" }
+      { step: "01", name: "PORTAL LOGIN", time: "DAY 1 • TO BE DECIDED" },
+      { step: "02", name: "PROBLEM REVEAL", time: "DAY 1 • TO BE DECIDED" },
+      { step: "03", name: "CODING SPRINT (1.5 HRS)", time: "DAY 1 • TO BE DECIDED" },
+      { step: "04", name: "LEADERBOARD FREEZE & AUDIT", time: "DAY 1 • TO BE DECIDED" }
     ],
     faqs: [
       { q: "What platform will be used for Codeathon?", a: "The contest will be hosted on a dedicated competitive programming platform configured for REC Banda." },
@@ -147,17 +146,17 @@ export const competitions = [
       "Physical mockups, wireframes, or architectural diagrams are strongly encouraged during the pitch."
     ],
     judgingCriteria: [
-      { criterion: "PROBLEM IDENTIFICATION", weight: "[TO BE DECIDED]" },
-      { criterion: "ORIGINALITY", weight: "[TO BE DECIDED]" },
-      { criterion: "SOLUTION APPROACH", weight: "[TO BE DECIDED]" },
-      { criterion: "FEASIBILITY", weight: "[TO BE DECIDED]" },
-      { criterion: "IMPACT", weight: "[TO BE DECIDED]" },
-      { criterion: "SCALABILITY", weight: "[TO BE DECIDED]" },
-      { criterion: "PRESENTATION", weight: "[TO BE DECIDED]" },
-      { criterion: "Q&A / DEFENSE", weight: "[TO BE DECIDED]" }
+      { criterion: "PROBLEM IDENTIFICATION", weight: "TO BE DECIDED" },
+      { criterion: "ORIGINALITY", weight: "TO BE DECIDED" },
+      { criterion: "SOLUTION APPROACH", weight: "TO BE DECIDED" },
+      { criterion: "FEASIBILITY", weight: "TO BE DECIDED" },
+      { criterion: "IMPACT", weight: "TO BE DECIDED" },
+      { criterion: "SCALABILITY", weight: "TO BE DECIDED" },
+      { criterion: "PRESENTATION", weight: "TO BE DECIDED" },
+      { criterion: "Q&A / DEFENSE", weight: "TO BE DECIDED" }
     ],
     timeline: [
-      { step: "01", name: "PITCH ROSTER POSTING", time: "DAY 1 • [TO BE DECIDED]" },
+      { step: "01", name: "PITCH ROSTER POSTING", time: "DAY 1 • TO BE DECIDED" },
       { step: "02", name: "SINGLE PITCHING ROUND", time: "DAY 1 • AFTERNOON" },
       { step: "03", name: "JURY CROSS-EXAMINATION", time: "DAY 1 • CONCURRENT" },
       { step: "04", name: "EVALUATION SCORE COLLATION", time: "DAY 1 • POST-PITCH" }
@@ -193,21 +192,21 @@ export const competitions = [
       "Final presentations require a live, functioning prototype demonstration on stage in the Multipurpose Hall."
     ],
     judgingCriteria: [
-      { criterion: "PROBLEM UNDERSTANDING", weight: "[TO BE DECIDED]" },
-      { criterion: "QUALITY OF SOLUTION", weight: "[TO BE DECIDED]" },
-      { criterion: "INNOVATION", weight: "[TO BE DECIDED]" },
-      { criterion: "TECHNICAL IMPLEMENTATION", weight: "[TO BE DECIDED]" },
-      { criterion: "FUNCTIONALITY", weight: "[TO BE DECIDED]" },
-      { criterion: "USABILITY & FEASIBILITY", weight: "[TO BE DECIDED]" },
-      { criterion: "IMPACT", weight: "[TO BE DECIDED]" },
-      { criterion: "SCALABILITY", weight: "[TO BE DECIDED]" },
-      { criterion: "PRESENTATION & DEMO", weight: "[TO BE DECIDED]" }
+      { criterion: "PROBLEM UNDERSTANDING", weight: "TO BE DECIDED" },
+      { criterion: "QUALITY OF SOLUTION", weight: "TO BE DECIDED" },
+      { criterion: "INNOVATION", weight: "TO BE DECIDED" },
+      { criterion: "TECHNICAL IMPLEMENTATION", weight: "TO BE DECIDED" },
+      { criterion: "FUNCTIONALITY", weight: "TO BE DECIDED" },
+      { criterion: "USABILITY & FEASIBILITY", weight: "TO BE DECIDED" },
+      { criterion: "IMPACT", weight: "TO BE DECIDED" },
+      { criterion: "SCALABILITY", weight: "TO BE DECIDED" },
+      { criterion: "PRESENTATION & DEMO", weight: "TO BE DECIDED" }
     ],
     timeline: [
       { step: "01", name: "CATEGORY SELECTION", time: "DAY 2 • MORNING" },
-      { step: "02", name: "DEVELOPMENT COMMENCES", time: "DAY 2 • [TO BE DECIDED]" },
+      { step: "02", name: "DEVELOPMENT COMMENCES", time: "DAY 2 • TO BE DECIDED" },
       { step: "03", name: "MENTORING ROUNDS", time: "DAY 2 • AFTERNOON" },
-      { step: "04", name: "FINAL SUBMISSION CUTOFF", time: "DAY 2 • [TO BE DECIDED]" },
+      { step: "04", name: "FINAL SUBMISSION CUTOFF", time: "DAY 2 • TO BE DECIDED" },
       { step: "05", name: "LIVE JURY DEMONSTRATIONS", time: "DAY 2 • EVENING" }
     ],
     faqs: [
@@ -221,11 +220,12 @@ export const problemCategories = [
   {
     id: "cat-01",
     number: "01",
-    title: "[PROBLEM CATEGORY 01]",
+    title: "Resilient Infrastructure & Autonomous Systems",
     placeholderNotice: "OFFICIAL PROBLEM STATEMENT TO BE UNVEILED AT BRIEFING",
-    theme: "Resilient Infrastructure & Autonomous Systems",
-    background: "Modern public infrastructure—from power distribution grids to distributed transit and logistics networks—remains vulnerable to severe environmental disruptions, cascading outages, and single points of failure.",
-    challenge: "Design and implement a decentralized, highly fault-tolerant system capable of monitoring, rerouting, or automatically balancing infrastructure services during catastrophic system failure.",
+    theme: "Autonomous Failure Detection & Distributed Failover in Damaged Infrastructure",
+    summary: "When severe weather or outages crash city power and transit grids together, communities are left stranded. Build an autonomous monitoring and rerouting system that isolates breakdowns in real time and keeps critical services running.",
+    background: "Public infrastructure—power grids, water networks, and transit systems—is deeply interconnected. When one part fails during an extreme storm or technical malfunction, that failure quickly cascades into neighboring utilities, shutting down emergency services and leaving citizens without basic support.",
+    challenge: "Build a resilient monitoring and control engine that tracks live telemetry, detects points of failure early, and automatically reroutes services around damaged sectors to keep essential community infrastructure operating.",
     requirements: [
       "Real-time or simulated sensory telemetry ingestion.",
       "Fault-detection algorithms with failover mechanism.",
@@ -239,11 +239,12 @@ export const problemCategories = [
   {
     id: "cat-02",
     number: "02",
-    title: "[PROBLEM CATEGORY 02]",
+    title: "Adaptive Crisis Healthcare & Triage Systems",
     placeholderNotice: "OFFICIAL PROBLEM STATEMENT TO BE UNVEILED AT BRIEFING",
-    theme: "Adaptive Crisis Healthcare & Triage Systems",
-    background: "During regional crises and sudden population displacement, traditional healthcare centers suffer from severe information bottlenecks, chaotic patient triaging, and supply chain stock-outs.",
-    challenge: "Build an adaptive triage and resource optimization platform that connects emergency medical teams, matches critical medical supplies, and tracks patient acuity under high latency or offline constraints.",
+    theme: "Offline-First Disaster Triage & Dynamic Casualty Flow Optimization",
+    summary: "During sudden disasters, hospitals face chaotic queues, lost paper charts, and medical supply stock-outs. Build an offline-first emergency triage tool that helps medics assess patient urgency on the ground and coordinates emergency care under spotty connectivity.",
+    background: "In the aftermath of sudden emergencies and natural disasters, local clinics and regional hospitals are overwhelmed with casualties. Cellular networks often go down in the field, making it difficult for medics to share patient vital signs, track available beds, or route patients to the right medical center.",
+    challenge: "Create an offline-first triage and emergency coordination application that lets first responders quickly record patient severity without internet, syncs data when peer devices come in range, and directs casualties to facilities with matching medical supplies.",
     requirements: [
       "Rapid patient intake and risk stratification mechanism.",
       "Offline-first synchronization capabilities for field clinics.",
@@ -257,11 +258,12 @@ export const problemCategories = [
   {
     id: "cat-03",
     number: "03",
-    title: "[PROBLEM CATEGORY 03]",
+    title: "Sustainable Energy, Grid Balancing & Climate Response",
     placeholderNotice: "OFFICIAL PROBLEM STATEMENT TO BE UNVEILED AT BRIEFING",
-    theme: "Sustainable Energy, Grid Balancing & Climate Response",
-    background: "Disrupted electrical networks require decentralized renewable microgrids capable of self-healing and dynamic load shifting when central power generation ceases.",
-    challenge: "Develop an intelligent microgrid management software engine that optimizes distributed solar/battery storage usage and prioritizes critical life-support loads across communities.",
+    theme: "Decentralized Microgrid Balancing & Priority Energy Allocation",
+    summary: "When central power grids fail, neighborhood solar arrays and battery banks struggle to share electricity intelligently. Build a smart microgrid manager that balances clean energy storage and directs emergency electricity to life-saving medical devices and community centers.",
+    background: "Prolonged blackouts during climate crises leave entire communities cut off from electricity. Although many homes and facilities have rooftop solar panels and battery storage, there is no shared system to balance energy supply or prioritize electricity for critical medical equipment like oxygen concentrators.",
+    challenge: "Develop an intelligent microgrid management platform that forecasts energy production, automatically sheds non-essential electrical loads, and prioritizes power to life-critical equipment and essential community spaces.",
     requirements: [
       "Simulated load and supply forecasting logic.",
       "Automated shedding of non-essential power loads.",
@@ -275,11 +277,12 @@ export const problemCategories = [
   {
     id: "cat-04",
     number: "04",
-    title: "[PROBLEM CATEGORY 04]",
+    title: "Secure Communications & Disinformation Defense",
     placeholderNotice: "OFFICIAL PROBLEM STATEMENT TO BE UNVEILED AT BRIEFING",
-    theme: "Secure Communications & Disinformation Defense",
-    background: "In the wake of major disruption, information channels are inundated with spoofed communications, malicious panic mongering, and breakdown of trusted authorities.",
-    challenge: "Construct a verifiable emergency communication protocol that authenticates civic alerts, verifies eyewitness reports, and dispels misleading rumors without requiring centralized servers.",
+    theme: "Cryptographic Emergency Broadcast Verification & Anomaly Corroboration",
+    summary: "In the chaos of an emergency, cell towers go silent while social channels get flooded with fake notices and panic rumors. Build a tamper-proof emergency communication tool that validates alerts from authentic officials and dispels dangerous misinformation.",
+    background: "Immediately after a major disaster, communication lines are congested and bad actors or panicked users post false evacuation routes and fake helpline numbers. Without reliable ways to verify broadcasts, citizens cannot tell authentic safety warnings from harmful rumors.",
+    challenge: "Construct a lightweight, secure emergency alert protocol that cryptographically authenticates official civic bulletins, crowdsources eyewitness corroboration, and flags fabricated alerts without requiring centralized cloud servers.",
     requirements: [
       "Cryptographic signing and verification of crisis bulletins.",
       "Crowdsourced anomaly and corroboration engine.",
@@ -293,11 +296,12 @@ export const problemCategories = [
   {
     id: "cat-05",
     number: "05",
-    title: "[PROBLEM CATEGORY 05]",
+    title: "Autonomous Logistics & Disaster Relief Distribution",
     placeholderNotice: "OFFICIAL PROBLEM STATEMENT TO BE UNVEILED AT BRIEFING",
-    theme: "Autonomous Logistics & Disaster Relief Distribution",
-    background: "Physical delivery of relief provisions, clean water, and tools into blocked or disrupted zones is delayed by fractured transportation links and lack of coordination.",
-    challenge: "Create an autonomous routing and consignment allocation system that coordinates ground volunteers, drone routes, and depot checkpoints to optimize delivery times and prevent wastage.",
+    theme: "Autonomous Fleet Routing & Dynamic Last-Mile Relief Dispatch",
+    summary: "Emergency food, clean water, and medicine frequently sit stranded in storage depots while cut-off communities wait for days. Build an autonomous dispatch portal that coordinates ground vehicles, drone paths, and volunteer routes to deliver aid quickly and safely.",
+    background: "Following severe environmental disruption, aid agencies face severe transportation bottlenecks. Roads are blocked by debris or flooding, and dispatchers lack real-time visibility into which local shelters have enough food and medicine and which are running dangerously low.",
+    challenge: "Design an autonomous logistics and routing system that tracks relief shipments from central depots to drop points, reroutes delivery vehicles around real-time hazards, and pairs volunteer squads with urgent community deliveries.",
     requirements: [
       "Dynamic shortest-path routing algorithm accounting for hazard zones.",
       "Consignment tracking with proof-of-delivery validation.",
@@ -311,11 +315,12 @@ export const problemCategories = [
   {
     id: "cat-06",
     number: "06",
-    title: "[PROBLEM CATEGORY 06]",
+    title: "Open Innovation, Economic Rebuilding & Civic Tech",
     placeholderNotice: "OFFICIAL PROBLEM STATEMENT TO BE UNVEILED AT BRIEFING",
-    theme: "Open Innovation, Economic Rebuilding & Civic Tech",
-    background: "Post-crisis rebuilding demands grassroots economic tools that allow local artisans, students, and small enterprises to barter skills, organize micro-labor, and restart local economies.",
-    challenge: "Develop an open-source platform facilitating decentralized skill exchange, mutual aid coordination, and verifiable micro-credentials to empower community restoration.",
+    theme: "Decentralized Community Aid Matching & Local Supply Coordination",
+    summary: "After emergency rescue ends, families and small business owners face economic devastation with closed banks and broken supply chains. Build an accessible civic tool that allows neighbors to barter skills, organize community rebuilding tasks, and earn verifiable mutual aid.",
+    background: "Long-term recovery from major crises is often harder than the initial emergency. Local artisans, students, and small shop owners lose their daily livelihood, while traditional financial institutions and municipal support offices take months to resume normal operations.",
+    challenge: "Develop a lightweight community platform where neighbors can organize grassroots rebuilding projects, exchange vocational skills through fair barter, and earn verifiable community credentials that jumpstart the local neighborhood economy.",
     requirements: [
       "Peer-to-peer skill and resource matching engine.",
       "Verifiable contribution credentials or karma metrics.",
@@ -332,34 +337,34 @@ export const scheduleData = {
   day1: {
     dayNumber: "DAY 01",
     theme: "INDUCTION, ALGORITHMIC COMBAT & CONCEPTUAL DEFENSE",
-    date: "[TO BE DECIDED]",
+    date: "TO BE DECIDED",
     venue: "Multipurpose Hall, REC Banda",
     items: [
       {
         order: "01",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "OPENING CEREMONY",
         location: "Multipurpose Hall",
         speaker: "SDC Leadership & Faculty Coordinators",
         description: "Official inaugural gathering of HackFest 3.0. Welcome address, lamp lighting ceremony, and introduction of esteemed dignitaries.",
         dignitaries: [
-          { name: "Dr. Abhijeet Singh Sir", role: "Coordinator, Student Developer Club" },
-          { name: "Dr. Vibhash Yadav Sir", role: "Head of Department, Information Technology" }
+          { name: "Dr. Vibhash Yadav", role: "HOD IT" },
+          { name: "Dr. Abhijeet Singh", role: "Faculty Coordinator" }
         ],
         highlight: true
       },
       {
         order: "02",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "MOTIVATIONAL ADDRESS",
         location: "Multipurpose Hall",
-        speaker: "Dr. Abhijeet Singh Sir & Dr. Vibhash Yadav Sir",
+        speaker: "Dr. Vibhash Yadav & Dr. Abhijeet Singh",
         description: "Keynote inspiring the student developer community on technical resilience, engineering mindset, and building what comes next in an evolving technology landscape.",
         note: "Official keynote session."
       },
       {
         order: "03",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "OFFICIAL EVENT BRIEFING",
         location: "Multipurpose Hall",
         speaker: "SDC Core Organizing Committee",
@@ -367,7 +372,7 @@ export const scheduleData = {
       },
       {
         order: "04",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "CODEATHON — 1.5 HOURS",
         location: "Computing Centers & Designated Labs",
         speaker: "Codeathon Lead Coordinators",
@@ -377,14 +382,14 @@ export const scheduleData = {
       },
       {
         order: "05",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "LUNCH BREAK",
         location: "Dining Hall / Campus Cafeteria",
         description: "Nutritious meal break and casual networking between competitors, seniors, and organizers."
       },
       {
         order: "06",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "IDEATHON — SINGLE PITCHING ROUND",
         location: "Multipurpose Hall & Seminar Halls",
         speaker: "Ideathon Jury Panel",
@@ -394,21 +399,21 @@ export const scheduleData = {
       },
       {
         order: "07",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "EVALUATION",
         location: "Jury Chambers",
         description: "Deliberation and preliminary score aggregation by the Ideathon jury across originality, technical feasibility, scalability, and defense quality."
       },
       {
         order: "08",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "SNACKS BREAK",
         location: "Multipurpose Hall Foyer",
         description: "Evening refreshments, coffee, and informal team regrouping prior to Day 2 preparation."
       },
       {
         order: "09",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "RESULT PREPARATION",
         location: "SDC Organizing Desk",
         description: "Tabulation, integrity verification, and secure recording of Day 1 Codeathon rankings and Ideathon jury scores."
@@ -418,12 +423,12 @@ export const scheduleData = {
   day2: {
     dayNumber: "DAY 02",
     theme: "THE FLAGSHIP HACKATHON, DEMOS & THE FINAL VERDICT",
-    date: "[TO BE DECIDED]",
+    date: "TO BE DECIDED",
     venue: "Multipurpose Hall & Engineering Labs, REC Banda",
     items: [
       {
         order: "01",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "MAIN HACKATHON COMMENCEMENT",
         location: "Multipurpose Hall",
         description: "The main hackathon hall opens. Teams assemble with hardware and workstations for the premier multi-hour build sprint.",
@@ -432,21 +437,21 @@ export const scheduleData = {
       },
       {
         order: "02",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "SELECT 1 OF 6 PROBLEM CATEGORIES",
         location: "Multipurpose Hall",
         description: "Official unsealing of the 6 problem categories. Teams lock in their chosen problem statement and register their Git repository."
       },
       {
         order: "03",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "DEVELOPMENT SPRINT",
         location: "Team Workstations",
         description: "Intense collaborative engineering. Front-end interfaces, back-end APIs, databases, machine learning pipelines, and hardware modules are built from scratch."
       },
       {
         order: "04",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "MENTORING ROUNDS",
         location: "Team Pods",
         description: "Designated mentors conduct desk-side code inspections, offer architectural critiques, and unblock critical development roadblocks.",
@@ -454,35 +459,35 @@ export const scheduleData = {
       },
       {
         order: "05",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "FINAL SUBMISSION CUTOFF",
         location: "Portal / GitHub Repositories",
         description: "Hard stop for code commits. Teams submit final repository links, architectural documentation, and live demo URLs to the portal."
       },
       {
         order: "06",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "FINAL PRESENTATION",
         location: "Multipurpose Hall Main Stage",
         description: "Shortlisted teams present on the main stage, demonstrating working prototypes under real operating conditions."
       },
       {
         order: "07",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "JUDGING",
         location: "Jury Station",
         description: "Evaluation against strict criteria: problem understanding, technical implementation, novelty, functionality, impact, and demo viability."
       },
       {
         order: "08",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "RESULT VERIFICATION",
         location: "Scoring Command Center",
         description: "Independent audit of jury scorecards and normalization across all competition tracks."
       },
       {
         order: "09",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "GRAND RESULTS",
         location: "Multipurpose Hall",
         description: "Announcement of top honors across Hackathon, Codeathon, and Ideathon in the presence of the entire assembly.",
@@ -490,7 +495,7 @@ export const scheduleData = {
       },
       {
         order: "10",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "AWARDS CEREMONY",
         location: "Main Stage",
         description: "Felicitation of winners with custom trophies, medals, certificates, and curated developer goodies.",
@@ -498,21 +503,21 @@ export const scheduleData = {
       },
       {
         order: "11",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "CLOSING CEREMONY",
         location: "Main Stage",
         description: "Valedictory remarks by the patrons and faculty coordinators celebrating innovation and collaborative spirit."
       },
       {
         order: "12",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "VOTE OF THANKS",
         location: "Main Stage",
         description: "Formal expression of gratitude to institute administration, mentors, jury members, volunteers, and participants."
       },
       {
         order: "13",
-        time: "[TO BE DECIDED]",
+        time: "TO BE DECIDED",
         title: "EVENT ENDS",
         location: "REC Banda",
         description: "Official conclusion of HackFest 3.0. Group photography and post-event debrief."
@@ -562,77 +567,42 @@ export const howItWorks = {
 };
 
 export const prizesData = {
-  sectionTitle: "THE FINAL VERDICT",
-  subtitle: "HONORING ARCHITECTS WHO REBUILD WHAT COMES NEXT",
-  note: "Trophies, medals, certificates of excellence, and specialized developer gift hampers awarded across all three competitions.",
+  sectionTitle: "EXCITING PRIZES AHEAD",
+  subtitle: "We're preparing exciting rewards for the HackFest 3.0 winners. Stay tuned for the official prize announcement.",
+  statusBadge: "PRIZES — TO BE ANNOUNCED",
+  note: "Official trophies, medals, certificates of excellence, and curated prize bundles awarded across all three competitions.",
   arenas: [
     {
       arenaId: "hackathon",
       arenaName: "FLAGSHIP HACKATHON",
       tagline: "BUILD WHAT COMES NEXT",
-      awards: [
-        {
-          tier: "1ST PLACE",
-          prize: "HACKFEST CHAMPIONS TROPHY",
-          details: "Grand Championship Trophy + Official Certificate of Excellence + Premium Goodies Hamper",
-          featured: true
-        },
-        {
-          tier: "2ND PLACE",
-          prize: "MEDAL + CERTIFICATE + GOODIES",
-          details: "Silver Medal + Official Certificate of Excellence + Curated Goodies Hamper"
-        },
-        {
-          tier: "3RD PLACE",
-          prize: "MEDAL + CERTIFICATE + GOODIES",
-          details: "Bronze Medal + Official Certificate of Excellence + Curated Goodies Hamper"
-        }
+      subtitle: "TO BE ANNOUNCED",
+      rewards: [
+        { position: "1ST PLACE", details: "Official Champion Trophy, Gold Medals & Grand Prize Package" },
+        { position: "2ND PLACE", details: "Official Runner-up Trophy, Silver Medals & Prize Package" },
+        { position: "3RD PLACE", details: "Official 2nd Runner-up Trophy, Bronze Medals & Prize Package" }
       ]
     },
     {
       arenaId: "codeathon",
       arenaName: "CODEATHON",
       tagline: "THINK FAST. CODE SMART.",
-      awards: [
-        {
-          tier: "1ST PLACE",
-          prize: "CODEATHON CHAMPION TROPHY",
-          details: "Winner Trophy + Official Certificate of Excellence + Premium Goodies Hamper",
-          featured: true
-        },
-        {
-          tier: "2ND PLACE",
-          prize: "MEDAL + CERTIFICATE + GOODIES",
-          details: "Silver Medal + Official Certificate of Excellence + Curated Goodies Hamper"
-        },
-        {
-          tier: "3RD PLACE",
-          prize: "MEDAL + CERTIFICATE + GOODIES",
-          details: "Bronze Medal + Official Certificate of Excellence + Curated Goodies Hamper"
-        }
+      subtitle: "TO BE ANNOUNCED",
+      rewards: [
+        { position: "1ST PLACE", details: "Codeathon Champion Trophy, Gold Medal & Prize Package" },
+        { position: "2ND PLACE", details: "Runner-up Medal, Merit Certificate & Prize Package" },
+        { position: "3RD PLACE", details: "Bronze Medal, Merit Certificate & Prize Package" }
       ]
     },
     {
       arenaId: "ideathon",
       arenaName: "IDEATHON",
       tagline: "ONE IDEA. ONE PITCH.",
-      awards: [
-        {
-          tier: "1ST PLACE",
-          prize: "INNOVATION TROPHY",
-          details: "Winner Trophy + Official Certificate of Excellence + Premium Goodies Hamper",
-          featured: true
-        },
-        {
-          tier: "2ND PLACE",
-          prize: "MEDAL + CERTIFICATE + GOODIES",
-          details: "Silver Medal + Official Certificate of Excellence + Curated Goodies Hamper"
-        },
-        {
-          tier: "3RD PLACE",
-          prize: "MEDAL + CERTIFICATE + GOODIES",
-          details: "Bronze Medal + Official Certificate of Excellence + Curated Goodies Hamper"
-        }
+      subtitle: "TO BE ANNOUNCED",
+      rewards: [
+        { position: "1ST PLACE", details: "Innovation Champion Trophy, Gold Medal & Prize Package" },
+        { position: "2ND PLACE", details: "Runner-up Medal, Merit Certificate & Prize Package" },
+        { position: "3RD PLACE", details: "Bronze Medal, Merit Certificate & Prize Package" }
       ]
     }
   ]
@@ -642,28 +612,28 @@ export const mentorsAndJudges = {
   mentors: [
     {
       id: "m1",
-      name: "[SENIOR TECH MENTOR 01]",
+      name: "Senior Tech Mentor 01",
       designation: "Systems & Cloud Architect",
       expertise: "Distributed Systems & Cloud Computing",
       bio: "Guiding teams on scalable backend architecture, microservices, and database resilience."
     },
     {
       id: "m2",
-      name: "[SENIOR TECH MENTOR 02]",
+      name: "Senior Tech Mentor 02",
       designation: "Applied AI Engineer",
       expertise: "Machine Learning & Edge Compute",
       bio: "Assisting teams with neural model deployment, data preprocessing, and edge inferencing."
     },
     {
       id: "m3",
-      name: "[SENIOR TECH MENTOR 03]",
+      name: "Senior Tech Mentor 03",
       designation: "Full Stack Lead",
       expertise: "Frontend Architecture & API Design",
       bio: "Assisting teams in rapid UI prototyping, WebSockets, and seamless user interaction design."
     },
     {
       id: "m4",
-      name: "[SENIOR TECH MENTOR 04]",
+      name: "Senior Tech Mentor 04",
       designation: "Hardware & IoT Specialist",
       expertise: "Embedded Systems & Microcontrollers",
       bio: "Advising on hardware interfaces, sensor telemetry, and reliable low-power protocols."
@@ -672,28 +642,28 @@ export const mentorsAndJudges = {
   judges: [
     {
       id: "j1",
-      name: "Dr. Abhijeet Singh Sir",
-      designation: "Coordinator, Student Developer Club",
-      organization: "REC Banda",
-      bio: "Leading software development and student technological initiatives at REC Banda."
-    },
-    {
-      id: "j2",
-      name: "Dr. Vibhash Yadav Sir",
-      designation: "Head of Department",
+      name: "Dr. Vibhash Yadav",
+      designation: "HOD IT",
       organization: "Department of Information Technology, REC Banda",
       bio: "Guiding academic and industrial technology excellence across computing disciplines."
     },
     {
+      id: "j2",
+      name: "Dr. Abhijeet Singh",
+      designation: "Faculty Coordinator",
+      organization: "REC Banda",
+      bio: "Leading software development and student technological initiatives at REC Banda."
+    },
+    {
       id: "j3",
-      name: "[INDUSTRY GUEST JURY 01]",
+      name: "Industry Guest Jury 01",
       designation: "Engineering Director",
       organization: "Enterprise Tech Partner",
       bio: "Evaluating technical depth, practical feasibility, and enterprise readiness."
     },
     {
       id: "j4",
-      name: "[INDUSTRY GUEST JURY 02]",
+      name: "Industry Guest Jury 02",
       designation: "Product & Strategy Specialist",
       organization: "Global Technology Ecosystem",
       bio: "Reviewing usability, scalability potential, and presentation impact."

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { sdcService } from '../services/sdcService';
 import ProfileCard from '../components/ui/ProfileCard';
 import HoloBadge from '../components/ui/HoloBadge';
-import GlowCursor from '../components/ui/GlowCursor';
 import {
   GraduationCap,
   Sparkles,
@@ -40,18 +39,22 @@ export default function SdcMembersPage() {
   };
 
   const renderMemberCard = (member, categoryKey = 'faculty') => {
-    const contactEmail = member.email || member.social_links?.email || 'sdc@recbanda.ac.in';
-    const contactHref = `mailto:${contactEmail}`;
+    const isFaculty = categoryKey === 'faculty' || member.category === 'faculty_coordinator';
+
+    const contactEmail = member.email || member.social_links?.email || (!isFaculty ? 'sdc2021recbanda@gmail.com' : null);
+    const contactHref = (!isFaculty && contactEmail) ? `mailto:${contactEmail}` : null;
+    const contactText = isFaculty ? null : 'Contact';
 
     const defaultAvatars = {
-      faculty: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600',
-      mentor: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=600',
-      coordinator: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=600',
+      faculty: '/images/faculty/dr_vibhash_yadav.png',
+      mentor: '/images/sdc-avatar-placeholder.svg',
+      coordinator: '/images/sdc-avatar-placeholder.svg',
     };
 
     const avatar = member.avatarUrl || member.photo_url || defaultAvatars[categoryKey] || defaultAvatars.coordinator;
     const miniAvatar = member.miniAvatarUrl || avatar;
-    const handle = member.handle || member.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    // For faculty coordinators, remove @something handle completely
+    const handle = isFaculty ? null : (member.handle || member.name.toLowerCase().replace(/[^a-z0-9]/g, '_'));
 
     const statusDefaults = {
       faculty: { status: 'Faculty Leadership', statusColor: '#F5C451', backdrop: '#282015' },
@@ -73,7 +76,7 @@ export default function SdcMembersPage() {
           handle={handle}
           status={currentStatus}
           statusColor={currentStatusColor}
-          contactText="Contact"
+          contactText={contactText}
           contactHref={contactHref}
           backdropColor={currentBackdrop}
           theme="dark"
@@ -90,23 +93,6 @@ export default function SdcMembersPage() {
 
   return (
     <div style={{ paddingTop: 'calc(var(--nav-height) + 1.5rem)', paddingBottom: '6rem', position: 'relative' }}>
-      <div className="glow-cursor-background-layer" aria-hidden="true">
-        <GlowCursor
-          color="#81C14B"
-          secondaryColor="#2E933C"
-          intensity={0.8}
-          trailWidth={2.5}
-          linger={0.9}
-          glow={0.8}
-          hotspot={0.35}
-          followSpeed={0.65}
-          grain={0}
-          clickBurst={false}
-          quality="medium"
-          theme="dark"
-          maxDevicePixelRatio={1.5}
-        />
-      </div>
       <div className="container" style={{ maxWidth: '1200px', position: 'relative', zIndex: 1 }}>
         {/* Navigation Breadcrumb */}
         <div style={{ marginBottom: '1.5rem' }}>
@@ -131,7 +117,7 @@ export default function SdcMembersPage() {
         {/* Page Hero Header */}
         <div className="section-header center" style={{ marginBottom: '3.5rem' }}>
           <HoloBadge variant="gold" icon={Shield}>
-            STUDENT DEVELOPER CLUB // REC BANDA
+            STUDENT DEVELOPER CLUB • REC BANDA
           </HoloBadge>
           <h1 className="heading-section marvel-section-title" style={{ fontSize: 'clamp(2.2rem, 5vw, 3.6rem)' }}>
             SDC TEAM & ORGANIZERS
@@ -257,7 +243,7 @@ export default function SdcMembersPage() {
                 </div>
                 <div>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-arc-blue)', letterSpacing: '0.12em' }}>
-                    TIER 02 // TECHNICAL GUIDANCE
+                    TECHNICAL ADVISORS
                   </span>
                   <h2
                     id="heading-mentors"
@@ -332,7 +318,7 @@ export default function SdcMembersPage() {
                 </div>
                 <div>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#ffb4b7', letterSpacing: '0.12em' }}>
-                    TIER 03 // STUDENT EXECUTIVE CORPS
+                    STUDENT EXECUTIVE CORPS
                   </span>
                   <h2
                     id="heading-coordinators"

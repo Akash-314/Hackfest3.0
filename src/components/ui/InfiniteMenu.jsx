@@ -29,7 +29,8 @@ void main() {
   vec3 tangent = normalize(cross(reference, center));
   vec3 bitangent = cross(center, tangent);
   float front = max(center.z, 0.0);
-  vec3 offset = (tangent * aCorner.x + bitangent * aCorner.y) * uTileRadius * mix(0.5, 1.0, front);
+  float scaleFactor = mix(0.74, 1.08, smoothstep(0.45, 0.98, front));
+  vec3 offset = (tangent * aCorner.x + bitangent * aCorner.y) * uTileRadius * scaleFactor;
   vec3 motion = cross(uSpin.xyz, center);
   float sweep = length(motion);
   if (sweep > 0.0001) {
@@ -67,13 +68,35 @@ void main() {
   float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - corner;
   float aa = max(fwidth(d), 0.0001);
   float mask = 1.0 - smoothstep(-aa, aa, d);
-  float alpha = mask * smoothstep(0.02, 0.4, vFront) * uReveal;
+  float focus = smoothstep(0.92, 0.995, vFront);
+
+  // Active center sponsor has full opacity; side items have reduced opacity (~0.52)
+  float alpha = mask * smoothstep(0.02, 0.4, vFront) * mix(0.52, 1.0, focus) * uReveal;
   if (alpha < 0.002) discard;
+
   vec2 cell = vec2(mod(vItem, uCells), floor(vItem / uCells));
   vec2 local = vec2(vUv.x, -vUv.y) * 0.5 + 0.5;
-  vec4 sampled = texture(uAtlas, (cell + uInset + local * (1.0 - 2.0 * uInset)) / uCells);
+  vec2 baseUv = (cell + uInset + local * (1.0 - 2.0 * uInset)) / uCells;
+
+  // Depth blur for surrounding side sponsors (active centered sponsor remains razor-sharp)
+  vec4 sampled;
+  float blurAmt = (1.0 - focus) * (0.0032 / max(uCells, 1.0));
+  if (blurAmt > 0.00004) {
+    vec4 s0 = texture(uAtlas, baseUv);
+    vec4 s1 = texture(uAtlas, baseUv + vec2(blurAmt, 0.0));
+    vec4 s2 = texture(uAtlas, baseUv - vec2(blurAmt, 0.0));
+    vec4 s3 = texture(uAtlas, baseUv + vec2(0.0, blurAmt));
+    vec4 s4 = texture(uAtlas, baseUv - vec2(0.0, blurAmt));
+    vec4 s5 = texture(uAtlas, baseUv + vec2(blurAmt * 0.7, blurAmt * 0.7));
+    vec4 s6 = texture(uAtlas, baseUv - vec2(blurAmt * 0.7, blurAmt * 0.7));
+    vec4 s7 = texture(uAtlas, baseUv + vec2(-blurAmt * 0.7, blurAmt * 0.7));
+    vec4 s8 = texture(uAtlas, baseUv + vec2(blurAmt * 0.7, -blurAmt * 0.7));
+    sampled = s0 * 0.28 + (s1 + s2 + s3 + s4) * 0.12 + (s5 + s6 + s7 + s8) * 0.06;
+  } else {
+    sampled = texture(uAtlas, baseUv);
+  }
+
   vec3 color = mix(uPlaceholder, sampled.rgb, sampled.a);
-  float focus = smoothstep(0.93, 0.997, vFront);
   float gray = dot(color, vec3(0.2126, 0.7152, 0.0722));
   color = mix(color, vec3(gray), uGrayscale * (1.0 - focus));
   color = mix(color, uTone, uDim * (1.0 - focus));

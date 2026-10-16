@@ -72,7 +72,7 @@ export default function SignupPage() {
           BACK TO HOME
         </Link>
 
-        <HudPanel variant="red" tag="REGISTRATION // NEW ACCOUNT" scan={true}>
+        <HudPanel variant="red" tag="PARTICIPANT REGISTRATION" scan={true}>
           <div style={{ marginBottom: '1.8rem' }}>
             <HoloBadge variant="red" icon={Shield} style={{ marginBottom: '0.8rem' }}>
               CREATE ACCOUNT

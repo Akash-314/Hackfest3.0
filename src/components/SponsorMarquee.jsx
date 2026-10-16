@@ -81,7 +81,7 @@ export default function SponsorMarquee() {
       {/* Section Header */}
       <div className="previous-sponsors-header">
         <HoloBadge variant="gold" icon={Sparkles}>
-          HISTORIC ALLIANCES // EDITIONS 1.0 & 2.0
+          HISTORIC ALLIANCES • EDITIONS 1.0 & 2.0
         </HoloBadge>
         <h2 className="previous-sponsors-title">PREVIOUS SPONSORS & PARTNERS</h2>
         <p className="previous-sponsors-subtitle">

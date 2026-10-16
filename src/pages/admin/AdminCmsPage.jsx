@@ -66,7 +66,7 @@ export default function AdminCmsPage() {
     leaderboardPublished: false,
     eventDate: 'OCTOBER 24-25, 2026',
     venue: 'Campus Multipurpose Hall, REC Banda',
-    contactEmail: 'sdc@recbanda.ac.in',
+    contactEmail: 'sdc2021recbanda@gmail.com',
   });
 
   // 2. Problem Categories State
@@ -226,7 +226,7 @@ export default function AdminCmsPage() {
           leaderboardPublished: Boolean(settingsData.leaderboardPublished),
           eventDate: settingsData.eventDate || 'OCTOBER 24-25, 2026',
           venue: settingsData.venue || 'Campus Multipurpose Hall, REC Banda',
-          contactEmail: settingsData.contactEmail || 'sdc@recbanda.ac.in',
+          contactEmail: settingsData.contactEmail || 'sdc2021recbanda@gmail.com',
         });
       }
 
@@ -289,7 +289,7 @@ export default function AdminCmsPage() {
           leaderboardPublished: Boolean(refreshed.leaderboardPublished),
           eventDate: refreshed.eventDate || 'OCTOBER 24-25, 2026',
           venue: refreshed.venue || 'Campus Multipurpose Hall, REC Banda',
-          contactEmail: refreshed.contactEmail || 'sdc@recbanda.ac.in',
+          contactEmail: refreshed.contactEmail || 'sdc2021recbanda@gmail.com',
         });
       }
     } catch (err) {

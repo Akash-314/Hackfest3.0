@@ -90,7 +90,7 @@ export default function LeaderboardPage() {
             </div>
           </HudPanel>
         ) : !published ? (
-          <HudPanel variant="gold" tag="STATUS // RESULTS PENDING" scan={true}>
+          <HudPanel variant="gold" tag="STATUS • RESULTS PENDING" scan={true}>
             <div style={{ padding: '3rem 2rem', textAlign: 'center' }}>
               <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(245, 182, 66, 0.15)', border: '1px solid var(--color-stark-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto', color: 'var(--color-stark-gold)', boxShadow: '0 0 25px rgba(245, 182, 66, 0.3)' }}>
                 <Lock size={32} />

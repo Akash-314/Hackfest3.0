@@ -3,7 +3,6 @@ import { Trophy, Medal, Award, Sparkles, CheckCircle2 } from 'lucide-react';
 import { prizesData } from '../data/eventData';
 import SuperheroPanel from './ui/SuperheroPanel';
 import HoloBadge from './ui/HoloBadge';
-import GlowCursor from './ui/GlowCursor';
 
 export default function PrizesSection() {
   const podiumWinners = [
@@ -13,7 +12,7 @@ export default function PrizesSection() {
       color: '#C7CED8',
       variant: 'silver',
       icon: Medal,
-      perks: ['Runner-up Trophy', 'Silver Medals', 'Certificates of Merit', 'Sponsor Swag Hamper'],
+      perks: ['Official Runner-up Trophy', 'Silver Medals', 'Certificates of Merit', 'Grand Rewards to be Announced'],
     },
     {
       place: '1ST PLACE',
@@ -21,7 +20,7 @@ export default function PrizesSection() {
       color: '#F5C451',
       variant: 'gold',
       icon: Trophy,
-      perks: ['Custom Metallic Trophy', 'Gold Medals', 'Excellence Certificates', 'Direct Mentorship & Hamper'],
+      perks: ['Official Champion Trophy', 'Gold Medals', 'Certificates of Excellence', 'Grand Rewards to be Announced'],
       dominant: true,
     },
     {
@@ -30,41 +29,24 @@ export default function PrizesSection() {
       color: '#CD7F32',
       variant: 'red',
       icon: Medal,
-      perks: ['Bronze Medals', 'Merit Certificates', 'Partner Tool Credits', 'Sponsor Gift Kit'],
+      perks: ['Official 2nd Runner-up Trophy', 'Bronze Medals', 'Certificates of Merit', 'Grand Rewards to be Announced'],
     },
   ];
 
   return (
     <section id="prizes" className="section prizes-section">
-      <div className="glow-cursor-background-layer" aria-hidden="true">
-        <GlowCursor
-          color="#81C14B"
-          secondaryColor="#2E933C"
-          intensity={0.8}
-          trailWidth={2.5}
-          linger={0.9}
-          glow={0.8}
-          hotspot={0.35}
-          followSpeed={0.65}
-          grain={0}
-          clickBurst={false}
-          quality="medium"
-          theme="dark"
-          maxDevicePixelRatio={1.5}
-        />
-      </div>
       <div className="section-transition-top" />
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <div className="section-header center">
           <HoloBadge variant="gold" icon={Trophy}>
-            AWARDS & HONORS
+            PRIZES — TO BE ANNOUNCED
           </HoloBadge>
           <h2 className="heading-section">
-            PRIZES & RECOGNITION
+            EXCITING PRIZES AHEAD
           </h2>
           <p className="section-lead">
-            {prizesData.subtitle || 'Recognizing exceptional engineering, design innovation, and collaborative execution.'}
+            We're preparing exciting rewards for the HackFest 3.0 winners. Stay tuned for the official prize announcement.
           </p>
         </div>
 

@@ -67,13 +67,13 @@ export default function RegisterSection() {
         {/* Main Assemble Card */}
         <SuperheroPanel
           variant="red"
-          tag="REGISTRATION // TEAM FORMATION"
+          tag="REGISTRATION • TEAM FORMATION"
           issueNumber="HACKFEST 3.0"
           className="avengers-main-card"
         >
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
             <HoloBadge variant="gold" icon={Zap} style={{ marginBottom: '1rem' }}>
-              REGISTRATION OPEN // PAN-INDIA
+              PAN-INDIA REGISTRATION
             </HoloBadge>
 
             <h2 className="heading-display avengers-title" style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', color: '#FFFFFF', lineHeight: '1.05', marginBottom: '0.8rem' }}>
@@ -158,7 +158,7 @@ export default function RegisterSection() {
             </div>
             <div className="register-meta-pill">
               <Users size={15} color="var(--color-energy-red)" />
-              <span>COLLEGES PAN-INDIA // FREE ENTRY</span>
+              <span>COLLEGES PAN-INDIA • FREE REGISTRATION</span>
             </div>
           </div>
 

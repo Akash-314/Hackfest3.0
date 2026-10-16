@@ -1,0 +1,414 @@
+/* ==========================================================================
+   HACKFEST 3.0 — EVENT WORKFLOW COMPONENT
+   Participant Journey Timelines (Day 1: Open & Compete | Day 2: Build & Celebrate)
+   Colors:
+   - Sandy Clay: #ECBA82
+   - Moss Green: #81C14B
+   - Forest Green: #2E933C
+   - Turf Green: #297045
+   - Dark Slate Green: #204E4A
+   ========================================================================== */
+
+.event-workflow-section {
+  position: relative;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding-bottom: 2rem;
+}
+
+/* Decorative Section Separator */
+.event-workflow-divider {
+  display: none;
+}
+
+/* Workflow Header */
+.event-workflow-header {
+  text-align: center;
+  margin-bottom: 3.25rem;
+}
+
+.event-workflow-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 3.2vw, 2.5rem);
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0.85rem 0 0.5rem 0;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
+}
+
+.event-workflow-lead {
+  font-size: 0.95rem;
+  color: #C7CED8;
+  max-width: 640px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Two Connected Timelines Grid */
+.event-workflow-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+/* Day Column Container */
+.workflow-day-column {
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 14, 11, 0.65);
+  border: 1px solid rgba(129, 193, 75, 0.16);
+  border-radius: 16px;
+  padding: 1.85rem;
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  position: relative;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.workflow-day-column:hover {
+  border-color: rgba(129, 193, 75, 0.28);
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.85), 0 0 20px rgba(129, 193, 75, 0.08);
+}
+
+/* Day Header Banner */
+.workflow-day-banner {
+  padding-bottom: 1.35rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.workflow-day-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.workflow-day-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.workflow-day-label {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+}
+
+.workflow-stage-count {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: #81C14B;
+  background: rgba(129, 193, 75, 0.1);
+  border: 1px solid rgba(129, 193, 75, 0.25);
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.workflow-day-2 .workflow-stage-count {
+  color: #ECBA82;
+  background: rgba(236, 186, 130, 0.1);
+  border-color: rgba(236, 186, 130, 0.25);
+}
+
+.workflow-day-heading {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin: 0 0 0.4rem 0;
+}
+
+.workflow-day-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #C7CED8;
+}
+
+/* Timeline Track */
+.workflow-timeline-track {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Timeline Stage Item */
+.workflow-stage-item {
+  display: flex;
+  align-items: stretch;
+  gap: 1.15rem;
+  position: relative;
+}
+
+/* Node Column (Circle + Connector Line) */
+.workflow-node-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 32px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.workflow-node-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #0D1612;
+  border: 2px solid #81C14B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.workflow-stage-item:hover .workflow-node-circle {
+  transform: scale(1.12);
+  box-shadow: 0 0 14px rgba(129, 193, 75, 0.45);
+}
+
+.workflow-day-2 .workflow-stage-item:hover .workflow-node-circle {
+  box-shadow: 0 0 14px rgba(236, 186, 130, 0.45);
+}
+
+.workflow-node-num {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+
+/* Connector Line between Nodes */
+.workflow-connector-line {
+  width: 2px;
+  flex-grow: 1;
+  background: linear-gradient(180deg, rgba(129, 193, 75, 0.45) 0%, rgba(46, 147, 60, 0.3) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px 0;
+  position: relative;
+  min-height: 28px;
+}
+
+.workflow-day-2 .workflow-connector-line {
+  background: linear-gradient(180deg, rgba(236, 186, 130, 0.45) 0%, rgba(129, 193, 75, 0.3) 100%);
+}
+
+.workflow-connector-arrow {
+  color: rgba(129, 193, 75, 0.7);
+  position: absolute;
+  bottom: 4px;
+}
+
+.workflow-day-2 .workflow-connector-arrow {
+  color: rgba(236, 186, 130, 0.7);
+}
+
+/* Stage Card */
+.workflow-stage-card {
+  flex-grow: 1;
+  background: rgba(18, 32, 25, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 0.95rem 1.15rem;
+  margin-bottom: 0.95rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.workflow-stage-card:hover {
+  transform: translateX(4px);
+  background: rgba(24, 42, 33, 0.75);
+  border-color: rgba(129, 193, 75, 0.35);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6), 0 0 16px rgba(129, 193, 75, 0.12);
+}
+
+.workflow-day-2 .workflow-stage-card:hover {
+  border-color: rgba(236, 186, 130, 0.35);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6), 0 0 16px rgba(236, 186, 130, 0.12);
+}
+
+.workflow-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+}
+
+.workflow-stage-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.workflow-stage-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.workflow-stage-title {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0 0 0.35rem 0;
+  letter-spacing: 0.02em;
+}
+
+.workflow-stage-desc {
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: #B5BFCD;
+  margin: 0;
+}
+
+/* Transition Bridge between Day 1 and Day 2 */
+.workflow-transition-bridge {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+  padding: 0.85rem 1.15rem;
+  background: linear-gradient(135deg, rgba(32, 78, 74, 0.3) 0%, rgba(13, 22, 18, 0.8) 100%);
+  border: 1px dashed rgba(129, 193, 75, 0.32);
+  border-radius: 10px;
+}
+
+.workflow-bridge-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(129, 193, 75, 0.15);
+  border: 1px solid rgba(129, 193, 75, 0.35);
+  color: #81C14B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bridge-arrow-mobile {
+  display: none;
+}
+
+.workflow-bridge-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-bridge-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #81C14B;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.workflow-bridge-text {
+  font-size: 0.78rem;
+  color: #94A3B8;
+  margin-top: 2px;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (TABLET & MOBILE)
+   ========================================================================== */
+@media (max-width: 991px) {
+  .event-workflow-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .bridge-arrow-desktop {
+    display: none;
+  }
+
+  .bridge-arrow-mobile {
+    display: block;
+  }
+
+  .workflow-transition-bridge {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .event-workflow-section {
+    margin-top: 3.5rem;
+  }
+
+  .workflow-day-column {
+    padding: 1.35rem 1rem;
+  }
+
+  .workflow-stage-item {
+    gap: 0.75rem;
+  }
+
+  .workflow-node-col {
+    width: 26px;
+  }
+
+  .workflow-node-circle {
+    width: 26px;
+    height: 26px;
+  }
+
+  .workflow-node-num {
+    font-size: 0.65rem;
+  }
+
+  .workflow-stage-card {
+    padding: 0.85rem 0.95rem;
+  }
+
+  .workflow-stage-title {
+    font-size: 0.98rem;
+  }
+
+  .workflow-stage-desc {
+    font-size: 0.8rem;
+  }
+}
+
+/* ==========================================================================
+   ACCESSIBILITY & PREFERS-REDUCED-MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .workflow-stage-card,
+  .workflow-node-circle,
+  .workflow-day-column {
+    transition: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
