@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Terminal, Sparkles, Flame, Clock, Users } from 'lucide-react';
+import { ArrowUpRight, Terminal, Sparkles, Flame, Clock, Users, ChevronDown, Calendar } from 'lucide-react';
 import { competitions } from '../data/eventData';
 import { eventService } from '../services/eventService';
 import SuperheroPanel from './ui/SuperheroPanel';
 import HoloBadge from './ui/HoloBadge';
+import ScheduleSection from './ScheduleSection';
+import GlowCursor from './ui/GlowCursor';
+import EventCard from './EventCard';
 
 export default function CompetitionsSection() {
   const [compList, setCompList] = useState(competitions);
@@ -48,9 +51,27 @@ export default function CompetitionsSection() {
   };
 
   return (
-    <section id="competitions" className="section competitions-section">
-      <div className="section-transition-top" />
-      <div className="container">
+    <>
+      <section id="competitions" className="section competitions-section">
+        <div className="glow-cursor-background-layer" aria-hidden="true">
+          <GlowCursor
+            color="#81C14B"
+            secondaryColor="#2E933C"
+            intensity={0.8}
+            trailWidth={2.5}
+            linger={0.9}
+            glow={0.8}
+            hotspot={0.35}
+            followSpeed={0.65}
+            grain={0}
+            clickBurst={false}
+            quality="medium"
+            theme="dark"
+            maxDevicePixelRatio={1.5}
+          />
+        </div>
+        <div className="section-transition-top" />
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <div className="section-header center">
           <HoloBadge variant="teal" icon={Flame}>
@@ -64,7 +85,7 @@ export default function CompetitionsSection() {
           </p>
         </div>
 
-        {/* 3 Arenas Grid - Compact Minimal Cards */}
+        {/* 3 Arenas Grid - React Bits TiltedCard (Front: Event Name Only | Click: Flip Preview) */}
         <div className="competitions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', gap: '1.5rem' }}>
           {compList.map((comp) => {
             const meta = arenaMeta[comp.id] || {
@@ -76,106 +97,44 @@ export default function CompetitionsSection() {
               meta1: comp.format || 'Team',
               meta2: comp.duration || 'Sprint',
             };
-            const Icon = meta.icon;
 
             return (
-              <SuperheroPanel
+              <EventCard
                 key={comp.id}
-                variant={meta.variant}
-                tag={meta.tag}
-                issueNumber={meta.badge}
-                className="competition-minimal-card"
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                  {/* Title & Icon */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
-                    <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', color: '#F5F5F7', margin: 0, letterSpacing: '0.02em' }}>
-                      {comp.title}
-                    </h3>
-                    <div
-                      style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: '8px',
-                        background: 'rgba(99, 230, 209, 0.08)',
-                        border: '1px solid rgba(99, 230, 209, 0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#63E6D1',
-                      }}
-                    >
-                      <Icon size={18} />
-                    </div>
-                  </div>
-
-                  {/* 1 concise tagline */}
-                  <p style={{ color: '#A1A6B3', fontSize: '0.9rem', lineHeight: '1.55', marginBottom: '1.25rem', flexGrow: 1 }}>
-                    {meta.punchline}
-                  </p>
-
-                  {/* 2 Essential metadata badges */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem' }}>
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.35rem',
-                        fontSize: '0.78rem',
-                        color: '#C7CED8',
-                        background: 'rgba(255, 255, 255, 0.04)',
-                        border: '1px solid rgba(255, 255, 255, 0.07)',
-                        padding: '0.25rem 0.6rem',
-                        borderRadius: '6px',
-                        fontFamily: 'var(--font-mono)',
-                      }}
-                    >
-                      <Users size={12} color="#63E6D1" />
-                      {meta.meta1}
-                    </span>
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.35rem',
-                        fontSize: '0.78rem',
-                        color: '#C7CED8',
-                        background: 'rgba(255, 255, 255, 0.04)',
-                        border: '1px solid rgba(255, 255, 255, 0.07)',
-                        padding: '0.25rem 0.6rem',
-                        borderRadius: '6px',
-                        fontFamily: 'var(--font-mono)',
-                      }}
-                    >
-                      <Clock size={12} color="#63E6D1" />
-                      {meta.meta2}
-                    </span>
-                  </div>
-
-                  {/* Intentional Interaction Link */}
-                  <Link
-                    to={`/${comp.id}`}
-                    className="btn btn-secondary"
-                    style={{
-                      width: '100%',
-                      justifyContent: 'center',
-                      fontSize: '0.82rem',
-                      padding: '0.7rem 1rem',
-                      background: 'rgba(255, 255, 255, 0.04)',
-                      borderColor: 'rgba(255, 255, 255, 0.08)',
-                      color: '#F5F5F7',
-                      borderRadius: '8px',
-                    }}
-                  >
-                    <span>EXPLORE ARENA DETAILS</span>
-                    <ArrowUpRight size={15} color="#63E6D1" />
-                  </Link>
-                </div>
-              </SuperheroPanel>
+                comp={comp}
+                meta={meta}
+              />
             );
           })}
         </div>
+
+        {/* Quick jump to embedded schedule */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2.5rem' }}>
+          <a
+            href="#schedule"
+            className="btn btn-secondary"
+            style={{
+              fontSize: '0.82rem',
+              padding: '0.65rem 1.4rem',
+              borderRadius: '9999px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'rgba(99, 230, 209, 0.06)',
+              borderColor: 'rgba(99, 230, 209, 0.25)',
+              color: '#63E6D1',
+            }}
+          >
+            <Calendar size={15} />
+            <span>VIEW EVENT SCHEDULE & TIMELINE</span>
+            <ChevronDown size={15} />
+          </a>
+        </div>
       </div>
     </section>
+
+    {/* Integrated Schedule Section inside Competitions */}
+    <ScheduleSection />
+    </>
   );
 }

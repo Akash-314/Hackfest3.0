@@ -131,13 +131,15 @@ export default function Navbar() {
     }
   };
 
-  // Top header center links (only main core sections for clean centered capsule)
+  // Top header center links (Prizes, Event Sponsors, SDC Family Members added, Schedule removed)
   const desktopNavItems = [
     { label: 'HOME', path: '/' },
     { label: 'ABOUT', path: '/about' },
     { label: 'COMPETITIONS', path: '/competitions' },
     { label: 'PROBLEMS', path: '/problems' },
-    { label: 'SCHEDULE', path: '/schedule' },
+    { label: 'PRIZES', path: '/prizes' },
+    { label: 'EVENT SPONSORS', path: '/sponsors' },
+    { label: 'SDC FAMILY MEMBERS', path: '/sdc-members' },
   ];
 
   // Drawer Group 1: Main Pages
@@ -146,16 +148,16 @@ export default function Navbar() {
     { label: 'About HackFest', path: '/about', icon: Info, tag: 'THEME' },
     { label: 'Competitions & Tracks', path: '/competitions', icon: Trophy, tag: 'ARENAS' },
     { label: 'Problem Statements', path: '/problems', icon: Target, tag: 'CHALLENGES' },
+    { label: 'Prizes & Honors', path: '/prizes', icon: Award, tag: 'REWARDS' },
+    { label: 'Event Sponsors', path: '/sponsors', icon: Sparkles, tag: 'ALLIES' },
+    { label: 'SDC Family Members', path: '/sdc-members', icon: Users2, tag: 'SDC BANDA' },
   ];
 
   // Drawer Group 2: Event Information
   const eventInfoPages = [
-    { label: 'Event Schedule', path: '/schedule', icon: Calendar, tag: 'TIMELINE' },
-    { label: 'Prizes & Honors', path: '/prizes', icon: Award, tag: 'REWARDS' },
     { label: 'Live Leaderboard', path: '/leaderboard', icon: TrendingUp, tag: 'SCORES' },
     { label: 'Rules & FAQs', path: '/rules', icon: HelpCircle, tag: 'DIRECTIVES' },
     { label: 'Mentors & Judges', path: '/mentors', icon: Users, tag: 'COUNCIL' },
-    { label: 'Event Sponsors', path: '/sponsors', icon: Sparkles, tag: 'ALLIES' },
   ];
 
   // Drawer Group 3: Community
@@ -190,7 +192,7 @@ export default function Navbar() {
       >
         <div className="navbar-inner">
           {/* ============================================================== */}
-          {/* 1. LEFT: Recovered Hackfest 3.0 Logo + Partners Cluster       */}
+          {/* 1. LEFT: Hackfest 3.0 Neo Font Logo + Partners Cluster        */}
           {/* ============================================================== */}
           <div className="navbar-brand-cluster">
             <Link
@@ -199,38 +201,10 @@ export default function Navbar() {
               onClick={() => handleNavAction({ path: '/' })}
               aria-label="HackFest 3.0 Home"
             >
-              {/* Recovered Original Hackfest 3.0 Reactor Crest Emblem */}
-              <div className="nav-reactor-crest" aria-hidden="true">
-                <svg viewBox="0 0 44 44" width="34" height="34">
-                  {/* Outer Hexagon Shield */}
-                  <polygon
-                    points="22,2 40,12 40,32 22,42 4,32 4,12"
-                    fill="#0D111A"
-                    stroke="#63E6D1"
-                    strokeWidth="1.6"
-                    strokeDasharray="4 2"
-                  />
-                  {/* Inner Energy Triangle */}
-                  <polygon
-                    points="22,10 33,29 11,29"
-                    fill="rgba(99, 230, 209, 0.15)"
-                    stroke="#63E6D1"
-                    strokeWidth="1.8"
-                  />
-                  {/* Arc Reactor Core Center */}
-                  <circle cx="22" cy="22" r="4.5" fill="#63E6D1" />
-                  <circle cx="22" cy="22" r="7.5" fill="none" stroke="#C7CED8" strokeWidth="1" />
-                </svg>
-              </div>
-
-              <div className="brand-text-wrap">
-                <span className="brand-title stark-brand-title">
-                  HACKFEST <span style={{ color: '#63E6D1' }}>3.0</span>
-                </span>
-                <span className="brand-sub stark-brand-sub">
-                  REC BANDA
-                </span>
-              </div>
+              <span className="nav-brand-title">
+                <span className="nav-brand-word-hackfest">Hackfest</span>
+                <span className="nav-brand-version-number">3.0</span>
+              </span>
             </Link>
 
             {/* Subtle Divider Pipe */}
@@ -386,20 +360,12 @@ export default function Navbar() {
         {/* Drawer Header */}
         <div className="drawer-header">
           <div className="drawer-header-brand">
-            <div className="stark-reactor-crest" aria-hidden="true" style={{ width: 28, height: 28 }}>
-              <svg viewBox="0 0 44 44" width="28" height="28">
-                <polygon
-                  points="22,2 40,12 40,32 22,42 4,32 4,12"
-                  fill="#0D111A"
-                  stroke="#00BFFF"
-                  strokeWidth="1.6"
-                />
-                <circle cx="22" cy="22" r="4.5" fill="#00BFFF" />
-              </svg>
-            </div>
             <div>
-              <div className="drawer-header-title">HACKFEST 3.0</div>
-              <div className="drawer-header-sub">NAVIGATION DIRECTORY</div>
+              <div className="drawer-header-title">
+                <span className="nav-brand-word-hackfest" style={{ fontSize: '1.25rem' }}>Hackfest</span>{' '}
+                <span className="nav-brand-version-number" style={{ fontSize: '1.1rem' }}>3.0</span>
+              </div>
+              <div className="drawer-header-sub">SDC // REC BANDA</div>
             </div>
           </div>
 

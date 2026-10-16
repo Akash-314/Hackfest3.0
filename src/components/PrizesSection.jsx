@@ -3,6 +3,7 @@ import { Trophy, Medal, Award, Sparkles, CheckCircle2 } from 'lucide-react';
 import { prizesData } from '../data/eventData';
 import SuperheroPanel from './ui/SuperheroPanel';
 import HoloBadge from './ui/HoloBadge';
+import GlowCursor from './ui/GlowCursor';
 
 export default function PrizesSection() {
   const podiumWinners = [
@@ -35,8 +36,25 @@ export default function PrizesSection() {
 
   return (
     <section id="prizes" className="section prizes-section">
+      <div className="glow-cursor-background-layer" aria-hidden="true">
+        <GlowCursor
+          color="#81C14B"
+          secondaryColor="#2E933C"
+          intensity={0.8}
+          trailWidth={2.5}
+          linger={0.9}
+          glow={0.8}
+          hotspot={0.35}
+          followSpeed={0.65}
+          grain={0}
+          clickBurst={false}
+          quality="medium"
+          theme="dark"
+          maxDevicePixelRatio={1.5}
+        />
+      </div>
       <div className="section-transition-top" />
-      <div className="container">
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <div className="section-header center">
           <HoloBadge variant="gold" icon={Trophy}>
