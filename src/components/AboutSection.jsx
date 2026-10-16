@@ -1,9 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowUpRight, Zap, Target, Eye, Globe } from 'lucide-react';
+import { Zap, Target, Eye, Globe } from 'lucide-react';
 import SuperheroPanel from './ui/SuperheroPanel';
 import HoloBadge from './ui/HoloBadge';
-import GlowCursor from './ui/GlowCursor';
 
 export default function AboutSection() {
   const briefingPillars = [
@@ -39,23 +37,6 @@ export default function AboutSection() {
 
   return (
     <section id="about" className="section about-section marvel-briefing-section">
-      <div className="glow-cursor-background-layer" aria-hidden="true">
-        <GlowCursor
-          color="#81C14B"
-          secondaryColor="#2E933C"
-          intensity={0.8}
-          trailWidth={2.5}
-          linger={0.9}
-          glow={0.8}
-          hotspot={0.35}
-          followSpeed={0.65}
-          grain={0}
-          clickBurst={false}
-          quality="medium"
-          theme="dark"
-          maxDevicePixelRatio={1.5}
-        />
-      </div>
       <div className="section-transition-top" />
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header Telemetry */}
@@ -97,42 +78,6 @@ export default function AboutSection() {
               </SuperheroPanel>
             );
           })}
-        </div>
-
-        {/* Base Overview Card */}
-        <div className="briefing-base-overview" style={{ marginTop: '2.5rem' }}>
-          <SuperheroPanel variant="blue" tag="HOST CAMPUS // REC BANDA" issueNumber="SDC REC BANDA">
-            <div className="briefing-base-layout">
-              <div className="briefing-base-img-col">
-                <img
-                  src="/images/about-sdc.jpg"
-                  alt="Student developers collaborating at REC Banda"
-                  className="briefing-base-img"
-                  loading="lazy"
-                />
-              </div>
-              <div className="briefing-base-info-col">
-                <span className="chapter-badge" style={{ margin: '0 0 0.6rem 0' }}>
-                  STUDENT DEVELOPER CLUB
-                </span>
-                <h3 className="heading-display" style={{ fontSize: '1.7rem', color: '#FFFFFF', marginBottom: '0.8rem' }}>
-                  REC BANDA DEVELOPER COMMUNITY
-                </h3>
-                <p style={{ color: '#94A3B8', fontSize: '0.94rem', lineHeight: '1.65', marginBottom: '1.4rem' }}>
-                  Founded at REC Banda, the Student Developer Club drives open-source innovation, system architecture research, and collegiate technical growth. HackFest 3.0 represents our most ambitious convergence of talent, industry mentors, and experienced judges.
-                </p>
-                <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                  <Link to="/about" className="btn btn-secondary">
-                    LEARN MORE ABOUT SDC
-                    <ArrowUpRight size={16} />
-                  </Link>
-                  <Link to="/register" className="btn btn-avenger">
-                    REGISTER NOW
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </SuperheroPanel>
         </div>
       </div>
     </section>

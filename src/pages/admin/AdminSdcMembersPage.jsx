@@ -876,7 +876,7 @@ export default function AdminSdcMembersPage() {
                       type="text"
                       value={form.social_links.email}
                       onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, email: e.target.value } })}
-                      placeholder="user@recbanda.ac.in"
+                      placeholder="member@gmail.com"
                       style={{ width: '100%', padding: '0.55rem', background: '#111827', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff', fontSize: '0.8rem' }}
                     />
                   </div>

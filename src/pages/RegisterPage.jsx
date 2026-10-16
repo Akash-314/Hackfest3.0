@@ -7,6 +7,7 @@ import { teamService } from '../services/teamService';
 import { eventService } from '../services/eventService';
 import { isDeadlineExpired } from '../utils/eventTime';
 import { competitions, problemCategories } from '../data/eventData';
+import CompetitionDropdown from '../components/ui/CompetitionDropdown';
 
 export default function RegisterPage() {
   const { user, profile, isConfigured } = useAuth();
@@ -287,10 +288,10 @@ export default function RegisterPage() {
                 <AlertCircle size={22} style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div>
                   <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.05rem', letterSpacing: '0.04em', color: '#ffb4b7', marginBottom: '0.25rem' }}>
-                    REGISTRATION CLOSED // PORTALS SEALED
+                    REGISTRATION CURRENTLY CLOSED
                   </div>
                   <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                    Event registration for HackFest 3.0 is currently closed by event administration. New submissions cannot be processed at this time. For queries, contact <strong>{eventSettings?.contactEmail || 'sdc@recbanda.ac.in'}</strong>.
+                    Event registration for HackFest 3.0 is currently closed by event administration. New submissions cannot be processed at this time. For queries, contact <strong>{eventSettings?.contactEmail || 'sdc2021recbanda@gmail.com'}</strong>.
                   </div>
                 </div>
               </div>
@@ -313,7 +314,7 @@ export default function RegisterPage() {
                     {selectedComp?.title || selectedComp?.name?.toUpperCase() || formData.arena.toUpperCase()} REGISTRATION CLOSED
                   </div>
                   <div style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                    Registration for this specific competition is currently marked as closed. You can select another available competition or contact event administration at <strong>{eventSettings?.contactEmail || 'sdc@recbanda.ac.in'}</strong>.
+                    Registration for this specific competition is currently marked as closed. You can select another available competition or contact event administration at <strong>{eventSettings?.contactEmail || 'sdc2021recbanda@gmail.com'}</strong>.
                   </div>
                 </div>
               </div>
@@ -365,7 +366,7 @@ export default function RegisterPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                   <CheckCircle2 size={20} color="var(--color-arc-cyan)" />
                   <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1rem', color: '#FFFFFF', letterSpacing: '0.04em' }}>
-                    ALREADY REGISTERED // {selectedComp?.name?.toUpperCase() || formData.arena.toUpperCase()}
+                    ALREADY REGISTERED • {selectedComp?.name?.toUpperCase() || formData.arena.toUpperCase()}
                   </div>
                 </div>
                 <div style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)', lineHeight: '1.5' }}>
@@ -380,31 +381,17 @@ export default function RegisterPage() {
               </div>
             )}
 
-            {/* Competition Selection */}
+            {/* Competition Selection with Custom Dark Dropdown */}
             <div>
               <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.82rem', color: 'var(--color-warm-amber)', letterSpacing: '0.1em', marginBottom: '0.5rem', textTransform: 'uppercase' }}>
                 SELECT COMPETITION *
               </label>
-              <select
+              <CompetitionDropdown
                 name="arena"
                 value={formData.arena}
                 onChange={handleChange}
-                style={{ width: '100%', padding: '0.85rem 1rem', background: '#111827', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-sm)', color: 'var(--color-warm-off-white)', fontFamily: 'var(--font-body)', fontSize: '0.95rem' }}
-                required
-              >
-                <option value="hackathon">
-                  Main Hackathon (Day 2 • Team 2-4)
-                  {availableCompetitions.find((c) => c.id === 'hackathon')?.registrationOpen === false ? ' [CLOSED]' : ''}
-                </option>
-                <option value="codeathon">
-                  Codeathon (Day 1 • 1.5h • Individual)
-                  {availableCompetitions.find((c) => c.id === 'codeathon')?.registrationOpen === false ? ' [CLOSED]' : ''}
-                </option>
-                <option value="ideathon">
-                  Ideathon (Day 1 • Pitching • Team 1-3)
-                  {availableCompetitions.find((c) => c.id === 'ideathon')?.registrationOpen === false ? ' [CLOSED]' : ''}
-                </option>
-              </select>
+                availableCompetitions={availableCompetitions}
+              />
             </div>
 
             {/* Team Configuration if required */}

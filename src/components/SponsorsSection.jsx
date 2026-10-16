@@ -7,7 +7,6 @@ import HudPanel from './ui/HudPanel';
 import HoloBadge from './ui/HoloBadge';
 import SponsorMarquee from './SponsorMarquee';
 import InfiniteMenu from './ui/InfiniteMenu';
-import GlowCursor from './ui/GlowCursor';
 
 export default function SponsorsSection() {
   const [sponsorData, setSponsorData] = useState(() => ({
@@ -119,29 +118,12 @@ export default function SponsorsSection() {
 
   return (
     <section id="sponsors" className="section sponsors-section">
-      <div className="glow-cursor-background-layer" aria-hidden="true">
-        <GlowCursor
-          color="#81C14B"
-          secondaryColor="#2E933C"
-          intensity={0.8}
-          trailWidth={2.5}
-          linger={0.9}
-          glow={0.8}
-          hotspot={0.35}
-          followSpeed={0.65}
-          grain={0}
-          clickBurst={false}
-          quality="medium"
-          theme="dark"
-          maxDevicePixelRatio={1.5}
-        />
-      </div>
       <div className="section-transition-top" />
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <div className="section-header center">
           <HoloBadge variant="gold" icon={Handshake}>
-            STRATEGIC ALLIANCES & SPONSORS
+            SPONSORS & PARTNERS
           </HoloBadge>
           <h2 className="heading-section marvel-section-title">OUR SPONSORS & PARTNERS</h2>
           <p className="section-lead">
@@ -176,7 +158,7 @@ export default function SponsorsSection() {
                     fontWeight: 600,
                   }}
                 >
-                  INTERACTIVE ALLIANCE SPHERE // 3D SPHERICAL CAROUSEL
+                  OUR SPONSORS
                 </span>
               </div>
               <div
@@ -244,7 +226,7 @@ export default function SponsorsSection() {
                   zIndex: 2,
                 }}
               >
-                SPHERE ALLOCATION // 160 UNIFORM NODES
+                PARTNER ALLIANCES
               </div>
               <div
                 style={{

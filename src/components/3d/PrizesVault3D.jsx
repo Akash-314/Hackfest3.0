@@ -240,7 +240,7 @@ export default function PrizesVault3D() {
     >
       {!webglSupported && (
         <div style={{ color: 'var(--color-stark-gold)', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
-          [VAULT ARTIFACTS ENCRYPTED]
+          VAULT ARTIFACTS ENCRYPTED
         </div>
       )}
     </div>

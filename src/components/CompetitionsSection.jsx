@@ -6,7 +6,6 @@ import { eventService } from '../services/eventService';
 import SuperheroPanel from './ui/SuperheroPanel';
 import HoloBadge from './ui/HoloBadge';
 import ScheduleSection from './ScheduleSection';
-import GlowCursor from './ui/GlowCursor';
 import EventCard from './EventCard';
 
 export default function CompetitionsSection() {
@@ -53,23 +52,6 @@ export default function CompetitionsSection() {
   return (
     <>
       <section id="competitions" className="section competitions-section">
-        <div className="glow-cursor-background-layer" aria-hidden="true">
-          <GlowCursor
-            color="#81C14B"
-            secondaryColor="#2E933C"
-            intensity={0.8}
-            trailWidth={2.5}
-            linger={0.9}
-            glow={0.8}
-            hotspot={0.35}
-            followSpeed={0.65}
-            grain={0}
-            clickBurst={false}
-            quality="medium"
-            theme="dark"
-            maxDevicePixelRatio={1.5}
-          />
-        </div>
         <div className="section-transition-top" />
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}

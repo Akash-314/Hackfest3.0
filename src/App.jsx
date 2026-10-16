@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PublicLayout from './components/layout/PublicLayout';
 import ScrollToTop from './components/ScrollToTop';
 import CursorTrail from './components/cinematic/CursorTrail';
+import GlowCursor from './components/ui/GlowCursor';
 import Galaxy from './components/ui/Galaxy';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -60,6 +61,23 @@ export default function App() {
           <ScrollToTop />
           <div className="site-wrapper">
             <CursorTrail />
+            <div className="glow-cursor-global-layer" aria-hidden="true">
+              <GlowCursor
+                color="#81C14B"
+                secondaryColor="#2E933C"
+                intensity={0.85}
+                trailWidth={2.6}
+                linger={0.92}
+                glow={0.8}
+                hotspot={0.35}
+                followSpeed={0.65}
+                grain={0}
+                clickBurst={false}
+                quality="medium"
+                theme="dark"
+                maxDevicePixelRatio={1.5}
+              />
+            </div>
             <div className="galaxy-background-layer" aria-hidden="true">
               <Galaxy
                 starColors={['#81C14B', '#2E933C', '#204E4A', '#ECBA82']}

@@ -43,7 +43,7 @@ export default function LoginPage() {
           BACK TO HOME
         </Link>
 
-        <HudPanel variant="cyan" tag="LOGIN // PORTAL" scan={true}>
+        <HudPanel variant="cyan" tag="PARTICIPANT LOGIN" scan={true}>
           <div style={{ marginBottom: '1.8rem' }}>
             <HoloBadge variant="cyan" icon={ShieldCheck} style={{ marginBottom: '0.8rem' }}>
               ACCOUNT LOGIN

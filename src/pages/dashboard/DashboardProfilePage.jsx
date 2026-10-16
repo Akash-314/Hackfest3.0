@@ -98,7 +98,7 @@ export default function DashboardProfilePage() {
               </label>
               <input
                 type="email"
-                value={profile?.email || 'operator@recbanda.ac.in'}
+                value={profile?.email || 'participant@gmail.com'}
                 disabled
                 style={{ width: '100%', padding: '0.8rem 1rem', background: '#0d131f', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-sm)', color: 'var(--text-muted)', fontSize: '0.92rem', cursor: 'not-allowed' }}
               />

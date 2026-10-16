@@ -198,7 +198,7 @@ export default function CompetitionDetailPage({ competitionId }) {
           ) : (
             <div>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.94rem', marginBottom: '1.5rem' }}>
-                Evaluation weightages: <strong style={{ color: 'var(--color-warm-amber)' }}>[TO BE DECIDED]</strong> by jury consensus during official briefing.
+                Evaluation weightages: <strong style={{ color: 'var(--color-warm-amber)' }}>TO BE DECIDED</strong> by jury consensus during official briefing.
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
                 {comp.judgingCriteria.map((c, i) => (

@@ -4,8 +4,8 @@ import { problemCategories as defaultCategories } from '../data/eventData';
 import { eventService } from '../services/eventService';
 import ProblemDetailModal from './ProblemDetailModal';
 import SuperheroPanel from './ui/SuperheroPanel';
+import SuperheroTrackArt from './ui/SuperheroTrackArt';
 import HoloBadge from './ui/HoloBadge';
-import GlowCursor from './ui/GlowCursor';
 
 export default function ProblemStatementsSection() {
   const [categories, setCategories] = useState(defaultCategories);
@@ -60,23 +60,6 @@ export default function ProblemStatementsSection() {
 
   return (
     <section id="problems" className="section problems-section">
-      <div className="glow-cursor-background-layer" aria-hidden="true">
-        <GlowCursor
-          color="#81C14B"
-          secondaryColor="#2E933C"
-          intensity={0.8}
-          trailWidth={2.5}
-          linger={0.9}
-          glow={0.8}
-          hotspot={0.35}
-          followSpeed={0.65}
-          grain={0}
-          clickBurst={false}
-          quality="medium"
-          theme="dark"
-          maxDevicePixelRatio={1.5}
-        />
-      </div>
       <div className="section-transition-top" />
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
@@ -85,31 +68,36 @@ export default function ProblemStatementsSection() {
             HACKATHON TRACKS
           </HoloBadge>
           <h2 className="heading-section">
-            PROBLEM STATEMENTS & THEMES
+            PROBLEM STATEMENTS
           </h2>
           <p className="section-lead">
-            Select any theme below to examine technical specifications, sample constraints, and evaluation rubrics.
+            Explore the six official technical challenges designed to build real-world resilience, crisis healthcare, and civic infrastructure.
           </p>
         </div>
 
-        {/* 6 Track Cards Grid - Minimal & Information Light */}
+        {/* 6 Track Cards Grid - Spacious 3-col Desktop, 2-col Tablet, 1-col Mobile */}
         <div
           className="problems-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
-            gap: '1.5rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))',
+            gap: '1.75rem',
           }}
         >
           {categories.map((prob, idx) => {
-            const trackNum = `0${prob.number || idx + 1}`;
+            const rawNum = prob.number != null ? String(prob.number).replace(/^0+/, '') : String(idx + 1);
+            const trackNum = (rawNum || String(idx + 1)).padStart(2, '0');
+            const displayTitle = prob.title || prob.theme;
+            const summaryText = prob.summary || prob.challenge;
+
             return (
               <SuperheroPanel
                 key={prob.id || idx}
-                variant={idx % 2 === 0 ? 'teal' : 'silver'}
+                variant={idx % 2 === 0 ? 'teal' : 'gold'}
                 tag={`TRACK ${trackNum}`}
-                issueNumber={prob.theme ? prob.theme.toUpperCase() : 'CORE'}
-                className="problem-minimal-card"
+                issueNumber="HACKATHON"
+                className="problem-superhero-card"
+                backgroundArt={<SuperheroTrackArt trackIndex={idx} variant={idx % 2 === 0 ? 'teal' : 'gold'} />}
               >
                 <div
                   role="button"
@@ -129,35 +117,49 @@ export default function ProblemStatementsSection() {
                     userSelect: 'none',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                  <div style={{ marginBottom: '0.85rem' }}>
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.72rem',
+                        color: idx % 2 === 0 ? '#63E6D1' : '#F5C451',
+                        letterSpacing: '0.08em',
+                        marginBottom: '0.35rem',
+                        textTransform: 'uppercase',
+                        fontWeight: 600,
+                      }}
+                    >
+                      TRACK {trackNum}
+                    </div>
                     <h3
                       style={{
                         fontFamily: 'var(--font-heading)',
-                        fontSize: '1.35rem',
-                        color: '#F5F5F7',
+                        fontSize: '1.22rem',
+                        lineHeight: '1.35',
+                        color: '#FFFFFF',
                         margin: 0,
-                        letterSpacing: '0.02em',
+                        letterSpacing: '0.01em',
                       }}
                     >
-                      {prob.title}
+                      {displayTitle}
                     </h3>
                   </div>
 
-                  {/* 1-line concise focus */}
+                  {/* Humanized Plain-Language Summary */}
                   <p
                     style={{
-                      color: '#A1A6B3',
+                      color: '#C7CED8',
                       fontSize: '0.88rem',
-                      lineHeight: '1.55',
-                      marginBottom: '1.4rem',
+                      lineHeight: '1.65',
+                      marginBottom: '1.5rem',
                       flexGrow: 1,
                       display: '-webkit-box',
-                      WebkitLineClamp: 2,
+                      WebkitLineClamp: 4,
                       WebkitBoxOrient: 'vertical',
                       overflow: 'hidden',
                     }}
                   >
-                    {prob.challenge}
+                    {summaryText}
                   </p>
 
                   {/* Action trigger to reveal full modal */}
@@ -166,18 +168,18 @@ export default function ProblemStatementsSection() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-                      paddingTop: '0.85rem',
+                      borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                      paddingTop: '0.9rem',
                       marginTop: 'auto',
-                      color: '#63E6D1',
+                      color: idx % 2 === 0 ? '#63E6D1' : '#F5C451',
                       fontSize: '0.82rem',
                       fontWeight: 600,
                       fontFamily: 'var(--font-mono)',
-                      letterSpacing: '0.05em',
+                      letterSpacing: '0.06em',
                     }}
                   >
-                    <span>VIEW SPECIFICATIONS</span>
-                    <ArrowUpRight size={15} />
+                    <span>EXPLORE SPECIFICATION</span>
+                    <ArrowUpRight size={16} />
                   </div>
                 </div>
               </SuperheroPanel>
