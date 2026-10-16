@@ -7,6 +7,7 @@ import {
   mentorsAndJudges as fallbackMentorsAndJudges,
   sponsorsData as fallbackSponsorsData,
   faqsData as fallbackFaqsData,
+  currentSponsorsList as fallbackCurrentSponsors,
 } from '../data/eventData';
 
 export const eventService = {
@@ -250,7 +251,20 @@ export const eventService = {
 
   // Get Sponsors grouped by official tiers
   async getSponsors() {
-    if (!isSupabaseConfigured) return { tiers: [], all: [] };
+    const defaultFallbackTiers = [
+      {
+        id: 'gold',
+        label: 'OFFICIAL SPONSORS',
+        badge: 'CONFIRMED ALLIANCES',
+        variant: 'gold',
+        sponsors: (fallbackCurrentSponsors || []).map((s) => ({
+          ...s,
+          logo_url: s.cardLogo || s.image,
+        })),
+      },
+    ];
+
+    if (!isSupabaseConfigured) return { tiers: defaultFallbackTiers, all: fallbackCurrentSponsors };
     try {
       const { data, error } = await supabase
         .from('sponsors')
@@ -258,13 +272,15 @@ export const eventService = {
         .order('sort_order', { ascending: true })
         .order('created_at', { ascending: true });
 
-      if (error || !data) return { tiers: [], all: [] };
+      if (error || !data || data.length === 0) return { tiers: defaultFallbackTiers, all: fallbackCurrentSponsors };
 
       // Filter only published sponsors (check native is_published or fallback tag !== 'draft')
       const published = data.filter((s) => {
         if (s.is_published !== undefined) return s.is_published === true;
         return s.tag !== 'draft';
       });
+
+      if (published.length === 0) return { tiers: defaultFallbackTiers, all: fallbackCurrentSponsors };
 
       // Tier specifications in order of prestige
       const tierOrder = [
@@ -309,12 +325,12 @@ export const eventService = {
       }
 
       return {
-        tiers: groupedTiers,
-        all: published,
+        tiers: groupedTiers.length > 0 ? groupedTiers : defaultFallbackTiers,
+        all: published.length > 0 ? published : fallbackCurrentSponsors,
       };
     } catch (err) {
       console.warn('Error fetching sponsors:', err);
-      return { tiers: [], all: [] };
+      return { tiers: defaultFallbackTiers, all: fallbackCurrentSponsors };
     }
   },
 

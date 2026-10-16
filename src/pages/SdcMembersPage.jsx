@@ -1,37 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { sdcService } from '../services/sdcService';
-import SuperheroPanel from '../components/ui/SuperheroPanel';
+import ProfileCard from '../components/ui/ProfileCard';
 import HoloBadge from '../components/ui/HoloBadge';
+import GlowCursor from '../components/ui/GlowCursor';
 import {
   GraduationCap,
   Sparkles,
   Users,
-  Mail,
-  ExternalLink,
   Shield,
   ArrowLeft,
-  User,
   RefreshCw,
 } from 'lucide-react';
-
-function LinkedInIcon({ size = 16 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-      <rect x="2" y="9" width="4" height="12" />
-      <circle cx="4" cy="4" r="2" />
-    </svg>
-  );
-}
-
-function GitHubIcon({ size = 16 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-    </svg>
-  );
-}
 
 export default function SdcMembersPage() {
   const [members, setMembers] = useState({
@@ -59,162 +39,75 @@ export default function SdcMembersPage() {
     }
   };
 
-  const renderSocialIcon = (key, url) => {
-    const k = key.toLowerCase();
-    let Icon = ExternalLink;
-    if (k.includes('linkedin')) Icon = LinkedInIcon;
-    else if (k.includes('github')) Icon = GitHubIcon;
-    else if (k.includes('email') || k.includes('mail')) Icon = Mail;
+  const renderMemberCard = (member, categoryKey = 'faculty') => {
+    const contactEmail = member.email || member.social_links?.email || 'sdc@recbanda.ac.in';
+    const contactHref = `mailto:${contactEmail}`;
 
-    const href = k.includes('email') && !url.startsWith('mailto:') ? `mailto:${url}` : url;
+    const defaultAvatars = {
+      faculty: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600',
+      mentor: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=600',
+      coordinator: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=600',
+    };
 
-    return (
-      <a
-        key={key}
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={key.toUpperCase()}
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '32px',
-          height: '32px',
-          borderRadius: '4px',
-          background: 'rgba(255, 255, 255, 0.05)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          color: 'var(--color-tech-white)',
-          transition: 'all 0.2s ease',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = 'var(--color-stark-gold)';
-          e.currentTarget.style.color = 'var(--color-stark-gold)';
-          e.currentTarget.style.background = 'rgba(245, 182, 66, 0.15)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-          e.currentTarget.style.color = 'var(--color-tech-white)';
-          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-        }}
-      >
-        <Icon size={16} />
-      </a>
-    );
-  };
+    const avatar = member.avatarUrl || member.photo_url || defaultAvatars[categoryKey] || defaultAvatars.coordinator;
+    const miniAvatar = member.miniAvatarUrl || avatar;
+    const handle = member.handle || member.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
 
-  const renderMemberCard = (member, variant = 'gold', tagPrefix = 'SDC') => {
-    const socialEntries = Object.entries(member.social_links || {}).filter(
-      ([_, url]) => url && typeof url === 'string' && url.trim().length > 0
-    );
+    const statusDefaults = {
+      faculty: { status: 'Faculty Leadership', statusColor: '#F5C451', backdrop: '#282015' },
+      mentor: { status: 'Technical Mentor', statusColor: '#63E6D1', backdrop: '#10262b' },
+      coordinator: { status: 'Event Coordinator', statusColor: '#10B981', backdrop: '#1f162b' },
+    };
+
+    const currentStatus = member.status || statusDefaults[categoryKey]?.status || 'Active Member';
+    const currentStatusColor = member.statusColor || statusDefaults[categoryKey]?.statusColor || '#10B981';
+    const currentBackdrop = member.backdropColor || statusDefaults[categoryKey]?.backdrop || '#141824';
 
     return (
-      <SuperheroPanel
-        key={member.id}
-        variant={variant}
-        tag={`${tagPrefix} // #${String(member.sort_order || 1).padStart(2, '0')}`}
-        issueNumber="SDC"
-        className="mentor-card sdc-profile-card"
-        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-      >
-        {/* Photo & Header */}
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', marginBottom: '1rem' }}>
-          {/* Member Photograph with fallback */}
-          <div
-            style={{
-              width: '84px',
-              height: '84px',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              flexShrink: 0,
-              background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
-              border: variant === 'gold' ? '1px solid var(--color-stark-gold)' : '1px solid var(--color-arc-blue)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 15px rgba(0, 0, 0, 0.4)',
-            }}
-          >
-            {member.photo_url ? (
-              <img
-                src={member.photo_url}
-                alt={member.name}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement.innerHTML = '<div style="color: var(--color-stark-gold); display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="5"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></div>';
-                }}
-              />
-            ) : (
-              <User size={36} color={variant === 'gold' ? 'var(--color-stark-gold)' : 'var(--color-arc-blue)'} />
-            )}
-          </div>
-
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h3
-              style={{
-                fontFamily: 'var(--font-heading)',
-                fontSize: '1.25rem',
-                color: '#FFFFFF',
-                margin: '0 0 0.25rem 0',
-                letterSpacing: '0.03em',
-                lineHeight: 1.2,
-              }}
-            >
-              {member.name}
-            </h3>
-            <div
-              style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.78rem',
-                color: variant === 'gold' ? 'var(--color-stark-gold)' : 'var(--color-arc-blue)',
-                fontWeight: 600,
-                lineHeight: 1.35,
-              }}
-            >
-              {member.role_title}
-            </div>
-          </div>
-        </div>
-
-        {/* Bio / Responsibility */}
-        {member.bio && (
-          <p
-            style={{
-              color: '#94A3B8',
-              fontSize: '0.86rem',
-              lineHeight: '1.55',
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              paddingTop: '0.75rem',
-              margin: '0 0 1rem 0',
-              flex: 1,
-            }}
-          >
-            {member.bio}
-          </p>
-        )}
-
-        {/* Social / Profile Links */}
-        {socialEntries.length > 0 && (
-          <div
-            style={{
-              display: 'flex',
-              gap: '0.5rem',
-              marginTop: 'auto',
-              paddingTop: '0.5rem',
-              borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-            }}
-          >
-            {socialEntries.map(([k, u]) => renderSocialIcon(k, u))}
-          </div>
-        )}
-      </SuperheroPanel>
+      <div key={member.id} className="sdc-profile-card-wrapper" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <ProfileCard
+          avatarUrl={avatar}
+          miniAvatarUrl={miniAvatar}
+          name={member.name}
+          title={member.role_title}
+          handle={handle}
+          status={currentStatus}
+          statusColor={currentStatusColor}
+          contactText="Contact"
+          contactHref={contactHref}
+          backdropColor={currentBackdrop}
+          theme="dark"
+          holo={0.82}
+          glare={0.48}
+          tiltStrength={11}
+          parallax={8}
+          enableTilt={true}
+          radius={16}
+        />
+      </div>
     );
   };
 
   return (
-    <div style={{ paddingTop: 'calc(var(--nav-height) + 1.5rem)', paddingBottom: '6rem' }}>
-      <div className="container" style={{ maxWidth: '1200px' }}>
+    <div style={{ paddingTop: 'calc(var(--nav-height) + 1.5rem)', paddingBottom: '6rem', position: 'relative' }}>
+      <div className="glow-cursor-background-layer" aria-hidden="true">
+        <GlowCursor
+          color="#81C14B"
+          secondaryColor="#2E933C"
+          intensity={0.8}
+          trailWidth={2.5}
+          linger={0.9}
+          glow={0.8}
+          hotspot={0.35}
+          followSpeed={0.65}
+          grain={0}
+          clickBurst={false}
+          quality="medium"
+          theme="dark"
+          maxDevicePixelRatio={1.5}
+        />
+      </div>
+      <div className="container" style={{ maxWidth: '1200px', position: 'relative', zIndex: 1 }}>
         {/* Navigation Breadcrumb */}
         <div style={{ marginBottom: '1.5rem' }}>
           <Link
@@ -322,12 +215,13 @@ export default function SdcMembersPage() {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
-                    gap: '1.5rem',
-                    maxWidth: members.faculty.length === 1 ? '680px' : '100%',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 340px))',
+                    gap: '2.5rem',
+                    justifyContent: 'center',
+                    alignItems: 'start',
                   }}
                 >
-                  {members.faculty.map((member) => renderMemberCard(member, 'gold', 'FACULTY'))}
+                  {members.faculty.map((member) => renderMemberCard(member, 'faculty'))}
                 </div>
               )}
             </section>
@@ -374,7 +268,7 @@ export default function SdcMembersPage() {
                       margin: 0,
                     }}
                   >
-                    MENTORS
+                    MENTORS ({members.mentors.length})
                   </h2>
                 </div>
               </div>
@@ -396,11 +290,13 @@ export default function SdcMembersPage() {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
-                    gap: '1.5rem',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                    gap: '2.5rem',
+                    justifyContent: 'center',
+                    alignItems: 'start',
                   }}
                 >
-                  {members.mentors.map((member) => renderMemberCard(member, 'blue', 'MENTOR'))}
+                  {members.mentors.map((member) => renderMemberCard(member, 'mentor'))}
                 </div>
               )}
             </section>
@@ -447,7 +343,7 @@ export default function SdcMembersPage() {
                       margin: 0,
                     }}
                   >
-                    COORDINATORS
+                    COORDINATORS ({members.coordinators.length})
                   </h2>
                 </div>
               </div>
@@ -469,11 +365,13 @@ export default function SdcMembersPage() {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
-                    gap: '1.5rem',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                    gap: '2.5rem',
+                    justifyContent: 'center',
+                    alignItems: 'start',
                   }}
                 >
-                  {members.coordinators.map((member) => renderMemberCard(member, 'crimson', 'COORDINATOR'))}
+                  {members.coordinators.map((member) => renderMemberCard(member, 'coordinator'))}
                 </div>
               )}
             </section>

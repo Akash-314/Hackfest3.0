@@ -797,3 +797,55 @@ export const sponsorsData = {
     { name: "REC Banda Innovation Cell", type: "Incubation & Research" }
   ]
 };
+
+export const currentSponsorsList = [
+  {
+    id: "mkai-tech-academy",
+    name: "M KAI² TECH ACADEMY",
+    title: "M KAI² TECH ACADEMY",
+    subtitle: "Estd: 2024 • Give Us Chance To Improve Your Life",
+    description: "Empowering students and developers through cutting-edge tech education, mentorship, and career acceleration.",
+    image: "/images/sponsors/mkai-tech-academy-tile.png",
+    cardLogo: "/images/sponsors/mkai-tech-academy.png",
+    website_url: "https://mkaitechacademy.com",
+    link: "https://mkaitechacademy.com",
+    tier: "gold",
+    tierLabel: "GOLD SPONSOR",
+    badge: "GOLD ALLIANCE",
+    theme: "light",
+    is_published: true
+  },
+  {
+    id: "abhiconsultant",
+    name: "ABHICONSULTANT",
+    title: "ABHICONSULTANT",
+    subtitle: "Smart Moves. Big Impact.",
+    description: "Premier strategic advisory and technology consulting driving high-impact enterprise problem solving.",
+    image: "/images/sponsors/abhiconsultant-tile.png",
+    cardLogo: "/images/sponsors/abhiconsultant.png",
+    website_url: "https://abhiconsultant.com",
+    link: "https://abhiconsultant.com",
+    tier: "gold",
+    tierLabel: "GOLD SPONSOR",
+    badge: "GOLD ALLIANCE",
+    theme: "dark",
+    is_published: true
+  },
+  {
+    id: "kraftoper",
+    name: "Kraftoper",
+    title: "Kraftoper",
+    subtitle: "Creative Innovation & Software Engineering",
+    description: "Next-generation digital engineering, scalable architecture, and forward-thinking developer platforms.",
+    image: "/images/sponsors/kraftoper-tile.png",
+    cardLogo: "/images/sponsors/kraftoper.png",
+    website_url: "https://kraftoper.com",
+    link: "https://kraftoper.com",
+    tier: "gold",
+    tierLabel: "GOLD SPONSOR",
+    badge: "GOLD ALLIANCE",
+    theme: "light",
+    is_published: true
+  }
+];
+

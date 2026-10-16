@@ -1,34 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { Mail, Building2, Handshake, ExternalLink, Sparkles, Loader2, Award, Shield, Star } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Mail, Building2, Handshake, ExternalLink, Sparkles, Award, Shield, Star, Orbit } from 'lucide-react';
 import { eventService } from '../services/eventService';
-import { eventMeta } from '../data/eventData';
+import { eventMeta, currentSponsorsList } from '../data/eventData';
 import { supabase } from '../lib/supabase';
 import HudPanel from './ui/HudPanel';
 import HoloBadge from './ui/HoloBadge';
 import SponsorMarquee from './SponsorMarquee';
+import InfiniteMenu from './ui/InfiniteMenu';
+import GlowCursor from './ui/GlowCursor';
 
 export default function SponsorsSection() {
-  const [loading, setLoading] = useState(true);
-  const [sponsorData, setSponsorData] = useState({ tiers: [], all: [] });
+  const [sponsorData, setSponsorData] = useState(() => ({
+    tiers: [
+      {
+        id: 'gold',
+        label: 'OFFICIAL SPONSORS',
+        badge: 'CONFIRMED ALLIANCES',
+        variant: 'gold',
+        sponsors: currentSponsorsList.map((s) => ({
+          ...s,
+          logo_url: s.cardLogo || s.image,
+        })),
+      },
+    ],
+    all: currentSponsorsList,
+  }));
 
   useEffect(() => {
     let isMounted = true;
     async function loadSponsors() {
-      setLoading(true);
       try {
         const res = await eventService.getSponsors();
-        if (isMounted && res) {
+        if (isMounted && res && res.tiers && res.tiers.length > 0) {
           setSponsorData(res);
         }
       } catch (err) {
         console.warn('Failed to load sponsors:', err);
-      } finally {
-        if (isMounted) setLoading(false);
       }
     }
     loadSponsors();
 
-    // Subscribe to realtime database changes for sponsors
+    // Subscribe to realtime database changes for sponsors if Supabase configured
     const channel = supabase
       ?.channel('public:sponsors_realtime')
       ?.on('postgres_changes', { event: '*', schema: 'public', table: 'sponsors' }, () => {
@@ -43,6 +55,25 @@ export default function SponsorsSection() {
   }, []);
 
   const { tiers = [] } = sponsorData;
+
+  // Prepare carousel items with equal visibility & repetition
+  const carouselItems = useMemo(() => {
+    const rawList =
+      sponsorData.all && sponsorData.all.length > 0
+        ? sponsorData.all
+        : currentSponsorsList;
+
+    return rawList.map((sponsor) => ({
+      image: sponsor.image || sponsor.tile_url || sponsor.cardLogo || sponsor.logo_url,
+      title: sponsor.name || sponsor.title,
+      description:
+        sponsor.subtitle ||
+        sponsor.description ||
+        sponsor.tagline ||
+        'Official HackFest 3.0 Partner Alliance',
+      link: sponsor.website_url || sponsor.link || '#sponsors',
+    }));
+  }, [sponsorData.all]);
 
   const getTierIcon = (id) => {
     switch (id) {
@@ -71,9 +102,9 @@ export default function SponsorsSection() {
   };
 
   const getCardMinHeight = (tierId) => {
-    if (tierId === 'title') return '220px';
-    if (tierId === 'powered_by' || tierId === 'gold') return '190px';
-    return '160px';
+    if (tierId === 'title') return '240px';
+    if (tierId === 'powered_by' || tierId === 'gold') return '210px';
+    return '180px';
   };
 
   const isValidUrl = (url) => {
@@ -88,8 +119,25 @@ export default function SponsorsSection() {
 
   return (
     <section id="sponsors" className="section sponsors-section">
+      <div className="glow-cursor-background-layer" aria-hidden="true">
+        <GlowCursor
+          color="#81C14B"
+          secondaryColor="#2E933C"
+          intensity={0.8}
+          trailWidth={2.5}
+          linger={0.9}
+          glow={0.8}
+          hotspot={0.35}
+          followSpeed={0.65}
+          grain={0}
+          clickBurst={false}
+          quality="medium"
+          theme="dark"
+          maxDevicePixelRatio={1.5}
+        />
+      </div>
       <div className="section-transition-top" />
-      <div className="container">
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <div className="section-header center">
           <HoloBadge variant="gold" icon={Handshake}>
@@ -101,39 +149,124 @@ export default function SponsorsSection() {
           </p>
         </div>
 
-        {/* Loading State */}
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '5rem 1rem' }}>
-            <Loader2 size={36} color="var(--color-arc-cyan)" className="animate-spin" style={{ margin: '0 auto 1rem auto' }} />
-            <div style={{ fontFamily: 'var(--font-mono)', color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
-              LOADING PARTNER ALLIANCES...
+        {/* 3D SPHERICAL CAROUSEL SHOWCASE (React Bits InfiniteMenu) */}
+        {carouselItems.length > 0 && (
+          <div className="sponsors-spherical-showcase-wrapper" style={{ marginBottom: '4.5rem' }}>
+            {/* Radar Bar */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '0.75rem',
+                marginBottom: '1rem',
+                padding: '0.4rem 0.2rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <Orbit size={18} color="var(--color-arc-cyan, #63E6D1)" className="animate-spin-slow" />
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.82rem',
+                    letterSpacing: '0.12em',
+                    color: 'var(--color-arc-cyan, #63E6D1)',
+                    textTransform: 'uppercase',
+                    fontWeight: 600,
+                  }}
+                >
+                  INTERACTIVE ALLIANCE SPHERE // 3D SPHERICAL CAROUSEL
+                </span>
+              </div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.72rem',
+                  color: 'var(--color-text-secondary)',
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '6px',
+                  padding: '0.3rem 0.75rem',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                <span>DRAG SPHERE TO ROTATE • CLICK TILE TO FOCUS • AUTO-ORBIT</span>
+              </div>
+            </div>
+
+            {/* Canvas Viewport Frame */}
+            <div
+              className="sponsor-sphere-canvas-box"
+              style={{
+                height: '580px',
+                position: 'relative',
+                width: '100%',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                background: 'radial-gradient(ellipse at center, rgba(16, 26, 36, 0.75) 0%, rgba(8, 9, 13, 0.95) 75%)',
+                border: '1px solid rgba(99, 230, 209, 0.25)',
+                boxShadow: '0 24px 60px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(99, 230, 209, 0.04)',
+              }}
+            >
+              <InfiniteMenu
+                items={carouselItems}
+                count={160}
+                tileSize={0.64}
+                roundness={0.22}
+                zoom={1.65}
+                pullBack={1}
+                stretch={0.6}
+                inertia={0.65}
+                autoplay={3.5}
+                grayscale={false}
+                dim={0.35}
+                intro={true}
+                showInfo={true}
+                theme="dark"
+                accentColor="var(--color-arc-cyan, #63E6D1)"
+              />
+
+              {/* HUD corner metadata overlay */}
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '1rem',
+                  left: '1.25rem',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.72rem',
+                  color: 'rgba(255, 255, 255, 0.45)',
+                  pointerEvents: 'none',
+                  letterSpacing: '0.08em',
+                  zIndex: 2,
+                }}
+              >
+                SPHERE ALLOCATION // 160 UNIFORM NODES
+              </div>
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '1rem',
+                  right: '1.25rem',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.72rem',
+                  color: 'var(--color-arc-cyan, #63E6D1)',
+                  pointerEvents: 'none',
+                  letterSpacing: '0.08em',
+                  zIndex: 2,
+                }}
+              >
+                ACTIVE ALLIANCES: {carouselItems.length}
+              </div>
             </div>
           </div>
-        ) : tiers.length === 0 ? (
-          /* Empty State when no sponsors have been added/published yet */
-          <div style={{ maxWidth: '720px', margin: '0 auto 3.5rem auto' }}>
-            <HudPanel variant="cyan" tag="ALLIANCES // OPEN INVITATION" scan={true}>
-              <div style={{ textAlign: 'center', padding: '3.5rem 1.5rem' }}>
-                <Handshake size={48} color="var(--color-arc-cyan)" style={{ margin: '0 auto 1.25rem auto', opacity: 0.8 }} />
-                <h3 className="heading-display" style={{ fontSize: '1.75rem', color: '#fff', marginBottom: '0.6rem' }}>
-                  BECOME A PIONEERING PARTNER
-                </h3>
-                <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.94rem', lineHeight: '1.65', marginBottom: '1.8rem', maxWidth: '580px', margin: '0 auto 1.8rem auto' }}>
-                  Official sponsorship partnerships are currently being confirmed for {eventMeta.name}. Partner with REC Banda to mentor, recruit, and showcase your technology stack to hundreds of developers.
-                </p>
-                <a
-                  href={`mailto:${eventMeta.contactEmail}?subject=HackFest%203.0%20Sponsorship%20Inquiry`}
-                  className="btn btn-primary"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem' }}
-                >
-                  <Mail size={16} />
-                  REQUEST SPONSORSHIP DECK
-                </a>
-              </div>
-            </HudPanel>
-          </div>
-        ) : (
-          /* Dynamic Tiered Sponsor Groups */
+        )}
+
+        {/* Dynamic Tiered Sponsor Groups */}
+        {tiers.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5rem', marginBottom: '3.5rem' }}>
             {tiers.map((tier) => {
               const TierIcon = getTierIcon(tier.id);
@@ -178,8 +311,11 @@ export default function SponsorsSection() {
                         fontFamily: 'var(--font-mono)',
                         fontSize: '0.72rem',
                         color: tier.variant === 'gold' ? 'var(--color-infinity-gold)' : 'var(--color-arc-cyan)',
-                        background: tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.12)' : 'rgba(0, 217, 255, 0.12)',
-                        border: `1px solid ${tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.3)' : 'rgba(0, 217, 255, 0.3)'}`,
+                        background:
+                          tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.12)' : 'rgba(0, 217, 255, 0.12)',
+                        border: `1px solid ${
+                          tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.3)' : 'rgba(0, 217, 255, 0.3)'
+                        }`,
                         padding: '0.2rem 0.6rem',
                         borderRadius: '4px',
                         letterSpacing: '0.08em',
@@ -200,12 +336,15 @@ export default function SponsorsSection() {
                   >
                     {tier.sponsors.map((sponsor) => {
                       const hasValidLink = isValidUrl(sponsor.website_url);
+                      const logoSrc = sponsor.cardLogo || sponsor.logo_url || sponsor.image;
 
                       const CardContent = (
                         <div
                           style={{
                             background: 'var(--color-surface-elevated)',
-                            border: `1px solid ${tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.3)' : 'rgba(0, 217, 255, 0.25)'}`,
+                            border: `1px solid ${
+                              tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.3)' : 'rgba(0, 217, 255, 0.25)'
+                            }`,
                             borderRadius: 'var(--radius-md)',
                             padding: '1.5rem',
                             display: 'flex',
@@ -240,26 +379,39 @@ export default function SponsorsSection() {
                           )}
 
                           {/* Logo or Fallback */}
-                          {sponsor.logo_url ? (
+                          {logoSrc ? (
                             <div
                               style={{
                                 width: '100%',
-                                height: tier.id === 'title' ? '90px' : '70px',
+                                height: tier.id === 'title' ? '104px' : '92px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 marginBottom: '1rem',
                                 padding: '0.5rem',
+                                borderRadius: '10px',
+                                background:
+                                  sponsor.theme === 'light'
+                                    ? 'rgba(255, 255, 255, 0.96)'
+                                    : 'rgba(12, 16, 24, 0.85)',
+                                border:
+                                  sponsor.theme === 'light'
+                                    ? '1px solid rgba(255, 255, 255, 0.2)'
+                                    : '1px solid rgba(99, 230, 209, 0.2)',
+                                boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
                               }}
                             >
                               <img
-                                src={sponsor.logo_url}
+                                src={logoSrc}
                                 alt={`${sponsor.name} logo`}
                                 style={{
                                   maxHeight: '100%',
                                   maxWidth: '100%',
                                   objectFit: 'contain',
-                                  filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.4))',
+                                  filter:
+                                    sponsor.theme === 'light'
+                                      ? 'none'
+                                      : 'drop-shadow(0 2px 8px rgba(0,0,0,0.4))',
                                 }}
                                 loading="lazy"
                               />
@@ -271,13 +423,23 @@ export default function SponsorsSection() {
                                 width: '56px',
                                 height: '56px',
                                 borderRadius: '8px',
-                                background: tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.15)' : 'rgba(0, 217, 255, 0.15)',
-                                border: `1px solid ${tier.variant === 'gold' ? 'var(--color-infinity-gold)' : 'var(--color-arc-cyan)'}`,
+                                background:
+                                  tier.variant === 'gold'
+                                    ? 'rgba(245, 196, 81, 0.15)'
+                                    : 'rgba(0, 217, 255, 0.15)',
+                                border: `1px solid ${
+                                  tier.variant === 'gold'
+                                    ? 'var(--color-infinity-gold)'
+                                    : 'var(--color-arc-cyan)'
+                                }`,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 marginBottom: '0.85rem',
-                                color: tier.variant === 'gold' ? 'var(--color-infinity-gold)' : 'var(--color-arc-cyan)',
+                                color:
+                                  tier.variant === 'gold'
+                                    ? 'var(--color-infinity-gold)'
+                                    : 'var(--color-arc-cyan)',
                                 fontFamily: 'var(--font-heading)',
                                 fontSize: '1.25rem',
                                 fontWeight: 700,
@@ -295,11 +457,26 @@ export default function SponsorsSection() {
                               color: '#fff',
                               fontWeight: 600,
                               letterSpacing: '0.04em',
-                              marginBottom: sponsor.description ? '0.35rem' : 0,
+                              marginBottom: sponsor.subtitle || sponsor.description ? '0.35rem' : 0,
                             }}
                           >
                             {sponsor.name}
                           </div>
+
+                          {/* Tagline / Subtitle */}
+                          {sponsor.subtitle && (
+                            <div
+                              style={{
+                                fontFamily: 'var(--font-mono)',
+                                fontSize: '0.74rem',
+                                color: 'var(--color-arc-cyan, #63E6D1)',
+                                letterSpacing: '0.05em',
+                                marginBottom: '0.45rem',
+                              }}
+                            >
+                              {sponsor.subtitle}
+                            </div>
+                          )}
 
                           {/* Description if present */}
                           {sponsor.description && (
@@ -350,7 +527,15 @@ export default function SponsorsSection() {
             <h3 className="heading-display" style={{ fontSize: '1.6rem', color: '#F5F7FA', marginBottom: '0.6rem' }}>
               PARTNER WITH HACKFEST 3.0
             </h3>
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.94rem', maxWidth: '620px', margin: '0 auto 1.6rem auto', lineHeight: '1.6' }}>
+            <p
+              style={{
+                color: 'var(--color-text-secondary)',
+                fontSize: '0.94rem',
+                maxWidth: '620px',
+                margin: '0 auto 1.6rem auto',
+                lineHeight: '1.6',
+              }}
+            >
               Empower student builders from premier technical institutions. Connect your company directly with future engineering talent, showcase developer APIs, and lead keynote workshops.
             </p>
             <a
