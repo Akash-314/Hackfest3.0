@@ -837,8 +837,29 @@ export default function AdminTeamsPage() {
                 </div>
               </div>
 
-              {/* Close Button */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '1rem' }}>
+              {/* Modal Footer Actions */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '1rem' }}>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteTeam(manageTeamModal.id, manageTeamModal.name)}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    color: '#f87171',
+                    borderRadius: '4px',
+                    padding: '0.45rem 0.85rem',
+                    fontSize: '0.78rem',
+                    fontFamily: 'var(--font-mono)',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                  }}
+                  title="Permanently delete this entire team and associated registrations"
+                >
+                  <Trash2 size={14} />
+                  DELETE TEAM
+                </button>
                 <button
                   type="button"
                   className="btn btn-secondary"

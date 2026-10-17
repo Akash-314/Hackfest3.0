@@ -114,16 +114,26 @@ export default function AdminRegistrationsPage() {
     }
   };
 
-  const handleAdminDeleteRegistration = async (registrationId) => {
-    if (!window.confirm(`Are you sure you want to permanently delete registration #${registrationId.slice(0, 8)}? This action cannot be undone.`)) return;
+  const handleAdminDeleteRegistration = async (registrationId, teamId = null, teamName = '') => {
+    const targetLabel = teamName
+      ? `team "${teamName}" and its registration`
+      : `registration #${registrationId ? registrationId.slice(0, 8) : ''}`;
+
+    if (
+      !window.confirm(
+        `Are you sure you want to permanently delete ${targetLabel}? This will remove the registered team, its roster of members, and the registration record.`
+      )
+    ) {
+      return;
+    }
 
     try {
-      await adminService.deleteRegistration(registrationId);
-      showBanner('Registration deleted permanently.', 'success');
+      await adminService.deleteRegistrationAndTeamAdmin(registrationId, teamId);
+      showBanner(`Deleted ${targetLabel} successfully.`, 'success');
       setInspectModalItem(null);
       await loadData();
     } catch (err) {
-      showBanner(err.message || 'Failed to delete registration.', 'error');
+      showBanner(err.message || 'Failed to delete registration / team.', 'error');
     }
   };
 
@@ -924,6 +934,35 @@ export default function AdminRegistrationsPage() {
                             >
                               UPDATE
                             </button>
+
+                            {/* Simple Delete Registered Team & Registration */}
+                            <button
+                              onClick={() =>
+                                handleAdminDeleteRegistration(
+                                  r.id,
+                                  r.team_id || r.team?.id,
+                                  r.team?.name || r.team_name
+                                )
+                              }
+                              style={{
+                                padding: '0.3rem 0.55rem',
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                border: '1px solid rgba(239, 68, 68, 0.4)',
+                                color: '#f87171',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                              title={
+                                r.team?.name || r.team_id
+                                  ? `Delete Team "${r.team?.name || 'Registered Team'}" & Registration`
+                                  : 'Delete Registration'
+                              }
+                            >
+                              <Trash2 size={13} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1300,7 +1339,13 @@ export default function AdminRegistrationsPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '1rem' }}>
                 <button
                   type="button"
-                  onClick={() => handleAdminDeleteRegistration(inspectModalItem.id)}
+                  onClick={() =>
+                    handleAdminDeleteRegistration(
+                      inspectModalItem.id,
+                      inspectModalItem.team_id || inspectModalItem.team?.id,
+                      inspectModalItem.team?.name || inspectModalItem.team_name
+                    )
+                  }
                   style={{
                     background: 'rgba(239, 68, 68, 0.15)',
                     border: '1px solid rgba(239, 68, 68, 0.4)',
@@ -1314,9 +1359,12 @@ export default function AdminRegistrationsPage() {
                     alignItems: 'center',
                     gap: '0.4rem',
                   }}
+                  title="Permanently delete this registration and registered team"
                 >
                   <Trash2 size={14} />
-                  DELETE REGISTRATION
+                  {inspectModalItem.team?.name || inspectModalItem.team_id
+                    ? 'DELETE TEAM & REGISTRATION'
+                    : 'DELETE REGISTRATION'}
                 </button>
 
                 <div style={{ display: 'flex', gap: '0.75rem' }}>

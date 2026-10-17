@@ -188,6 +188,34 @@ export const adminService = {
     return true;
   },
 
+  async deleteRegistrationAndTeamAdmin(registrationId, teamId = null) {
+    if (!isSupabaseConfigured) return;
+    let targetTeamId = teamId;
+    if (!targetTeamId && registrationId) {
+      try {
+        const { data: reg } = await supabase
+          .from('registrations')
+          .select('team_id')
+          .eq('id', registrationId)
+          .maybeSingle();
+        if (reg?.team_id) targetTeamId = reg.team_id;
+      } catch (err) {
+        console.warn('Note: lookup team_id during registration delete:', err);
+      }
+    }
+
+    if (targetTeamId) {
+      await this.deleteTeamAdmin(targetTeamId).catch((err) => console.warn('Note: team delete during registration delete:', err));
+    }
+    if (registrationId) {
+      const { error } = await supabase.from('registrations').delete().eq('id', registrationId);
+      if (error && !targetTeamId) throw error;
+    }
+
+    await this.logAction('DELETE_REGISTRATION_AND_TEAM', 'registrations', registrationId || targetTeamId, { teamId: targetTeamId }).catch(() => {});
+    return true;
+  },
+
   // --------------------------------------------------------------------------
   // 3. ADMIN & USER ROLE MANAGEMENT (SUPER ADMIN ONLY)
   // --------------------------------------------------------------------------
