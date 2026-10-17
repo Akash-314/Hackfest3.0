@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import DashboardNav from '../../components/dashboard/DashboardNav';
 import { teamService } from '../../services/teamService';
 import { eventService } from '../../services/eventService';
-import { Users, Copy, Check, Plus, LogIn, AlertCircle, Loader2, ShieldCheck, UserMinus } from 'lucide-react';
+import { Users, Copy, Check, Plus, LogIn, AlertCircle, Loader2, ShieldCheck, UserMinus, UserPlus, Mail } from 'lucide-react';
 import { competitions } from '../../data/eventData';
 
 export default function DashboardTeamPage() {
@@ -21,6 +21,11 @@ export default function DashboardTeamPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // Add member inline state
+  const [addingMemberTeamId, setAddingMemberTeamId] = useState(null);
+  const [memberEmailInput, setMemberEmailInput] = useState('');
+  const [addingMemberLoading, setAddingMemberLoading] = useState(false);
 
   const loadTeams = async () => {
     if (!user) return;
@@ -48,15 +53,30 @@ export default function DashboardTeamPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    // Pre-check if user is already in a team for selected competition
+    const existingForComp = teams.find(
+      (t) => t.competition_id === newCompId || t.competition?.slug === newCompId || t.competition?.id === newCompId
+    );
+    if (existingForComp) {
+      setError(`You already belong to team "${existingForComp.name}" in this competition. A participant can only join or create one team per event.`);
+      return;
+    }
+
+    if (!newTeamName.trim() || newTeamName.trim().length < 2) {
+      setError('Please enter a team name (minimum 2 characters).');
+      return;
+    }
+
     setActionLoading(true);
 
     try {
-      await teamService.createTeam({
+      const created = await teamService.createTeam({
         name: newTeamName.trim(),
         competitionId: newCompId,
         userId: user.id,
       });
-      setSuccess(`Team "${newTeamName}" created successfully! Share your invite code.`);
+      setSuccess(`Team "${newTeamName.trim()}" created successfully! Invite code: ${created.code}`);
       setNewTeamName('');
       setShowCreate(false);
       await loadTeams();
@@ -71,14 +91,25 @@ export default function DashboardTeamPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    const cleanCode = joinCode.trim().toUpperCase();
+    if (!cleanCode) {
+      setError('Please enter a team invite code.');
+      return;
+    }
+
     setActionLoading(true);
 
     try {
       const res = await teamService.joinTeam({
-        code: joinCode.trim(),
+        code: cleanCode,
         userId: user.id,
       });
-      setSuccess(`Joined team "${res.name}" successfully!`);
+      setSuccess(
+        res.status === 'already_joined'
+          ? `You are already a member of team "${res.name}".`
+          : `Joined team "${res.name}" successfully!`
+      );
       setJoinCode('');
       setShowJoin(false);
       await loadTeams();
@@ -89,13 +120,51 @@ export default function DashboardTeamPage() {
     }
   };
 
-  const handleLeaveTeam = async (teamId) => {
-    if (!window.confirm('Are you sure you want to withdraw from this team?')) return;
+  const handleAddMember = async (e, teamId) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    const cleanEmail = memberEmailInput.trim().toLowerCase();
+    if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      setError('Please enter a valid teammate email address.');
+      return;
+    }
+
+    if (cleanEmail === user.email?.toLowerCase()) {
+      setError('You are already the leader of this team.');
+      return;
+    }
+
+    setAddingMemberLoading(true);
+
     try {
-      await teamService.leaveTeam({ teamId, userId: user.id });
+      const res = await teamService.addMemberByEmail({
+        teamId,
+        email: cleanEmail,
+        leaderUserId: user.id,
+      });
+      setSuccess(`Added "${res.member.full_name || cleanEmail}" to your team!`);
+      setMemberEmailInput('');
+      setAddingMemberTeamId(null);
       await loadTeams();
     } catch (err) {
-      alert(err.message || 'Failed to leave team.');
+      setError(err.message || 'Failed to add member.');
+    } finally {
+      setAddingMemberLoading(false);
+    }
+  };
+
+  const handleLeaveTeam = async (teamId) => {
+    if (!window.confirm('Are you sure you want to withdraw from this team? You will be removed from this competition entry.')) return;
+    setError('');
+    setSuccess('');
+    try {
+      await teamService.leaveTeam({ teamId, userId: user.id });
+      setSuccess('You have successfully left the team.');
+      await loadTeams();
+    } catch (err) {
+      setError(err.message || 'Failed to leave team.');
     }
   };
 
@@ -111,13 +180,13 @@ export default function DashboardTeamPage() {
               TEAM FORMATION & ROSTER
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem' }}>
-              Collaborate in teams of 2 to 4 for Hackathon, or 1 to 3 for Ideathon.
+              Collaborate in teams of 2 to 4 for Hackathon, or 1 to 3 for Ideathon. 1 email ID = 1 team per event.
             </p>
           </div>
 
           <div style={{ display: 'flex', gap: '0.8rem' }}>
             <button
-              onClick={() => { setShowCreate(true); setShowJoin(false); setError(''); }}
+              onClick={() => { setShowCreate(true); setShowJoin(false); setError(''); setSuccess(''); }}
               className="btn btn-primary"
               style={{ padding: '0.6rem 1.1rem', fontSize: '0.82rem' }}
             >
@@ -125,7 +194,7 @@ export default function DashboardTeamPage() {
               CREATE TEAM
             </button>
             <button
-              onClick={() => { setShowJoin(true); setShowCreate(false); setError(''); }}
+              onClick={() => { setShowJoin(true); setShowCreate(false); setError(''); setSuccess(''); }}
               className="btn btn-secondary"
               style={{ padding: '0.6rem 1.1rem', fontSize: '0.82rem' }}
             >
@@ -137,14 +206,14 @@ export default function DashboardTeamPage() {
 
         {error && (
           <div style={{ background: 'rgba(143, 48, 53, 0.2)', border: '1px solid var(--border-accent-crimson)', borderRadius: 'var(--radius-sm)', padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#ffb4b7', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
-            <AlertCircle size={18} />
+            <AlertCircle size={18} style={{ flexShrink: 0 }} />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div style={{ background: 'rgba(185, 133, 69, 0.15)', border: '1px solid var(--border-accent-amber)', borderRadius: 'var(--radius-sm)', padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--color-warm-amber)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
-            <ShieldCheck size={18} />
+          <div style={{ background: 'rgba(53, 248, 172, 0.12)', border: '1px solid rgba(53, 248, 172, 0.4)', borderRadius: 'var(--radius-sm)', padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#35F8AC', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
+            <ShieldCheck size={18} style={{ flexShrink: 0 }} />
             <span>{success}</span>
           </div>
         )}
@@ -152,9 +221,12 @@ export default function DashboardTeamPage() {
         {/* Create Team Form Modal */}
         {showCreate && (
           <div style={{ background: 'var(--color-surface-elevated)', border: '1px solid var(--color-infinity-gold)', borderRadius: 'var(--radius-md)', padding: '1.8rem', marginBottom: '2rem', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.7)' }}>
-            <h3 className="heading-display" style={{ fontSize: '1.3rem', marginBottom: '1rem', color: 'var(--color-text-primary)' }}>
+            <h3 className="heading-display" style={{ fontSize: '1.3rem', marginBottom: '0.4rem', color: 'var(--color-text-primary)' }}>
               CREATE NEW TEAM
             </h3>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem', marginBottom: '1.2rem' }}>
+              You will become the Team Leader. You can invite teammates using your generated code or by their registered email.
+            </p>
             <form onSubmit={handleCreateTeam} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--color-text-secondary)', marginBottom: '0.35rem' }}>
@@ -198,9 +270,12 @@ export default function DashboardTeamPage() {
 
         {showJoin && (
           <div style={{ background: 'var(--color-surface-elevated)', border: '1px solid var(--color-arc-cyan)', borderRadius: 'var(--radius-md)', padding: '1.8rem', marginBottom: '2rem', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.7)' }}>
-            <h3 className="heading-display" style={{ fontSize: '1.3rem', marginBottom: '1rem', color: 'var(--color-text-primary)' }}>
+            <h3 className="heading-display" style={{ fontSize: '1.3rem', marginBottom: '0.4rem', color: 'var(--color-text-primary)' }}>
               JOIN EXISTING TEAM
             </h3>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.85rem', marginBottom: '1.2rem' }}>
+              Enter the unique invite code shared by your Team Leader (e.g. HF3-XXXXXX).
+            </p>
             <form onSubmit={handleJoinTeam} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--color-text-secondary)', marginBottom: '0.35rem' }}>
@@ -241,66 +316,163 @@ export default function DashboardTeamPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {teams.map((tm) => (
-              <div key={tm.id} style={{ background: 'var(--color-surface-elevated)', border: '1px solid rgba(0, 217, 255, 0.25)', borderRadius: 'var(--radius-md)', padding: '1.8rem', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.65)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.2rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(0, 217, 255, 0.15)' }}>
-                  <div>
-                    <span className="chapter-badge" style={{ margin: '0 0 0.4rem 0' }}>
-                      {tm.competition?.name || 'HACKATHON'}
-                    </span>
-                    <h3 className="heading-display" style={{ fontSize: '1.5rem', color: 'var(--color-text-primary)' }}>
-                      {tm.name}
-                    </h3>
-                  </div>
+            {teams.map((tm) => {
+              const isLeader = tm.userRole === 'leader' || tm.leader_id === user?.id;
+              const memberCount = tm.members?.length || 1;
+              const maxLimit = tm.competition?.max_team_size || 4;
+              const isFull = memberCount >= maxLimit;
 
-                  {/* Team Code Pill */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-surface-secondary)', border: '1px solid var(--color-infinity-gold)', borderRadius: 'var(--radius-sm)', padding: '0.4rem 0.8rem' }}>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.84rem', color: 'var(--color-infinity-gold)', fontWeight: 700 }}>
-                      {tm.code}
-                    </span>
-                    <button
-                      onClick={() => handleCopyCode(tm.code)}
-                      style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                      title="Copy team code"
-                    >
-                      {copiedCode === tm.code ? <Check size={16} color="var(--color-infinity-gold)" /> : <Copy size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Team Members List */}
-                <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--color-text-secondary)', marginBottom: '0.8rem', letterSpacing: '0.08em' }}>
-                  TEAM MEMBERS ({tm.members?.length || 1} / {tm.competition?.max_team_size || 4})
-                </h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.8rem', marginBottom: '1.4rem' }}>
-                  {(tm.members || []).map((m) => (
-                    <div key={m.id} style={{ background: 'var(--color-surface-secondary)', border: '1px solid rgba(0, 217, 255, 0.15)', borderRadius: 'var(--radius-sm)', padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div>
-                        <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--color-text-primary)' }}>
-                          {m.profile?.full_name || 'Member'}
-                        </div>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                          {m.profile?.college || 'REC Banda'}
-                        </div>
-                      </div>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: m.role === 'leader' ? 'var(--color-infinity-gold)' : 'var(--color-text-secondary)' }}>
-                        {m.role?.toUpperCase()}
+              return (
+                <div key={tm.id} style={{ background: 'var(--color-surface-elevated)', border: '1px solid rgba(0, 217, 255, 0.25)', borderRadius: 'var(--radius-md)', padding: '1.8rem', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.65)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.2rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(0, 217, 255, 0.15)' }}>
+                    <div>
+                      <span className="chapter-badge" style={{ margin: '0 0 0.4rem 0' }}>
+                        {tm.competition?.name || 'HACKATHON'}
                       </span>
+                      <h3 className="heading-display" style={{ fontSize: '1.5rem', color: 'var(--color-text-primary)' }}>
+                        {tm.name}
+                      </h3>
                     </div>
-                  ))}
-                </div>
 
-                {tm.userRole !== 'leader' && (
-                  <button
-                    onClick={() => handleLeaveTeam(tm.id)}
-                    style={{ background: 'none', border: 'none', color: '#ff8b90', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}
-                  >
-                    <UserMinus size={14} />
-                    LEAVE TEAM
-                  </button>
-                )}
-              </div>
-            ))}
+                    {/* Team Code Pill */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--color-surface-secondary)', border: '1px solid var(--color-infinity-gold)', borderRadius: 'var(--radius-sm)', padding: '0.4rem 0.8rem' }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.84rem', color: 'var(--color-infinity-gold)', fontWeight: 700 }}>
+                        {tm.code}
+                      </span>
+                      <button
+                        onClick={() => handleCopyCode(tm.code)}
+                        style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        title="Copy team code"
+                      >
+                        {copiedCode === tm.code ? <Check size={16} color="var(--color-infinity-gold)" /> : <Copy size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Team Members List */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--color-text-secondary)', margin: 0, letterSpacing: '0.08em' }}>
+                      TEAM MEMBERS ({memberCount} / {maxLimit})
+                    </h4>
+                    {isLeader && !isFull && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAddingMemberTeamId(addingMemberTeamId === tm.id ? null : tm.id);
+                          setMemberEmailInput('');
+                          setError('');
+                        }}
+                        style={{
+                          background: 'rgba(53, 248, 172, 0.1)',
+                          border: '1px solid rgba(53, 248, 172, 0.35)',
+                          borderRadius: 'var(--radius-sm)',
+                          color: '#35F8AC',
+                          padding: '0.3rem 0.65rem',
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '0.75rem',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.4rem',
+                        }}
+                      >
+                        <UserPlus size={13} />
+                        ADD MEMBER BY EMAIL
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Inline Add Member Box */}
+                  {addingMemberTeamId === tm.id && (
+                    <form
+                      onSubmit={(e) => handleAddMember(e, tm.id)}
+                      style={{
+                        background: 'rgba(15, 23, 42, 0.8)',
+                        border: '1px solid rgba(53, 248, 172, 0.3)',
+                        borderRadius: 'var(--radius-sm)',
+                        padding: '1rem',
+                        marginBottom: '1rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.6rem',
+                      }}
+                    >
+                      <label style={{ fontSize: '0.78rem', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)' }}>
+                        ENTER TEAMMATE'S REGISTERED EMAIL:
+                      </label>
+                      <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                        <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+                          <Mail size={15} style={{ position: 'absolute', left: '0.8rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+                          <input
+                            type="email"
+                            value={memberEmailInput}
+                            onChange={(e) => setMemberEmailInput(e.target.value)}
+                            placeholder="teammate@college.ac.in"
+                            required
+                            style={{
+                              width: '100%',
+                              padding: '0.6rem 0.8rem 0.6rem 2.4rem',
+                              background: '#111827',
+                              border: '1px solid var(--border-medium)',
+                              borderRadius: 'var(--radius-sm)',
+                              color: 'var(--color-warm-off-white)',
+                              fontSize: '0.88rem',
+                            }}
+                          />
+                        </div>
+                        <button
+                          type="submit"
+                          className="btn btn-primary"
+                          disabled={addingMemberLoading}
+                          style={{ padding: '0.55rem 1rem', fontSize: '0.8rem' }}
+                        >
+                          {addingMemberLoading ? <Loader2 size={14} className="animate-spin" /> : 'ADD TO ROSTER'}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          onClick={() => setAddingMemberTeamId(null)}
+                          style={{ padding: '0.55rem 0.8rem', fontSize: '0.8rem' }}
+                        >
+                          CANCEL
+                        </button>
+                      </div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--color-text-muted)' }}>
+                        Note: 1 email ID can only join 1 team per event. Teammate must have an account on HackFest 3.0.
+                      </div>
+                    </form>
+                  )}
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.8rem', marginBottom: '1.4rem' }}>
+                    {(tm.members || []).map((m) => (
+                      <div key={m.id} style={{ background: 'var(--color-surface-secondary)', border: '1px solid rgba(0, 217, 255, 0.15)', borderRadius: 'var(--radius-sm)', padding: '0.8rem 1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <div style={{ fontWeight: 600, fontSize: '0.92rem', color: 'var(--color-text-primary)' }}>
+                            {m.profile?.full_name || 'Member'}
+                          </div>
+                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-text-muted)' }}>
+                            {m.profile?.email || m.profile?.college || 'REC Banda'}
+                          </div>
+                        </div>
+                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: m.role === 'leader' ? 'var(--color-infinity-gold)' : 'var(--color-text-secondary)' }}>
+                          {m.role?.toUpperCase()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {!isLeader && (
+                    <button
+                      onClick={() => handleLeaveTeam(tm.id)}
+                      style={{ background: 'none', border: 'none', color: '#ff8b90', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer' }}
+                    >
+                      <UserMinus size={14} />
+                      LEAVE TEAM
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
