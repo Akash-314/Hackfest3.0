@@ -46,7 +46,7 @@ export default function PrizesSection() {
             EXCITING PRIZES AHEAD
           </h2>
           <p className="section-lead">
-            We're preparing exciting rewards for the HackFest 3.0 winners. Stay tuned for the official prize announcement.
+            Exciting rewards for HackFest 3.0 winners are in the works. Stay tuned for the official announcement.
           </p>
         </div>
 

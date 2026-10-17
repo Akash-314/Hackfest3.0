@@ -9,21 +9,43 @@ import SponsorMarquee from './SponsorMarquee';
 import InfiniteMenu from './ui/InfiniteMenu';
 
 export default function SponsorsSection() {
-  const [sponsorData, setSponsorData] = useState(() => ({
-    tiers: [
-      {
+  const [sponsorData, setSponsorData] = useState(() => {
+    const titleSponsors = currentSponsorsList.filter(
+      (s) => (s.tier || s.role || s.category || '').toLowerCase() === 'title'
+    );
+    const officialSponsors = currentSponsorsList.filter(
+      (s) => (s.tier || s.role || s.category || '').toLowerCase() !== 'title'
+    );
+    const initialTiers = [];
+    if (titleSponsors.length > 0) {
+      initialTiers.push({
+        id: 'title',
+        label: 'TITLE SPONSOR',
+        badge: 'PRINCIPAL TITLE SPONSOR',
+        variant: 'gold',
+        sponsors: titleSponsors.map((s) => ({
+          ...s,
+          logo_url: s.cardLogo || s.image,
+        })),
+      });
+    }
+    if (officialSponsors.length > 0) {
+      initialTiers.push({
         id: 'gold',
         label: 'OFFICIAL SPONSORS',
         badge: 'CONFIRMED ALLIANCES',
         variant: 'gold',
-        sponsors: currentSponsorsList.map((s) => ({
+        sponsors: officialSponsors.map((s) => ({
           ...s,
           logo_url: s.cardLogo || s.image,
         })),
-      },
-    ],
-    all: currentSponsorsList,
-  }));
+      });
+    }
+    return {
+      tiers: initialTiers,
+      all: currentSponsorsList,
+    };
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -92,7 +114,7 @@ export default function SponsorsSection() {
 
   const getGridColumns = (tierId) => {
     if (tierId === 'title') {
-      return 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))';
+      return 'minmax(min(100%, 360px), 580px)';
     }
     if (tierId === 'powered_by' || tierId === 'gold') {
       return 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))';
@@ -101,7 +123,7 @@ export default function SponsorsSection() {
   };
 
   const getCardMinHeight = (tierId) => {
-    if (tierId === 'title') return '240px';
+    if (tierId === 'title') return '260px';
     if (tierId === 'powered_by' || tierId === 'gold') return '210px';
     return '180px';
   };
@@ -176,7 +198,7 @@ export default function SponsorsSection() {
                   letterSpacing: '0.04em',
                 }}
               >
-                <span>DRAG SPHERE TO ROTATE • CLICK TILE TO FOCUS • AUTO-ORBIT</span>
+                <span>DRAG TO EXPLORE • CLICK TO FOCUS</span>
               </div>
             </div>
 
@@ -226,7 +248,7 @@ export default function SponsorsSection() {
                   zIndex: 2,
                 }}
               >
-                PARTNER ALLIANCES
+                OUR SPONSORS & PARTNERS
               </div>
               <div
                 style={{
@@ -241,7 +263,7 @@ export default function SponsorsSection() {
                   zIndex: 2,
                 }}
               >
-                ACTIVE ALLIANCES: {carouselItems.length}
+                PARTNERS: {carouselItems.length}
               </div>
             </div>
           </div>
@@ -313,7 +335,10 @@ export default function SponsorsSection() {
                     style={{
                       display: 'grid',
                       gridTemplateColumns: gridCols,
-                      gap: '1.5rem',
+                      gap: '1.75rem',
+                      justifyContent: tier.id === 'title' ? 'center' : 'stretch',
+                      maxWidth: tier.id === 'title' ? '580px' : '100%',
+                      margin: tier.id === 'title' ? '0 auto' : '0',
                     }}
                   >
                     {tier.sponsors.map((sponsor) => {
@@ -323,12 +348,19 @@ export default function SponsorsSection() {
                       const CardContent = (
                         <div
                           style={{
-                            background: 'var(--color-surface-elevated)',
+                            background:
+                              tier.id === 'title'
+                                ? 'linear-gradient(135deg, rgba(245, 196, 81, 0.08) 0%, rgba(14, 18, 26, 0.96) 100%)'
+                                : 'var(--color-surface-elevated)',
                             border: `1px solid ${
-                              tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.3)' : 'rgba(0, 217, 255, 0.25)'
+                              tier.id === 'title'
+                                ? 'rgba(245, 196, 81, 0.45)'
+                                : tier.variant === 'gold'
+                                ? 'rgba(245, 196, 81, 0.3)'
+                                : 'rgba(0, 217, 255, 0.25)'
                             }`,
                             borderRadius: 'var(--radius-md)',
-                            padding: '1.5rem',
+                            padding: tier.id === 'title' ? '2.25rem 2rem' : '1.5rem',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
@@ -337,7 +369,10 @@ export default function SponsorsSection() {
                             textAlign: 'center',
                             position: 'relative',
                             transition: 'all var(--transition-fast)',
-                            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                            boxShadow:
+                              tier.id === 'title'
+                                ? '0 16px 48px rgba(0, 0, 0, 0.6), 0 0 35px rgba(245, 196, 81, 0.15)'
+                                : '0 8px 24px rgba(0, 0, 0, 0.4)',
                             height: '100%',
                             boxSizing: 'border-box',
                           }}
@@ -350,13 +385,13 @@ export default function SponsorsSection() {
                                 position: 'absolute',
                                 top: '0.8rem',
                                 right: '0.8rem',
-                                color: 'var(--color-text-secondary)',
-                                opacity: 0.7,
+                                color: tier.id === 'title' ? 'var(--color-infinity-gold)' : 'var(--color-text-secondary)',
+                                opacity: 0.8,
                                 transition: 'opacity 0.2s ease',
                               }}
                               title={`Visit ${sponsor.name}`}
                             >
-                              <ExternalLink size={14} />
+                              <ExternalLink size={16} />
                             </span>
                           )}
 
@@ -365,22 +400,25 @@ export default function SponsorsSection() {
                             <div
                               style={{
                                 width: '100%',
-                                height: tier.id === 'title' ? '104px' : '92px',
+                                height: tier.id === 'title' ? '124px' : '92px',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                marginBottom: '1rem',
-                                padding: '0.5rem',
-                                borderRadius: '10px',
+                                marginBottom: '1.15rem',
+                                padding: tier.id === 'title' ? '0.75rem 1.25rem' : '0.5rem',
+                                borderRadius: '12px',
                                 background:
                                   sponsor.theme === 'light'
-                                    ? 'rgba(255, 255, 255, 0.96)'
+                                    ? 'rgba(255, 255, 255, 0.98)'
                                     : 'rgba(12, 16, 24, 0.85)',
                                 border:
                                   sponsor.theme === 'light'
-                                    ? '1px solid rgba(255, 255, 255, 0.2)'
+                                    ? '1px solid rgba(255, 255, 255, 0.3)'
                                     : '1px solid rgba(99, 230, 209, 0.2)',
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
+                                boxShadow:
+                                  tier.id === 'title'
+                                    ? '0 8px 24px rgba(0,0,0,0.35), inset 0 0 10px rgba(245,196,81,0.06)'
+                                    : '0 4px 16px rgba(0,0,0,0.3)',
                               }}
                             >
                               <img
@@ -435,9 +473,9 @@ export default function SponsorsSection() {
                           <div
                             style={{
                               fontFamily: 'var(--font-heading)',
-                              fontSize: tier.id === 'title' ? '1.25rem' : '1.05rem',
+                              fontSize: tier.id === 'title' ? '1.45rem' : '1.05rem',
                               color: '#fff',
-                              fontWeight: 600,
+                              fontWeight: 700,
                               letterSpacing: '0.04em',
                               marginBottom: sponsor.subtitle || sponsor.description ? '0.35rem' : 0,
                             }}
@@ -450,10 +488,11 @@ export default function SponsorsSection() {
                             <div
                               style={{
                                 fontFamily: 'var(--font-mono)',
-                                fontSize: '0.74rem',
-                                color: 'var(--color-arc-cyan, #63E6D1)',
-                                letterSpacing: '0.05em',
-                                marginBottom: '0.45rem',
+                                fontSize: tier.id === 'title' ? '0.82rem' : '0.74rem',
+                                color: tier.id === 'title' ? 'var(--color-infinity-gold, #F5C451)' : 'var(--color-arc-cyan, #63E6D1)',
+                                letterSpacing: '0.06em',
+                                fontWeight: tier.id === 'title' ? 600 : 400,
+                                marginBottom: '0.5rem',
                               }}
                             >
                               {sponsor.subtitle}
@@ -465,10 +504,10 @@ export default function SponsorsSection() {
                             <p
                               style={{
                                 color: 'var(--color-text-secondary)',
-                                fontSize: '0.82rem',
-                                lineHeight: '1.5',
+                                fontSize: tier.id === 'title' ? '0.88rem' : '0.82rem',
+                                lineHeight: '1.55',
                                 margin: 0,
-                                maxWidth: '320px',
+                                maxWidth: tier.id === 'title' ? '460px' : '320px',
                               }}
                             >
                               {sponsor.description}

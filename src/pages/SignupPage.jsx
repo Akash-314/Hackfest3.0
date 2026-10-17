@@ -81,7 +81,7 @@ export default function SignupPage() {
               PARTICIPANT REGISTRATION
             </h1>
             <p style={{ color: '#94A3B8', fontSize: '0.92rem', lineHeight: '1.6' }}>
-              Register for {eventMeta.name}. Create your profile to join teams, participate in competitions, and track your progress.
+              Register for {eventMeta.name}. Create your profile to register your team, participate in competitions, and track your progress.
             </p>
           </div>
 

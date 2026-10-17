@@ -20,8 +20,8 @@ export const eventMeta = {
   venueShort: "Multipurpose Hall, REC Banda",
   eligibility: "Open to student developers, designers, thinkers, and engineers across all recognized institutions.",
   teamSize: {
-    hackathon: "2 to 4 members per team",
-    ideathon: "1 to 3 members per team",
+    hackathon: "3 to 4 members per team (Leader + 2 to 3 members)",
+    ideathon: "3 to 4 members per team (Leader + 2 to 3 members)",
     codeathon: "Individual participation"
   },
   registrationStatus: "OPEN",
@@ -139,7 +139,7 @@ export const competitions = [
     shortDescription: "A focused defense of disruptive concepts. Present strategic technical solutions, viability frameworks, and market roadmaps to a critical jury.",
     fullOverview: "The Ideathon is designed for visionaries, systems architects, and product strategists. Participants articulate an original solution to a pressing societal or technological bottleneck. With a single round to deliver your presentation and endure intense judge Q&A, clarity, feasibility, and impact reign supreme.",
     rules: [
-      "Teams of 1 to 3 members permitted.",
+      "Team size: 3 to 4 members per team, including the team leader.",
       "Each team receives a strictly timed pitch window followed by an intensive Judge Q&A session.",
       "Presentations must use the standardized HackFest 3.0 slide deck structure (Problem, Proposed Tech Architecture, Feasibility, Scalability, Roadmap).",
       "Concepts must be original. Prior academic submissions must disclose existing progress.",
@@ -184,7 +184,7 @@ export const competitions = [
     shortDescription: "The premier centerpiece of HackFest 3.0. Form a team, choose one of six crisis problem categories, build an operational prototype, and demo it live before industry experts.",
     fullOverview: "In a world destabilized by rapid shifts, the Hackathon is where engineers stand up and rebuild. Spanning Day 2 in full force, teams select one of 6 official crisis categories announced at the event. Through dedicated mentoring touchpoints and rigorous live testing, participants transform abstract concepts into deployable code, responsive web apps, AI systems, and hardware integrations.",
     rules: [
-      "Team size: 2 to 4 registered participants. Cross-year and inter-departmental teams are encouraged.",
+      "Team size: 3 to 4 registered participants (Leader + 2 to 3 members). Cross-year and inter-departmental teams are encouraged.",
       "All code and project repositories must be started afresh during HackFest 3.0. Open-source libraries and APIs are permitted with clear attribution.",
       "Teams must pick exactly one of the 6 official problem categories.",
       "Attendance at mandatory mentoring rounds is required for qualification to final judging.",
@@ -770,6 +770,22 @@ export const sponsorsData = {
 
 export const currentSponsorsList = [
   {
+    id: "virtual-labs",
+    name: "Virtual Labs",
+    title: "Virtual Labs",
+    subtitle: "An MoE Govt of India Initiative",
+    description: "An initiative of the Ministry of Education under NMEICT, providing remote-access to simulation-based Labs in various disciplines of Science and Engineering.",
+    image: "/images/sponsors/virtual-labs-tile.png",
+    cardLogo: "/images/sponsors/virtual-labs.png",
+    website_url: "https://www.vlab.co.in",
+    link: "https://www.vlab.co.in",
+    tier: "title",
+    tierLabel: "TITLE SPONSOR",
+    badge: "PRINCIPAL TITLE SPONSOR",
+    theme: "light",
+    is_published: true
+  },
+  {
     id: "mkai-tech-academy",
     name: "M KAI² TECH ACADEMY",
     title: "M KAI² TECH ACADEMY",
@@ -780,8 +796,8 @@ export const currentSponsorsList = [
     website_url: "https://mkaitechacademy.com",
     link: "https://mkaitechacademy.com",
     tier: "gold",
-    tierLabel: "GOLD SPONSOR",
-    badge: "GOLD ALLIANCE",
+    tierLabel: "OFFICIAL SPONSOR",
+    badge: "CONFIRMED ALLIANCE",
     theme: "light",
     is_published: true
   },
@@ -796,8 +812,8 @@ export const currentSponsorsList = [
     website_url: "https://abhiconsultant.com",
     link: "https://abhiconsultant.com",
     tier: "gold",
-    tierLabel: "GOLD SPONSOR",
-    badge: "GOLD ALLIANCE",
+    tierLabel: "OFFICIAL SPONSOR",
+    badge: "CONFIRMED ALLIANCE",
     theme: "dark",
     is_published: true
   },
@@ -812,8 +828,8 @@ export const currentSponsorsList = [
     website_url: "https://kraftoper.com",
     link: "https://kraftoper.com",
     tier: "gold",
-    tierLabel: "GOLD SPONSOR",
-    badge: "GOLD ALLIANCE",
+    tierLabel: "OFFICIAL SPONSOR",
+    badge: "CONFIRMED ALLIANCE",
     theme: "light",
     is_published: true
   }

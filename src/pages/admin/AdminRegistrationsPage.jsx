@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import AdminNav from '../../components/admin/AdminNav';
 import { adminService } from '../../services/adminService';
 import { exportService } from '../../services/exportService';
@@ -24,6 +24,10 @@ import {
   Shield,
   Calendar,
   Check,
+  Upload,
+  Trash2,
+  ExternalLink,
+  FileCheck,
 } from 'lucide-react';
 
 export default function AdminRegistrationsPage() {
@@ -44,6 +48,8 @@ export default function AdminRegistrationsPage() {
   const [statusNotes, setStatusNotes] = useState('');
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [actionMessage, setActionMessage] = useState({ text: '', type: 'success' });
+  const [docActionLoading, setDocActionLoading] = useState(false);
+  const adminDocInputRef = useRef(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -65,6 +71,60 @@ export default function AdminRegistrationsPage() {
   const showBanner = (text, type = 'success') => {
     setActionMessage({ text, type });
     setTimeout(() => setActionMessage({ text: '', type: 'success' }), 4000);
+  };
+
+  const handleAdminReplaceDocument = async (e, registrationId) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setDocActionLoading(true);
+    try {
+      const updated = await adminService.replaceRegistrationDocumentAdmin(registrationId, file);
+      showBanner(`Document "${file.name}" replaced successfully!`, 'success');
+      setInspectModalItem((prev) => (prev && prev.id === registrationId ? { ...prev, ...updated } : prev));
+      await loadData();
+    } catch (err) {
+      showBanner(err.message || 'Failed to replace document.', 'error');
+    } finally {
+      setDocActionLoading(false);
+      if (adminDocInputRef.current) adminDocInputRef.current.value = '';
+    }
+  };
+
+  const handleAdminDeleteDocument = async (registrationId) => {
+    if (!window.confirm('Are you sure you want to delete this attached presentation document? This will remove the file from storage.')) return;
+
+    setDocActionLoading(true);
+    try {
+      await adminService.deleteRegistrationDocumentAdmin(registrationId);
+      showBanner('Document attachment removed successfully.', 'success');
+      setInspectModalItem((prev) => (prev && prev.id === registrationId ? {
+        ...prev,
+        document_url: null,
+        document_name: null,
+        document_type: null,
+        document_size: null,
+        document_path: null,
+      } : prev));
+      await loadData();
+    } catch (err) {
+      showBanner(err.message || 'Failed to delete document.', 'error');
+    } finally {
+      setDocActionLoading(false);
+    }
+  };
+
+  const handleAdminDeleteRegistration = async (registrationId) => {
+    if (!window.confirm(`Are you sure you want to permanently delete registration #${registrationId.slice(0, 8)}? This action cannot be undone.`)) return;
+
+    try {
+      await adminService.deleteRegistration(registrationId);
+      showBanner('Registration deleted permanently.', 'success');
+      setInspectModalItem(null);
+      await loadData();
+    } catch (err) {
+      showBanner(err.message || 'Failed to delete registration.', 'error');
+    }
   };
 
   // Filter & Search logic
@@ -1058,8 +1118,176 @@ export default function AdminRegistrationsPage() {
                 </div>
               </div>
 
+              {/* Hidden file input for document replace / upload */}
+              <input
+                type="file"
+                ref={adminDocInputRef}
+                accept=".pptx,.ppt,.pdf"
+                style={{ display: 'none' }}
+                onChange={(e) => inspectModalItem && handleAdminReplaceDocument(e, inspectModalItem.id)}
+              />
+
+              {/* Team Members Roster */}
+              {inspectModalItem.team?.members && inspectModalItem.team.members.length > 0 && (
+                <div style={{ background: '#111827', borderRadius: '6px', padding: '1rem', marginBottom: '1.25rem', border: '1px solid var(--border-subtle)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-stark-gold)', fontWeight: 700 }}>
+                      TEAM MEMBER ROSTER ({inspectModalItem.team.members.length} MEMBERS)
+                    </div>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      TEAM CODE: {inspectModalItem.team.code}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                    {inspectModalItem.team.members.map((m) => (
+                      <div
+                        key={m.id}
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.03)',
+                          border: `1px solid ${m.role === 'leader' ? 'rgba(255, 179, 0, 0.3)' : 'rgba(255, 255, 255, 0.05)'}`,
+                          borderRadius: '4px',
+                          padding: '0.5rem 0.75rem',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                          gap: '0.4rem',
+                          fontSize: '0.82rem',
+                        }}
+                      >
+                        <div>
+                          <span style={{ fontWeight: 600, color: '#fff', marginRight: '0.5rem' }}>
+                            {m.name || 'Member'}
+                          </span>
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-arc-blue)' }}>
+                            {m.email}
+                          </span>
+                          {m.phone && (
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
+                              📞 {m.phone}
+                            </span>
+                          )}
+                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                            {m.college || 'REC Banda'} {m.branch ? `• ${m.branch}` : ''} {m.year ? `(${m.year})` : ''}
+                          </div>
+                        </div>
+
+                        <span
+                          style={{
+                            fontFamily: 'var(--font-mono)',
+                            fontSize: '0.68rem',
+                            padding: '0.15rem 0.4rem',
+                            borderRadius: '3px',
+                            background: m.role === 'leader' ? 'rgba(255, 179, 0, 0.2)' : 'rgba(255, 255, 255, 0.08)',
+                            color: m.role === 'leader' ? 'var(--color-stark-gold)' : 'var(--text-muted)',
+                            fontWeight: 700,
+                          }}
+                        >
+                          {m.role?.toUpperCase()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Document Management Section */}
+              <div style={{ background: '#111827', borderRadius: '6px', padding: '1.1rem', marginBottom: '1.25rem', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-arc-blue)', fontWeight: 700, marginBottom: '0.6rem' }}>
+                  ATTACHED PRESENTATION / PROPOSAL DECK
+                </div>
+
+                {inspectModalItem.document_url ? (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', background: 'rgba(0, 217, 255, 0.05)', padding: '0.75rem', borderRadius: '4px', border: '1px solid rgba(0, 217, 255, 0.2)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                      <FileText size={22} color="var(--color-arc-blue)" />
+                      <div>
+                        <div style={{ fontSize: '0.88rem', color: '#fff', fontWeight: 600 }}>
+                          {inspectModalItem.document_name || 'Presentation Deck'} {inspectModalItem.document_type ? `[${inspectModalItem.document_type}]` : ''}
+                        </div>
+                        {inspectModalItem.document_size && (
+                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                            SIZE: {(inspectModalItem.document_size / (1024 * 1024)).toFixed(2)} MB
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <a
+                        href={inspectModalItem.document_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}
+                      >
+                        <ExternalLink size={13} />
+                        OPEN
+                      </a>
+                      <a
+                        href={inspectModalItem.document_url}
+                        download={inspectModalItem.document_name || 'presentation'}
+                        className="btn btn-secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}
+                      >
+                        <Download size={13} />
+                        DOWNLOAD
+                      </a>
+                      <button
+                        type="button"
+                        disabled={docActionLoading}
+                        onClick={() => adminDocInputRef.current?.click()}
+                        className="btn btn-secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}
+                      >
+                        <Upload size={13} />
+                        REPLACE
+                      </button>
+                      <button
+                        type="button"
+                        disabled={docActionLoading}
+                        onClick={() => handleAdminDeleteDocument(inspectModalItem.id)}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.15)',
+                          border: '1px solid rgba(239, 68, 68, 0.4)',
+                          borderRadius: '4px',
+                          color: '#f87171',
+                          padding: '0.35rem 0.6rem',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.3rem',
+                          fontSize: '0.75rem',
+                          fontFamily: 'var(--font-mono)',
+                        }}
+                      >
+                        <Trash2 size={13} />
+                        DELETE
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                      No presentation deck attached to this registration.
+                    </span>
+                    <button
+                      type="button"
+                      disabled={docActionLoading}
+                      onClick={() => adminDocInputRef.current?.click()}
+                      className="btn btn-secondary"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}
+                    >
+                      <Upload size={13} />
+                      ATTACH FILE
+                    </button>
+                  </div>
+                )}
+              </div>
+
               {inspectModalItem.notes && (
-                <div style={{ background: '#111827', padding: '1rem', borderRadius: '6px', marginBottom: '1.5rem' }}>
+                <div style={{ background: '#111827', padding: '1rem', borderRadius: '6px', marginBottom: '1.25rem' }}>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-stark-gold)', marginBottom: '0.3rem' }}>
                     OPERATIONAL NOTES:
                   </div>
@@ -1069,26 +1297,49 @@ export default function AdminRegistrationsPage() {
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '1rem' }}>
                 <button
-                  onClick={() => handlePrintSingle(inspectModalItem)}
-                  className="btn btn-secondary"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}
-                >
-                  <Printer size={14} />
-                  PRINT ENTRY PASS
-                </button>
-                <button
-                  onClick={() => {
-                    const item = inspectModalItem;
-                    setInspectModalItem(null);
-                    handleOpenStatusModal(item);
+                  type="button"
+                  onClick={() => handleAdminDeleteRegistration(inspectModalItem.id)}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    color: '#f87171',
+                    borderRadius: '4px',
+                    padding: '0.45rem 0.8rem',
+                    fontSize: '0.78rem',
+                    fontFamily: 'var(--font-mono)',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
                   }}
-                  className="btn btn-primary"
-                  style={{ fontSize: '0.8rem' }}
                 >
-                  EDIT STATUS
+                  <Trash2 size={14} />
+                  DELETE REGISTRATION
                 </button>
+
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button
+                    onClick={() => handlePrintSingle(inspectModalItem)}
+                    className="btn btn-secondary"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}
+                  >
+                    <Printer size={14} />
+                    PRINT PASS
+                  </button>
+                  <button
+                    onClick={() => {
+                      const item = inspectModalItem;
+                      setInspectModalItem(null);
+                      handleOpenStatusModal(item);
+                    }}
+                    className="btn btn-primary"
+                    style={{ fontSize: '0.8rem' }}
+                  >
+                    EDIT STATUS
+                  </button>
+                </div>
               </div>
             </div>
           </div>

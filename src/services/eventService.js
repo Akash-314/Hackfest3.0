@@ -76,9 +76,8 @@ export const eventService = {
           shortDescription: dbMatch.short_description || fb.shortDescription,
           fullOverview: dbMatch.description || fb.fullOverview,
           duration: dbMatch.duration || fb.duration,
-          format: dbMatch.format || fb.format,
-          maxTeamSize: dbMatch.max_team_size || 4,
-          minTeamSize: dbMatch.min_team_size || 1,
+          maxTeamSize: (fb.id === 'hackathon' || fb.id === 'ideathon') ? 4 : (dbMatch.max_team_size || 1),
+          minTeamSize: (fb.id === 'hackathon' || fb.id === 'ideathon') ? 3 : (dbMatch.min_team_size || 1),
           registrationOpen: dbMatch.registration_open,
         };
       });
@@ -99,22 +98,32 @@ export const eventService = {
 
       if (error || !data || data.length === 0) return fallbackProblemCategories;
 
-      return data.map((d, index) => ({
-        id: d.id,
-        number: d.number || String(index + 1).padStart(2, '0'),
-        title: d.title,
-        slug: d.slug,
-        theme: d.theme,
-        placeholderNotice: d.placeholder_notice || 'OFFICIAL PROBLEM STATEMENT TO BE UNVEILED AT BRIEFING',
-        background: d.background || d.description,
-        challenge: d.challenge || d.description,
-        requirements: Array.isArray(d.requirements) ? d.requirements : [],
-        expectedOutcome: d.expected_outcome,
-        suggestedDirection: d.technical_directions,
-        submissionInfo: d.submission_info,
-        isActive: d.is_active ?? d.is_published ?? true,
-        sortOrder: d.sort_order ?? index,
-      }));
+      // Merge DB rows with the 6 authoritative categories to preserve exact canonical titles and valid IDs
+      return fallbackProblemCategories.map((fb, index) => {
+        const dbMatch = data.find(
+          (d) => d.slug === fb.id || d.number === fb.number || d.slug === `cat-0${index + 1}` || d.id === fb.id
+        );
+        if (!dbMatch) return fb;
+        return {
+          ...fb,
+          id: dbMatch.id,
+          dbId: dbMatch.id,
+          number: fb.number,
+          title: fb.title, // Authoritative canonical track title
+          slug: dbMatch.slug || fb.id,
+          theme: fb.theme,
+          summary: fb.summary,
+          placeholderNotice: dbMatch.placeholder_notice || fb.placeholderNotice,
+          background: dbMatch.background || fb.background,
+          challenge: dbMatch.challenge || fb.challenge,
+          requirements: Array.isArray(dbMatch.requirements) && dbMatch.requirements.length > 0 ? dbMatch.requirements : fb.requirements,
+          expectedOutcome: dbMatch.expected_outcome || fb.expectedOutcome,
+          suggestedDirection: dbMatch.technical_directions || fb.suggestedDirection,
+          submissionInfo: dbMatch.submission_info || fb.submissionInfo,
+          isActive: dbMatch.is_active ?? dbMatch.is_published ?? true,
+          sortOrder: dbMatch.sort_order ?? index,
+        };
+      });
     } catch {
       return fallbackProblemCategories;
     }
@@ -251,51 +260,19 @@ export const eventService = {
 
   // Get Sponsors grouped by official tiers
   async getSponsors() {
-    const defaultFallbackTiers = [
-      {
-        id: 'gold',
-        label: 'OFFICIAL SPONSORS',
-        badge: 'CONFIRMED ALLIANCES',
-        variant: 'gold',
-        sponsors: (fallbackCurrentSponsors || []).map((s) => ({
-          ...s,
-          logo_url: s.cardLogo || s.image,
-        })),
-      },
+    const tierOrder = [
+      { id: 'title', label: 'TITLE SPONSOR', badge: 'PRINCIPAL TITLE SPONSOR', variant: 'gold' },
+      { id: 'powered_by', label: 'POWERED BY', badge: 'INFRASTRUCTURE PARTNER', variant: 'cyan' },
+      { id: 'gold', label: 'OFFICIAL SPONSORS', badge: 'CONFIRMED ALLIANCES', variant: 'gold' },
+      { id: 'silver', label: 'SILVER SPONSORS', badge: 'SILVER ALLIANCE', variant: 'cyan' },
+      { id: 'bronze', label: 'BRONZE SPONSORS', badge: 'BRONZE ALLIANCE', variant: 'steel' },
+      { id: 'community', label: 'COMMUNITY PARTNERS', badge: 'COMMUNITY ECOSYSTEM', variant: 'violet' },
     ];
 
-    if (!isSupabaseConfigured) return { tiers: defaultFallbackTiers, all: fallbackCurrentSponsors };
-    try {
-      const { data, error } = await supabase
-        .from('sponsors')
-        .select('*')
-        .order('sort_order', { ascending: true })
-        .order('created_at', { ascending: true });
-
-      if (error || !data || data.length === 0) return { tiers: defaultFallbackTiers, all: fallbackCurrentSponsors };
-
-      // Filter only published sponsors (check native is_published or fallback tag !== 'draft')
-      const published = data.filter((s) => {
-        if (s.is_published !== undefined) return s.is_published === true;
-        return s.tag !== 'draft';
-      });
-
-      if (published.length === 0) return { tiers: defaultFallbackTiers, all: fallbackCurrentSponsors };
-
-      // Tier specifications in order of prestige
-      const tierOrder = [
-        { id: 'title', label: 'TITLE SPONSOR', badge: 'PRINCIPAL SPONSOR', variant: 'gold' },
-        { id: 'powered_by', label: 'POWERED BY', badge: 'INFRASTRUCTURE PARTNER', variant: 'cyan' },
-        { id: 'gold', label: 'GOLD SPONSORS', badge: 'GOLD ALLIANCE', variant: 'gold' },
-        { id: 'silver', label: 'SILVER SPONSORS', badge: 'SILVER ALLIANCE', variant: 'cyan' },
-        { id: 'bronze', label: 'BRONZE SPONSORS', badge: 'BRONZE ALLIANCE', variant: 'steel' },
-        { id: 'community', label: 'COMMUNITY PARTNERS', badge: 'COMMUNITY ECOSYSTEM', variant: 'violet' },
-      ];
-
+    const groupIntoTiers = (list) => {
       const groupedTiers = [];
-
       tierOrder.forEach((t) => {
-        const matches = published.filter(
+        const matches = list.filter(
           (s) => (s.tier || s.role || s.category || '').toLowerCase() === t.id.toLowerCase()
         );
         if (matches.length > 0) {
@@ -304,14 +281,14 @@ export const eventService = {
             sponsors: matches.map((m) => ({
               ...m,
               tier: m.tier || m.role || m.category || t.id,
+              logo_url: m.cardLogo || m.image || m.logo_url,
             })),
           });
         }
       });
 
-      // Also check if any sponsors have other custom categories/tiers
       const knownIds = new Set(tierOrder.map((t) => t.id.toLowerCase()));
-      const others = published.filter(
+      const others = list.filter(
         (s) => !knownIds.has((s.tier || s.role || s.category || '').toLowerCase())
       );
       if (others.length > 0) {
@@ -320,9 +297,41 @@ export const eventService = {
           label: 'ECOSYSTEM ALLIES',
           badge: 'STRATEGIC PARTNER',
           variant: 'cyan',
-          sponsors: others,
+          sponsors: others.map((m) => ({
+            ...m,
+            logo_url: m.cardLogo || m.image || m.logo_url,
+          })),
         });
       }
+      return groupedTiers;
+    };
+
+    const defaultFallbackTiers = groupIntoTiers(fallbackCurrentSponsors);
+    const defaultFallbackResult = { tiers: defaultFallbackTiers, all: fallbackCurrentSponsors };
+
+    if (!isSupabaseConfigured) return defaultFallbackResult;
+    try {
+      const { data, error } = await supabase
+        .from('sponsors')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true });
+
+      if (error || !data || data.length === 0) return defaultFallbackResult;
+
+      // Filter only published sponsors (check native is_published or fallback tag !== 'draft')
+      // and filter out empty placeholder/coming soon items when verified sponsors are available
+      const published = data.filter((s) => {
+        const isPub = s.is_published !== undefined ? s.is_published === true : s.tag !== 'draft';
+        if (!isPub) return false;
+        const nameClean = (s.name || '').trim().toLowerCase();
+        if (!nameClean || nameClean.includes('coming soon') || nameClean === 'placeholder') return false;
+        return true;
+      });
+
+      if (published.length === 0) return defaultFallbackResult;
+
+      const groupedTiers = groupIntoTiers(published);
 
       return {
         tiers: groupedTiers.length > 0 ? groupedTiers : defaultFallbackTiers,
@@ -330,7 +339,7 @@ export const eventService = {
       };
     } catch (err) {
       console.warn('Error fetching sponsors:', err);
-      return { tiers: defaultFallbackTiers, all: fallbackCurrentSponsors };
+      return defaultFallbackResult;
     }
   },
 
