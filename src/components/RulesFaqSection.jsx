@@ -23,6 +23,7 @@ export default function RulesFaqSection() {
 
   return (
     <section id="faq" className="section rules-faq-section">
+      <div id="rules" style={{ position: 'relative', top: '-80px', visibility: 'hidden' }} />
       <div className="section-transition-top" />
       <div className="container">
         <div className="section-header">

@@ -60,6 +60,8 @@ export default function ProblemStatementsSection() {
 
   return (
     <section id="problems" className="section problems-section">
+      <div id="missions" style={{ position: 'relative', top: '-80px', visibility: 'hidden' }} />
+      <div id="tracks" style={{ position: 'relative', top: '-80px', visibility: 'hidden' }} />
       <div className="section-transition-top" />
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}

@@ -467,11 +467,33 @@ export default function RegisterPage() {
                   name="problemCategory"
                   value={formData.problemCategory}
                   onChange={handleChange}
-                  style={{ width: '100%', padding: '0.85rem 1rem', background: '#111827', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-sm)', color: 'var(--color-warm-off-white)', fontFamily: 'var(--font-body)', fontSize: '0.95rem' }}
+                  className="stark-select"
+                  style={{
+                    width: '100%',
+                    padding: '0.85rem 1rem',
+                    background: '#0e1420',
+                    backgroundColor: '#0e1420',
+                    border: '1px solid var(--border-medium)',
+                    borderRadius: 'var(--radius-sm)',
+                    color: '#f4f7fb',
+                    colorScheme: 'dark',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.95rem',
+                    cursor: 'pointer',
+                  }}
                 >
-                  <option value="">Decide at Event Opening (Day 2 Briefing)</option>
+                  <option
+                    value=""
+                    style={{ background: '#0e1420', backgroundColor: '#0e1420', color: '#f4f7fb' }}
+                  >
+                    Decide at Event Opening (Day 2 Briefing)
+                  </option>
                   {availableCategories.map((cat) => (
-                    <option key={cat.id} value={cat.slug || cat.id}>
+                    <option
+                      key={cat.id}
+                      value={cat.slug || cat.id}
+                      style={{ background: '#0e1420', backgroundColor: '#0e1420', color: '#f4f7fb' }}
+                    >
                       {cat.number}. {cat.theme}
                     </option>
                   ))}

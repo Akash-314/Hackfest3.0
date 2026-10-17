@@ -2043,6 +2043,22 @@ textarea {
   border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
   outline: none;
+  color-scheme: dark !important;
+}
+
+select option,
+.stark-select option,
+option {
+  background-color: #0e1420 !important;
+  color: #f4f7fb !important;
+  padding: 10px 14px;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: #1a2538 !important;
+  color: #35f8ac !important;
 }
 
 .stark-input:focus,

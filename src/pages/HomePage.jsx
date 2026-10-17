@@ -1,7 +1,23 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Calendar, Clock, MapPin, Trophy, Users } from 'lucide-react';
 import doomImg from '../assets/doom.png';
 import ironImg from '../assets/iron.png';
+
+// All Sections for the Complete One-Page Website
+import AnnouncementTicker from '../components/AnnouncementTicker';
+import AboutSection from '../components/AboutSection';
+import HighlightsSection from '../components/HighlightsSection';
+import CompetitionsSection from '../components/CompetitionsSection';
+import ProblemStatementsSection from '../components/ProblemStatementsSection';
+import ScheduleSection from '../components/ScheduleSection';
+import HowItWorksSection from '../components/HowItWorksSection';
+import MentorsJudgesSection from '../components/MentorsJudgesSection';
+import PrizesSection from '../components/PrizesSection';
+import RulesFaqSection from '../components/RulesFaqSection';
+import SponsorsSection from '../components/SponsorsSection';
+import SdcMembersSection from '../components/SdcMembersSection';
+import RegisterSection from '../components/RegisterSection';
 
 // Event start date: 1 November 2026 00:00:00 IST
 const TARGET_EVENT_DATE = new Date('2026-11-01T00:00:00+05:30');
@@ -46,6 +62,7 @@ function calculateTimeLeft(targetDate = TARGET_EVENT_DATE) {
 
 export default function HomePage() {
   const containerRef = useRef(null);
+  const location = useLocation();
   const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft());
 
   // Live 1-second countdown tick
@@ -55,6 +72,24 @@ export default function HomePage() {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  // Smooth scroll handler for anchor links (#about, #competitions, etc.)
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '');
+      const el = document.getElementById(id);
+      if (el) {
+        setTimeout(() => {
+          const navOffset = 70;
+          const elementPosition = el.getBoundingClientRect().top + window.pageYOffset;
+          window.scrollTo({
+            top: elementPosition - navOffset,
+            behavior: 'smooth',
+          });
+        }, 120);
+      }
+    }
+  }, [location.hash]);
 
   // Interactive Cursor Mask Handler (Doom reveals Iron underneath)
   const handleMouseMove = (e) => {
@@ -219,6 +254,47 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 02. ANNOUNCEMENTS TICKER */}
+      <div id="announcements">
+        <AnnouncementTicker />
+      </div>
+
+      {/* 03. ABOUT EVENT */}
+      <AboutSection />
+
+      {/* 04. EVENT HIGHLIGHTS */}
+      <HighlightsSection />
+
+      {/* 05. COMPETITIONS (CODEATHON, IDEATHON, HACKATHON) */}
+      <CompetitionsSection />
+
+      {/* 06. PROBLEM STATEMENTS / TRACKS */}
+      <ProblemStatementsSection />
+
+      {/* 07. SCHEDULE */}
+      <ScheduleSection />
+
+      {/* 08. HOW IT WORKS */}
+      <HowItWorksSection />
+
+      {/* 09. MENTORS & JUDGES */}
+      <MentorsJudgesSection />
+
+      {/* 10. PRIZES */}
+      <PrizesSection />
+
+      {/* 11. RULES & FAQ */}
+      <RulesFaqSection />
+
+      {/* 12. SPONSORS */}
+      <SponsorsSection />
+
+      {/* 13. SDC FAMILY MEMBERS */}
+      <SdcMembersSection />
+
+      {/* 14. REGISTER */}
+      <RegisterSection />
     </main>
   );
 }

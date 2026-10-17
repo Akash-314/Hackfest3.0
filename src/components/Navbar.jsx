@@ -111,16 +111,78 @@ export default function Navbar() {
     setDrawerOpen(false);
   }, [location.pathname]);
 
-  // Navigation action helper that executes real route navigation and drawer closure
+  // ScrollSpy to track active section on the one-page website
+  const [activeSectionId, setActiveSectionId] = useState('hero');
+
+  useEffect(() => {
+    if (location.pathname !== '/') return;
+
+    const sectionIds = ['hero', 'about', 'competitions', 'problems', 'schedule', 'prizes', 'sponsors', 'sdc-members'];
+
+    const handleScrollSpy = () => {
+      const scrollY = window.scrollY;
+      if (scrollY < 200) {
+        setActiveSectionId('hero');
+        return;
+      }
+
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const id = sectionIds[i];
+        const el = document.getElementById(id);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 140) {
+            setActiveSectionId(id);
+            return;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScrollSpy, { passive: true });
+    handleScrollSpy();
+    return () => window.removeEventListener('scroll', handleScrollSpy);
+  }, [location.pathname]);
+
+  // Smooth scroll to a specific section on the one page
+  const scrollToSection = (sectionId) => {
+    if (!sectionId || sectionId === 'hero' || sectionId === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const navOffset = 70;
+      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({
+        top: elementPosition - navOffset,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  // Navigation action helper that executes one-page shortcuts and drawer closure
   const handleNavAction = (item) => {
     setDrawerOpen(false);
-    const dest = item?.path || item?.href;
-    if (!dest) return;
+    const dest = item?.path || item?.href || '';
+    const sectionId = item?.sectionId || (dest.includes('#') ? dest.split('#')[1] : null);
 
-    if (dest === '/' && location.pathname === '/') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (location.pathname === '/') {
+      if (sectionId) {
+        scrollToSection(sectionId);
+        window.history.pushState(null, '', `#${sectionId}`);
+      } else if (dest === '/') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.history.pushState(null, '', '/');
+      } else {
+        navigate(dest);
+      }
     } else {
-      navigate(dest);
+      if (sectionId) {
+        navigate(`/#${sectionId}`);
+      } else {
+        navigate(dest);
+      }
     }
   };
 
@@ -134,40 +196,48 @@ export default function Navbar() {
     }
   };
 
-  // Top header center links (Prizes, Event Sponsors, SDC Family Members added, Schedule removed)
+  // Top header center links (One-Page Shortcuts)
   const desktopNavItems = [
-    { label: 'HOME', path: '/' },
-    { label: 'ABOUT', path: '/about' },
-    { label: 'COMPETITIONS', path: '/competitions' },
-    { label: 'PROBLEMS', path: '/problems' },
-    { label: 'PRIZES', path: '/prizes' },
-    { label: 'EVENT SPONSORS', path: '/sponsors' },
-    { label: 'SDC FAMILY MEMBERS', path: '/sdc-members' },
+    { label: 'HOME', path: '/', sectionId: 'hero' },
+    { label: 'ABOUT', path: '/#about', sectionId: 'about' },
+    { label: 'COMPETITIONS', path: '/#competitions', sectionId: 'competitions' },
+    { label: 'PROBLEMS', path: '/#problems', sectionId: 'problems' },
+    { label: 'SCHEDULE', path: '/#schedule', sectionId: 'schedule' },
+    { label: 'PRIZES', path: '/#prizes', sectionId: 'prizes' },
+    { label: 'SPONSORS', path: '/#sponsors', sectionId: 'sponsors' },
+    { label: 'SDC MEMBERS', path: '/#sdc-members', sectionId: 'sdc-members' },
   ];
 
-  const activeNavIndex = desktopNavItems.findIndex((item) => isRouteActive(item.path));
+  const activeNavIndex = location.pathname === '/'
+    ? desktopNavItems.findIndex((item) => item.sectionId === activeSectionId)
+    : desktopNavItems.findIndex((item) => isRouteActive(item.path));
 
-  // Drawer Group 1: Explore
+  // Drawer Group 1: Explore (One-page Shortcuts)
   const explorePages = [
-    { label: 'Home', path: '/', icon: Home },
-    { label: 'About', path: '/about', icon: Info },
-    { label: 'Competitions', path: '/competitions', icon: Trophy },
-    { label: 'Problem Statements', path: '/problems', icon: Target },
-    { label: 'Prizes', path: '/prizes', icon: Award },
-    { label: 'Sponsors', path: '/sponsors', icon: Sparkles },
+    { label: 'Home', path: '/', sectionId: 'hero', icon: Home, tag: 'TOP' },
+    { label: 'About Event', path: '/#about', sectionId: 'about', icon: Info, tag: 'BRIEFING' },
+    { label: 'Competitions', path: '/#competitions', sectionId: 'competitions', icon: Trophy, tag: 'ARENAS' },
+    { label: 'Problem Statements', path: '/#problems', sectionId: 'problems', icon: Target, tag: 'TRACKS' },
+    { label: 'Event Schedule', path: '/#schedule', sectionId: 'schedule', icon: Calendar, tag: 'TIMELINE' },
+    { label: 'Prizes & Rewards', path: '/#prizes', sectionId: 'prizes', icon: Award, tag: 'POOL' },
+    { label: 'Rules & FAQs', path: '/#faq', sectionId: 'faq', icon: HelpCircle, tag: 'GUIDE' },
+    { label: 'Judges & Mentors', path: '/#mentors-judges', sectionId: 'mentors-judges', icon: Users, tag: 'COUNCIL' },
+    { label: 'Event Sponsors', path: '/#sponsors', sectionId: 'sponsors', icon: Sparkles, tag: 'BACKERS' },
+    { label: 'SDC Family Members', path: '/#sdc-members', sectionId: 'sdc-members', icon: Users2, tag: 'SDC' },
+    { label: 'Leaderboard', path: '/leaderboard', icon: TrendingUp, tag: 'LIVE' },
   ];
 
-  // Drawer Group 2: Event
+  // Drawer Group 2: Event Navigation
   const eventPages = [
-    { label: 'Schedule', path: '/schedule', icon: Calendar },
+    { label: 'Event Schedule', path: '/#schedule', sectionId: 'schedule', icon: Calendar },
     { label: 'Leaderboard', path: '/leaderboard', icon: TrendingUp },
-    { label: 'Rules & FAQs', path: '/rules', icon: HelpCircle },
-    { label: 'Mentors & Judges', path: '/mentors', icon: Users },
+    { label: 'Rules & FAQs', path: '/#faq', sectionId: 'faq', icon: HelpCircle },
+    { label: 'Mentors & Judges', path: '/#mentors-judges', sectionId: 'mentors-judges', icon: Users },
   ];
 
   // Drawer Group 3: Community
   const communityPages = [
-    { label: 'SDC Members & Faculty', path: '/sdc-members', icon: Users2 },
+    { label: 'SDC Members & Faculty', path: '/#sdc-members', sectionId: 'sdc-members', icon: Users2 },
   ];
 
   // Drawer Group 4: Administration (Strictly Role Protected)

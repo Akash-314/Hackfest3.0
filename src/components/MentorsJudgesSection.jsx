@@ -22,6 +22,7 @@ export default function MentorsJudgesSection() {
 
   return (
     <section id="mentors-judges" className="section mentors-section">
+      <div id="mentors" style={{ position: 'relative', top: '-80px', visibility: 'hidden' }} />
       <div className="section-transition-top" />
       <div className="container">
         {/* Header */}

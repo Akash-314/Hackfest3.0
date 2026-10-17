@@ -5,7 +5,6 @@ import { competitions } from '../data/eventData';
 import { eventService } from '../services/eventService';
 import SuperheroPanel from './ui/SuperheroPanel';
 import HoloBadge from './ui/HoloBadge';
-import ScheduleSection from './ScheduleSection';
 import EventCard from './EventCard';
 
 export default function CompetitionsSection() {
@@ -50,8 +49,7 @@ export default function CompetitionsSection() {
   };
 
   return (
-    <>
-      <section id="competitions" className="section competitions-section">
+    <section id="competitions" className="section competitions-section">
         <div className="section-transition-top" />
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
@@ -114,9 +112,5 @@ export default function CompetitionsSection() {
         </div>
       </div>
     </section>
-
-    {/* Integrated Schedule Section inside Competitions */}
-    <ScheduleSection />
-    </>
   );
 }
