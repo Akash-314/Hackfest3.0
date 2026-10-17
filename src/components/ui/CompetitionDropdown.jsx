@@ -16,25 +16,25 @@ export default function CompetitionDropdown({
 
   const options = [
     {
-      id: 'hackathon',
-      name: 'Main Hackathon',
-      badge: 'Day 2 • Team 2–4',
-      icon: Trophy,
-      isClosed: availableCompetitions.find((c) => c.id === 'hackathon')?.registrationOpen === false,
-    },
-    {
       id: 'codeathon',
       name: 'Codeathon',
-      badge: 'Day 1 • 1.5h • Individual',
+      badge: 'Day 1 • Individual',
       icon: Code2,
       isClosed: availableCompetitions.find((c) => c.id === 'codeathon')?.registrationOpen === false,
     },
     {
       id: 'ideathon',
       name: 'Ideathon',
-      badge: 'Day 1 • Pitching • Team 1–3',
+      badge: 'Day 1 • Team 3–4',
       icon: Lightbulb,
       isClosed: availableCompetitions.find((c) => c.id === 'ideathon')?.registrationOpen === false,
+    },
+    {
+      id: 'hackathon',
+      name: 'Hackathon',
+      badge: 'Day 2 • Team 3–4',
+      icon: Trophy,
+      isClosed: availableCompetitions.find((c) => c.id === 'hackathon')?.registrationOpen === false,
     },
   ];
 

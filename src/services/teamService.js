@@ -2,7 +2,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase.js';
 
 export const teamService = {
   // Create a team with leader
-  async createTeam({ name, competitionId, userId }) {
+  async createTeam({ name, competitionId, userId, college = 'Rajkiya Engineering College Banda', description = '' }) {
     if (!isSupabaseConfigured) {
       throw new Error('Supabase is not configured.');
     }
@@ -61,7 +61,7 @@ export const teamService = {
       }
     }
 
-    // 4. STRICT VALIDATION: Check if user already belongs to ANY team in this competition
+    // 4. Check if user already belongs to ANY team in this competition
     const { data: existingMemberships } = await supabase
       .from('team_members')
       .select('id, role, team:teams!inner(id, name, competition_id)')
@@ -75,7 +75,7 @@ export const teamService = {
       );
     }
 
-    // 5. STRICT VALIDATION: Check if user already holds a confirmed registration for this competition with another team
+    // 5. Check if user already holds a confirmed registration for this competition with another team
     const { data: existingReg } = await supabase
       .from('registrations')
       .select('id, team_id, team:teams(id, name)')
@@ -98,22 +98,41 @@ export const teamService = {
         code,
         leader_id: verifiedUserId,
         competition_id: resolvedCompId,
+        college: college.trim(),
+        description: description.trim(),
       })
       .select()
       .single();
 
     if (teamErr) throw teamErr;
 
-    // 7. Insert leader into team_members
+    // Fetch leader profile
+    let leaderProfile = null;
+    try {
+      const { data: lp } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', verifiedUserId)
+        .maybeSingle();
+      leaderProfile = lp;
+    } catch {}
+
+    // 7. Insert leader into team_members with full participant details
     const { error: memberErr } = await supabase
       .from('team_members')
       .insert({
         team_id: team.id,
         user_id: verifiedUserId,
         role: 'leader',
+        name: leaderProfile?.full_name || authUser.user_metadata?.full_name || 'Leader',
+        email: authUser.email,
+        phone: leaderProfile?.phone || null,
+        college: leaderProfile?.college || college || 'Rajkiya Engineering College Banda',
+        branch: leaderProfile?.branch || null,
+        year: leaderProfile?.year || null,
       });
 
-    if (memberErr) throw memberErr;
+    if (memberErr) console.warn('team_members leader insert note:', memberErr);
 
     // 8. Automatically synchronize/upsert registrations table for the leader
     try {
@@ -134,145 +153,22 @@ export const teamService = {
       code: team.code,
       name: team.name,
       competition_id: resolvedCompId,
+      college: team.college,
     };
   },
 
-  // Join a team by code
-  async joinTeam({ code, userId }) {
-    if (!isSupabaseConfigured) {
-      throw new Error('Supabase is not configured.');
-    }
-
-    // 1. Verify authenticated session
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
-    if (authError || !authUser) {
-      throw new Error('Authentication required. You must be signed in to join a team.');
-    }
-    const verifiedUserId = authUser.id;
-    const cleanCode = (code || '').trim().toUpperCase();
-
-    if (!cleanCode) {
-      throw new Error('Please enter a valid team invite code.');
-    }
-
-    // 2. Fetch team by code
-    const { data: team, error: teamErr } = await supabase
-      .from('teams')
-      .select('*, competition:competitions(*)')
-      .ilike('code', cleanCode)
-      .maybeSingle();
-
-    if (teamErr || !team) {
-      throw new Error(`Invalid team code "${cleanCode}". Please verify the code with your team leader.`);
-    }
-
-    // 3. Check competition registration status
-    if (team.competition && (team.competition.registration_open === false || team.competition.status !== 'active')) {
-      throw new Error(`Registration for ${team.competition.name || 'this competition'} is currently closed.`);
-    }
-
-    // 4. Check if user is ALREADY in this exact team
-    const { data: existingInThisTeam } = await supabase
-      .from('team_members')
-      .select('id, role')
-      .eq('team_id', team.id)
-      .eq('user_id', verifiedUserId)
-      .maybeSingle();
-
-    if (existingInThisTeam) {
-      return {
-        status: 'already_joined',
-        team_id: team.id,
-        name: team.name,
-        competition_id: team.competition_id,
-      };
-    }
-
-    // 5. STRICT VALIDATION: Check if user is ALREADY in ANY OTHER team for this competition
-    const { data: otherTeamMemberships } = await supabase
-      .from('team_members')
-      .select('id, role, team:teams!inner(id, name, competition_id)')
-      .eq('user_id', verifiedUserId)
-      .eq('team.competition_id', team.competition_id)
-      .neq('team_id', team.id);
-
-    if (otherTeamMemberships && otherTeamMemberships.length > 0) {
-      const otherTeam = otherTeamMemberships[0].team;
-      throw new Error(
-        `You are already a member of team "${otherTeam.name}" in ${team.competition?.name || 'this competition'}. One participant/email cannot join multiple teams in the same event.`
-      );
-    }
-
-    // 6. Check if user is already registered for this competition under another team
-    const { data: existingReg } = await supabase
-      .from('registrations')
-      .select('id, team_id, team:teams(id, name)')
-      .eq('user_id', verifiedUserId)
-      .eq('competition_id', team.competition_id)
-      .maybeSingle();
-
-    if (existingReg?.team_id && existingReg.team_id !== team.id) {
-      throw new Error(
-        `You are already registered with team "${existingReg.team?.name || 'another team'}" for this competition. Leave that team first if you want to join a new one.`
-      );
-    }
-
-    // 7. Check team capacity limit
-    const { count } = await supabase
-      .from('team_members')
-      .select('*', { count: 'exact', head: true })
-      .eq('team_id', team.id);
-
-    const maxLimit = team.competition?.max_team_size || 4;
-    if ((count || 0) >= maxLimit) {
-      throw new Error(`Team "${team.name}" is already full (maximum ${maxLimit} members).`);
-    }
-
-    // 8. Insert member
-    const { error: insertErr } = await supabase
-      .from('team_members')
-      .insert({
-        team_id: team.id,
-        user_id: verifiedUserId,
-        role: 'member',
-      });
-
-    if (insertErr) {
-      if (insertErr.code === '23505') {
-        return { status: 'already_joined', team_id: team.id, name: team.name };
-      }
-      throw insertErr;
-    }
-
-    // 9. Automatically synchronize/upsert registrations table for this user
-    try {
-      await supabase
-        .from('registrations')
-        .upsert({
-          user_id: verifiedUserId,
-          competition_id: team.competition_id,
-          team_id: team.id,
-          registration_status: 'confirmed',
-        }, { onConflict: 'user_id,competition_id' });
-    } catch (syncErr) {
-      console.warn('Note: registration upsert on join team:', syncErr);
-    }
-
-    return {
-      status: 'success',
-      team_id: team.id,
-      name: team.name,
-      competition_id: team.competition_id,
-    };
-  },
-
-  // Add a team member by email (by team leader)
-  async addMemberByEmail({ teamId, email, leaderUserId }) {
+  // Add a team member (by leader or admin), supporting direct details without requiring pre-registration
+  async addMember({ teamId, name, email, phone = '', college = '', branch = '', year = '', role = 'member', leaderUserId = null }) {
     if (!isSupabaseConfigured) throw new Error('Supabase not configured.');
 
     const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanName = (name || '').trim();
+
     if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-      throw new Error('Please enter a valid email address.');
+      throw new Error('Please enter a valid teammate email address.');
+    }
+    if (!cleanName) {
+      throw new Error('Please enter the teammate full name.');
     }
 
     // 1. Fetch team with competition details
@@ -284,9 +180,9 @@ export const teamService = {
 
     if (teamErr || !team) throw new Error('Team not found.');
 
-    // Verify leader permission
+    // Verify leader permission if leaderUserId provided
     if (leaderUserId && team.leader_id !== leaderUserId) {
-      throw new Error('Only the team leader can add members.');
+      throw new Error('Only the team leader or an administrator can add members.');
     }
 
     // 2. Check team capacity
@@ -300,81 +196,102 @@ export const teamService = {
       throw new Error(`Team is already full (maximum ${maxLimit} members).`);
     }
 
-    // 3. Find user profile with this email
-    const { data: targetProfile, error: profileErr } = await supabase
+    // 3. Find if user profile with this email exists
+    let linkedUserId = null;
+    const { data: targetProfile } = await supabase
       .from('profiles')
-      .select('id, full_name, email')
+      .select('id, full_name, email, college, phone, branch, year')
       .ilike('email', cleanEmail)
       .maybeSingle();
 
-    if (profileErr || !targetProfile) {
-      throw new Error(`No account found with email "${cleanEmail}". Teammate must register/create an account on HackFest first.`);
+    if (targetProfile?.id) {
+      linkedUserId = targetProfile.id;
     }
 
-    // 4. Check if already in this team
-    const { data: inThisTeam } = await supabase
+    // 4. Check if already in this team (by email or user_id)
+    let inThisTeamQuery = supabase
       .from('team_members')
       .select('id')
-      .eq('team_id', team.id)
-      .eq('user_id', targetProfile.id)
-      .maybeSingle();
+      .eq('team_id', team.id);
 
-    if (inThisTeam) {
-      throw new Error(`Participant "${targetProfile.full_name || cleanEmail}" is already in this team.`);
+    if (linkedUserId) {
+      inThisTeamQuery = inThisTeamQuery.or(`user_id.eq.${linkedUserId},email.ilike.${cleanEmail}`);
+    } else {
+      inThisTeamQuery = inThisTeamQuery.ilike('email', cleanEmail);
     }
 
-    // 5. STRICT VALIDATION: Check if already in another team for this competition
-    const { data: otherTeams } = await supabase
+    const { data: inThisTeam } = await inThisTeamQuery.maybeSingle();
+    if (inThisTeam) {
+      throw new Error(`Participant "${cleanEmail}" is already a member of this team.`);
+    }
+
+    // 5. Check if already in another team for this competition
+    let otherTeamsQuery = supabase
       .from('team_members')
       .select('id, role, team:teams!inner(id, name, competition_id)')
-      .eq('user_id', targetProfile.id)
-      .eq('team.competition_id', team.competition_id);
+      .eq('team.competition_id', team.competition_id)
+      .neq('team_id', team.id);
 
+    if (linkedUserId) {
+      otherTeamsQuery = otherTeamsQuery.or(`user_id.eq.${linkedUserId},email.ilike.${cleanEmail}`);
+    } else {
+      otherTeamsQuery = otherTeamsQuery.ilike('email', cleanEmail);
+    }
+
+    const { data: otherTeams } = await otherTeamsQuery;
     if (otherTeams && otherTeams.length > 0) {
       throw new Error(
         `Participant "${cleanEmail}" is already part of team "${otherTeams[0].team.name}" in this event. 1 email ID can only join one team per event.`
       );
     }
 
-    // 6. Check if already registered under another team or solo
-    const { data: existingReg } = await supabase
-      .from('registrations')
-      .select('id, team_id, team:teams(name)')
-      .eq('user_id', targetProfile.id)
-      .eq('competition_id', team.competition_id)
-      .maybeSingle();
-
-    if (existingReg?.team_id && existingReg.team_id !== team.id) {
-      throw new Error(`Participant "${cleanEmail}" is already registered with team "${existingReg.team?.name}".`);
-    }
-
-    // 7. Insert member
-    const { error: insertErr } = await supabase
+    // 6. Insert member into team_members
+    const { data: newMember, error: insertErr } = await supabase
       .from('team_members')
       .insert({
         team_id: team.id,
-        user_id: targetProfile.id,
-        role: 'member',
-      });
+        user_id: linkedUserId,
+        role: role || 'member',
+        name: cleanName || targetProfile?.full_name || 'Member',
+        email: cleanEmail,
+        phone: phone || targetProfile?.phone || null,
+        college: college || targetProfile?.college || team.college || 'Rajkiya Engineering College Banda',
+        branch: branch || targetProfile?.branch || null,
+        year: year || targetProfile?.year || null,
+      })
+      .select()
+      .single();
 
     if (insertErr) throw insertErr;
 
-    // 8. Synchronize registrations
-    try {
-      await supabase
-        .from('registrations')
-        .upsert({
-          user_id: targetProfile.id,
-          competition_id: team.competition_id,
-          team_id: team.id,
-          registration_status: 'confirmed',
-        }, { onConflict: 'user_id,competition_id' });
-    } catch {}
+    // 7. Synchronize registrations if profile exists
+    if (linkedUserId) {
+      try {
+        await supabase
+          .from('registrations')
+          .upsert({
+            user_id: linkedUserId,
+            competition_id: team.competition_id,
+            team_id: team.id,
+            registration_status: 'confirmed',
+          }, { onConflict: 'user_id,competition_id' });
+      } catch {}
+    }
 
     return {
       success: true,
-      member: targetProfile,
+      member: newMember,
     };
+  },
+
+  // Legacy wrapper for backwards compatibility
+  async addMemberByEmail({ teamId, email, leaderUserId, name = '' }) {
+    return this.addMember({
+      teamId,
+      email,
+      name: name || email.split('@')[0],
+      leaderUserId,
+    });
   },
 
   // Get user's teams with members and competition details
@@ -390,24 +307,54 @@ export const teamService = {
             id,
             name,
             code,
+            college,
+            description,
             leader_id,
             competition_id,
-            competition:competitions (id, name, slug, max_team_size),
+            competition:competitions (id, name, slug, max_team_size, min_team_size),
             members:team_members (
               id,
+              user_id,
               role,
+              name,
+              email,
+              phone,
+              college,
+              branch,
+              year,
               joined_at,
-              profile:profiles (id, full_name, email, avatar_url, college)
+              profile:profiles (id, full_name, email, avatar_url, college, phone, branch, year)
             )
           )
         `)
         .eq('user_id', userId);
 
       if (error) throw error;
-      return (memberships || []).map((m) => ({
-        ...m.team,
-        userRole: m.role,
-      }));
+
+      return (memberships || [])
+        .filter((m) => m.team)
+        .map((m) => {
+          const rawMembers = m.team.members || [];
+          const normalizedMembers = rawMembers.map((mem) => ({
+            id: mem.id,
+            user_id: mem.user_id,
+            role: mem.role || 'member',
+            name: mem.name || mem.profile?.full_name || 'Team Member',
+            email: mem.email || mem.profile?.email || 'N/A',
+            phone: mem.phone || mem.profile?.phone || '',
+            college: mem.college || mem.profile?.college || m.team.college || 'Rajkiya Engineering College Banda',
+            branch: mem.branch || mem.profile?.branch || '',
+            year: mem.year || mem.profile?.year || '',
+            joined_at: mem.joined_at,
+            profile: mem.profile || null,
+          }));
+
+          return {
+            ...m.team,
+            userRole: m.role,
+            members: normalizedMembers,
+          };
+        });
     } catch (err) {
       console.error('Error fetching user teams:', err);
       return [];
@@ -435,6 +382,260 @@ export const teamService = {
         .eq('user_id', userId);
     } catch (err) {
       console.warn('Note: registration delete on leave team:', err);
+    }
+
+    return true;
+  },
+
+  // Remove a member from team (by leader or admin)
+  async removeMember({ teamId, memberId, leaderUserId = null }) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured.');
+
+    // Fetch member
+    const { data: member, error: memErr } = await supabase
+      .from('team_members')
+      .select('*, team:teams(*)')
+      .eq('id', memberId)
+      .single();
+
+    if (memErr || !member) throw new Error('Team member not found.');
+
+    if (leaderUserId && member.team?.leader_id !== leaderUserId) {
+      throw new Error('Only the team leader or an administrator can remove members.');
+    }
+
+    if (member.role === 'leader') {
+      throw new Error('Cannot remove the team leader. Please reassign the team leader first.');
+    }
+
+    // Delete member row
+    const { error: delErr } = await supabase
+      .from('team_members')
+      .delete()
+      .eq('id', memberId);
+
+    if (delErr) throw delErr;
+
+    // If member has linked user_id, remove from registrations
+    if (member.user_id) {
+      try {
+        await supabase
+          .from('registrations')
+          .delete()
+          .eq('team_id', teamId)
+          .eq('user_id', member.user_id);
+      } catch {}
+    }
+
+    return true;
+  },
+
+  // --------------------------------------------------------------------------
+  // FULL ADMIN CRUD OPERATIONS FOR TEAMS & ROSTERS
+  // --------------------------------------------------------------------------
+  async getAllTeamsAdmin() {
+    if (!isSupabaseConfigured) return [];
+    try {
+      const { data, error } = await supabase
+        .from('teams')
+        .select(`
+          *,
+          competition:competitions (id, name, slug, max_team_size, min_team_size),
+          leader:profiles!teams_leader_id_fkey (id, full_name, email, phone, college),
+          members:team_members (
+            id,
+            user_id,
+            role,
+            name,
+            email,
+            phone,
+            college,
+            branch,
+            year,
+            joined_at,
+            profile:profiles (id, full_name, email, phone, college, branch, year)
+          ),
+          registrations:registrations (
+            id,
+            registration_status,
+            document_url,
+            document_name,
+            document_type,
+            document_size,
+            document_path,
+            created_at
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('Teams with relations query fallback:', error.message);
+        const { data: fallbackData } = await supabase
+          .from('teams')
+          .select(`
+            *,
+            competition:competitions (id, name, slug),
+            members:team_members (*)
+          `)
+          .order('created_at', { ascending: false });
+        return fallbackData || [];
+      }
+
+      // Normalize members
+      return (data || []).map((t) => {
+        const rawMembers = t.members || [];
+        const normalizedMembers = rawMembers.map((mem) => ({
+          id: mem.id,
+          user_id: mem.user_id,
+          role: mem.role || 'member',
+          name: mem.name || mem.profile?.full_name || 'Member',
+          email: mem.email || mem.profile?.email || 'N/A',
+          phone: mem.phone || mem.profile?.phone || '',
+          college: mem.college || mem.profile?.college || t.college || 'Rajkiya Engineering College Banda',
+          branch: mem.branch || mem.profile?.branch || '',
+          year: mem.year || mem.profile?.year || '',
+          joined_at: mem.joined_at,
+        }));
+
+        return {
+          ...t,
+          members: normalizedMembers,
+          registration: t.registrations?.[0] || null,
+        };
+      });
+    } catch (err) {
+      console.error('Failed to load teams admin:', err);
+      return [];
+    }
+  },
+
+  async updateTeamAdmin(teamId, updates) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured.');
+
+    const payload = {
+      name: updates.name?.trim(),
+      college: updates.college?.trim(),
+      description: updates.description?.trim(),
+      competition_id: updates.competition_id || undefined,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
+      .from('teams')
+      .update(payload)
+      .eq('id', teamId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteTeamAdmin(teamId) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured.');
+
+    // 1. Delete associated registrations
+    await supabase.from('registrations').delete().eq('team_id', teamId).catch(() => {});
+
+    // 2. Delete team members
+    await supabase.from('team_members').delete().eq('team_id', teamId).catch(() => {});
+
+    // 3. Delete submissions
+    await supabase.from('submissions').delete().eq('team_id', teamId).catch(() => {});
+
+    // 4. Delete team
+    const { error } = await supabase.from('teams').delete().eq('id', teamId);
+    if (error) throw error;
+
+    return true;
+  },
+
+  async addTeamMemberAdmin(teamId, memberData) {
+    return this.addMember({
+      teamId,
+      name: memberData.name,
+      email: memberData.email,
+      phone: memberData.phone || '',
+      college: memberData.college || '',
+      branch: memberData.branch || '',
+      year: memberData.year || '',
+      role: memberData.role || 'member',
+    });
+  },
+
+  async updateTeamMemberAdmin(memberId, updates) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured.');
+
+    const payload = {
+      name: updates.name ? updates.name.trim() : undefined,
+      email: updates.email ? updates.email.trim().toLowerCase() : undefined,
+      phone: updates.phone !== undefined ? updates.phone.trim() : undefined,
+      college: updates.college !== undefined ? updates.college.trim() : undefined,
+      branch: updates.branch !== undefined ? updates.branch.trim() : undefined,
+      year: updates.year !== undefined ? updates.year.trim() : undefined,
+      role: updates.role || undefined,
+    };
+
+    const { data, error } = await supabase
+      .from('team_members')
+      .update(payload)
+      .eq('id', memberId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async removeTeamMemberAdmin(memberId) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured.');
+
+    const { error } = await supabase
+      .from('team_members')
+      .delete()
+      .eq('id', memberId);
+
+    if (error) throw error;
+    return true;
+  },
+
+  async changeTeamLeaderAdmin(teamId, newLeaderMemberId) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured.');
+
+    // Fetch the new leader member record
+    const { data: newLeaderMem, error: memErr } = await supabase
+      .from('team_members')
+      .select('*')
+      .eq('id', newLeaderMemberId)
+      .eq('team_id', teamId)
+      .single();
+
+    if (memErr || !newLeaderMem) {
+      throw new Error('Selected member not found in this team.');
+    }
+
+    // Step 1: Set previous leader(s) role to 'member'
+    await supabase
+      .from('team_members')
+      .update({ role: 'member' })
+      .eq('team_id', teamId)
+      .eq('role', 'leader');
+
+    // Step 2: Set target member role to 'leader'
+    await supabase
+      .from('team_members')
+      .update({ role: 'leader' })
+      .eq('id', newLeaderMemberId);
+
+    // Step 3: Update leader_id on teams table if member has a linked user_id
+    if (newLeaderMem.user_id) {
+      await supabase
+        .from('teams')
+        .update({
+          leader_id: newLeaderMem.user_id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', teamId);
     }
 
     return true;
