@@ -6,7 +6,6 @@ import PublicLayout from './components/layout/PublicLayout';
 import ScrollToTop from './components/ScrollToTop';
 import CursorTrail from './components/cinematic/CursorTrail';
 import GlowCursor from './components/ui/GlowCursor';
-import Galaxy from './components/ui/Galaxy';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Existing Pages
@@ -76,28 +75,6 @@ export default function App() {
                 quality="medium"
                 theme="dark"
                 maxDevicePixelRatio={1.5}
-              />
-            </div>
-            <div className="galaxy-background-layer" aria-hidden="true">
-              <Galaxy
-                starColors={['#81C14B', '#2E933C', '#204E4A', '#ECBA82']}
-                transparent={false}
-                backgroundColor="#080A09"
-                opacity={0.32}
-                density={0.7}
-                glowIntensity={0.25}
-                starSize={0.8}
-                flareIntensity={0.25}
-                twinkleIntensity={0.2}
-                starSpeed={0.12}
-                speed={0.6}
-                rotationSpeed={0.015}
-                layers={3}
-                mouseInteraction={false}
-                mouseRepulsion={false}
-                clickWarp={false}
-                intro={false}
-                dpr={1}
               />
             </div>
             <Routes>

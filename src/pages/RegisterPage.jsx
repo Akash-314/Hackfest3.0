@@ -179,6 +179,8 @@ export default function RegisterPage() {
     if (isSoloCompetition) {
       setMembers([]);
       setProblemCategory('');
+      setDocumentFile(null);
+      setFileError('');
     } else if (members.length < 2) {
       // Team registration requires 3 to 4 members total: 1 Leader + 2 to 3 Teammates
       const needed = 2 - members.length;
@@ -194,22 +196,15 @@ export default function RegisterPage() {
     }
   }, [arena, isSoloCompetition]);
 
-  // Accessible dropdown option arrays
-  const categoryOptions = [
-    {
-      value: '',
-      label: 'Decide at Event Opening (Day 2 Briefing)',
-      sublabel: 'Optionally finalize or refine your problem category during the briefing',
-    },
-    ...availableCategories.map((cat, idx) => {
-      const num = cat.number || String(idx + 1).padStart(2, '0');
-      return {
-        value: cat.id || cat.slug,
-        label: `Track ${num} — ${cat.title}`,
-        sublabel: cat.theme || null,
-      };
-    }),
-  ];
+  // Accessible dropdown option arrays - exclusively authoritative problem categories
+  const categoryOptions = availableCategories.map((cat, idx) => {
+    const num = cat.number || String(idx + 1).padStart(2, '0');
+    return {
+      value: cat.id || cat.slug,
+      label: `Track ${num} — ${cat.title}`,
+      sublabel: cat.theme || null,
+    };
+  });
 
   const academicYearOptions = [
     { value: '1st Year', label: '1st Year' },
@@ -442,15 +437,15 @@ export default function RegisterPage() {
       const compId = currentComp.dbId || currentComp.id;
 
       if (isSoloCompetition) {
-        // Individual Registration (Codeathon) - PPT upload is NOT required
+        // Individual Registration (Codeathon) - PPT upload is NOT required and never submitted
         const reg = await registrationService.createRegistration({
           userId: currentUser.id,
           competitionId: compId,
-          problemCategoryId: problemCategory || null,
+          problemCategoryId: null,
           experienceLevel: experience,
           notes: teamDescription,
           email: cleanLeaderEmail,
-          documentFile: documentFile || null,
+          documentFile: null,
         });
 
         setConfirmationData({
@@ -461,7 +456,7 @@ export default function RegisterPage() {
             ...leaderDetails,
             email: cleanLeaderEmail,
           },
-          document: documentFile ? { name: documentFile.name, size: documentFile.size } : null,
+          document: null,
         });
         setSubmitted(true);
       } else {
@@ -1335,151 +1330,149 @@ export default function RegisterPage() {
           )}
 
           {/* ============================================================== */}
-          {/* STEP 5: PRESENTATION / PROPOSAL UPLOAD (PPT/PPTX/PDF)           */}
+          {/* STEP 5: PRESENTATION / PROPOSAL UPLOAD (PPT/PPTX/PDF) - TEAMS  */}
           {/* ============================================================== */}
-          <div
-            style={{
-              background: 'rgba(30, 36, 45, 0.75)',
-              border: '1px solid var(--border-medium)',
-              borderRadius: 'var(--radius-md)',
-              padding: '1.75rem',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
-              <span
-                style={{
-                  width: '26px',
-                  height: '26px',
-                  borderRadius: '50%',
-                  background: 'var(--color-arc-cyan)',
-                  color: '#000',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                }}
-              >
-                {isSoloCompetition ? '3' : '5'}
-              </span>
-              <h3 className="heading-display" style={{ fontSize: '1.25rem', margin: 0, color: '#fff' }}>
-                {isSoloCompetition || arena === 'codeathon'
-                  ? 'IDEA PRESENTATION / SYNOPSIS (OPTIONAL FOR CODEATHON)'
-                  : 'IDEA PRESENTATION / SYNOPSIS (PPTX / PDF)'}
-              </h3>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
-              {isSoloCompetition || arena === 'codeathon'
-                ? 'Presentation upload is NOT required for Codeathon. You can submit your registration directly without uploading a file, or optionally attach synopsis notes (PPTX, PPT, or PDF, maximum 25MB).'
-                : 'Attach your preliminary slide deck, abstract, or synopsis (PPT, PPTX, or PDF, maximum 25MB). You can replace or update this document at any point before judging.'}
-            </p>
-
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept=".pptx,.ppt,.pdf"
-              style={{ display: 'none' }}
-              onChange={(e) => {
-                if (e.target.files && e.target.files[0]) {
-                  handleFileSelect(e.target.files[0]);
-                }
+          {!isSoloCompetition && (
+            <div
+              style={{
+                background: 'rgba(30, 36, 45, 0.75)',
+                border: '1px solid var(--border-medium)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.75rem',
               }}
-            />
-
-            {!documentFile ? (
-              <div
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={handleFileDrop}
-                onClick={() => fileInputRef.current?.click()}
-                style={{
-                  border: `2px dashed ${isDragging ? 'var(--color-arc-cyan)' : 'var(--border-medium)'}`,
-                  background: isDragging ? 'rgba(0, 217, 255, 0.08)' : 'rgba(17, 24, 39, 0.6)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '2.5rem 1.5rem',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                }}
-              >
-                <Upload size={32} color="var(--color-arc-cyan)" style={{ margin: '0 auto 0.75rem auto' }} />
-                <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.25rem' }}>
-                  Click to browse or drag & drop presentation file
-                </div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  SUPPORTED: PPTX, PPT, PDF (MAXIMUM 25MB)
-                </div>
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.5rem' }}>
+                <span
+                  style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    background: 'var(--color-arc-cyan)',
+                    color: '#000',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                  }}
+                >
+                  5
+                </span>
+                <h3 className="heading-display" style={{ fontSize: '1.25rem', margin: 0, color: '#fff' }}>
+                  IDEA PRESENTATION / SYNOPSIS (PPTX / PDF)
+                </h3>
               </div>
-            ) : (
-              <div
-                style={{
-                  background: 'rgba(17, 24, 39, 0.95)',
-                  border: '1px solid var(--color-arc-cyan)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.25rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '1rem',
-                  flexWrap: 'wrap',
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
+                Attach your preliminary slide deck, abstract, or synopsis (PPT, PPTX, or PDF, maximum 25MB). You can replace or update this document at any point before judging.
+              </p>
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept=".pptx,.ppt,.pdf"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    handleFileSelect(e.target.files[0]);
+                  }
                 }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                  <FileText size={28} color="var(--color-arc-cyan)" />
-                  <div>
-                    <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem', wordBreak: 'break-all' }}>
-                      {documentFile.name}
-                    </div>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      {(documentFile.size / (1024 * 1024)).toFixed(2)} MB • READY FOR UPLOAD
-                    </div>
+              />
+
+              {!documentFile ? (
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleFileDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    border: `2px dashed ${isDragging ? 'var(--color-arc-cyan)' : 'var(--border-medium)'}`,
+                    background: isDragging ? 'rgba(0, 217, 255, 0.08)' : 'rgba(17, 24, 39, 0.6)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '2.5rem 1.5rem',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <Upload size={32} color="var(--color-arc-cyan)" style={{ margin: '0 auto 0.75rem auto' }} />
+                  <div style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+                    Click to browse or drag & drop presentation file
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    SUPPORTED: PPTX, PPT, PDF (MAXIMUM 25MB)
                   </div>
                 </div>
+              ) : (
+                <div
+                  style={{
+                    background: 'rgba(17, 24, 39, 0.95)',
+                    border: '1px solid var(--color-arc-cyan)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '1rem',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                    <FileText size={28} color="var(--color-arc-cyan)" />
+                    <div>
+                      <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem', wordBreak: 'break-all' }}>
+                        {documentFile.name}
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        {(documentFile.size / (1024 * 1024)).toFixed(2)} MB • READY FOR UPLOAD
+                      </div>
+                    </div>
+                  </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="btn btn-secondary"
-                    style={{ fontSize: '0.78rem', padding: '0.4rem 0.75rem' }}
-                  >
-                    CHANGE FILE
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDocumentFile(null);
-                      if (fileInputRef.current) fileInputRef.current.value = '';
-                    }}
-                    style={{
-                      background: 'rgba(239, 68, 68, 0.15)',
-                      border: '1px solid rgba(239, 68, 68, 0.4)',
-                      borderRadius: 'var(--radius-sm)',
-                      color: '#f87171',
-                      padding: '0.4rem 0.65rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <X size={16} />
-                  </button>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="btn btn-secondary"
+                      style={{ fontSize: '0.78rem', padding: '0.4rem 0.75rem' }}
+                    >
+                      CHANGE FILE
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDocumentFile(null);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                      }}
+                      style={{
+                        background: 'rgba(239, 68, 68, 0.15)',
+                        border: '1px solid rgba(239, 68, 68, 0.4)',
+                        borderRadius: 'var(--radius-sm)',
+                        color: '#f87171',
+                        padding: '0.4rem 0.65rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {fileError && (
-              <div style={{ color: '#f87171', fontSize: '0.8rem', marginTop: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <AlertCircle size={14} />
-                {fileError}
-              </div>
-            )}
-          </div>
+              {fileError && (
+                <div style={{ color: '#f87171', fontSize: '0.8rem', marginTop: '0.6rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <AlertCircle size={14} />
+                  {fileError}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* ============================================================== */}
           {/* STEP 6: PROBLEM TRACK & RULES AGREEMENT                         */}
@@ -1508,10 +1501,10 @@ export default function RegisterPage() {
                   fontWeight: 700,
                 }}
               >
-                {isSoloCompetition ? '4' : '6'}
+                {isSoloCompetition ? '3' : '6'}
               </span>
               <h3 className="heading-display" style={{ fontSize: '1.25rem', margin: 0, color: '#fff' }}>
-                TRACK PREFERENCE & VERIFICATION
+                {isSoloCompetition ? 'PARTICIPANT PREFERENCE & VERIFICATION' : 'TRACK PREFERENCE & VERIFICATION'}
               </h3>
             </div>
 
@@ -1523,10 +1516,10 @@ export default function RegisterPage() {
                     value={problemCategory}
                     onChange={(e) => setProblemCategory(e.target.value)}
                     options={categoryOptions}
-                    placeholder="Decide at Event Opening (Day 2 Briefing)"
+                    placeholder="Select a problem statement"
                   />
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-                    Both Ideathon & Hackathon feature all 6 crisis tracks. You may also decide or refine during Day 2 briefing.
+                    Choose from the 6 crisis tracks. You can refine your implementation during the event.
                   </div>
                 </div>
               )}
