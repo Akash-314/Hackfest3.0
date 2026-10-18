@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Trophy, Users } from 'lucide-react';
+import { useLocation, Link } from 'react-router-dom';
+import { Calendar, Clock, MapPin, Trophy, Users, ArrowUpRight } from 'lucide-react';
 import doomImg from '../assets/doom.png';
 import ironImg from '../assets/iron.png';
 
@@ -193,6 +193,21 @@ export default function HomePage() {
                 <span className="doomsday-time-lbl">SECONDS</span>
               </div>
             </div>
+          </div>
+
+          {/* PROMINENT REGISTER NOW ACTION DIRECTLY BELOW TIMER */}
+          <div className="hero-timer-cta-wrap">
+            <Link
+              to="/register"
+              className="hero-timer-register-btn"
+              id="hero-timer-register-cta"
+              aria-label="Register Now for HackFest 3.0"
+            >
+              <span>REGISTER NOW</span>
+              <span className="hero-timer-btn-arrow" aria-hidden="true">
+                <ArrowUpRight size={15} />
+              </span>
+            </Link>
           </div>
         </div>
 

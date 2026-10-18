@@ -81,11 +81,15 @@ export default function EventCard({ comp, meta }) {
         className="hackfest-tilted-event-card"
         captionText={comp.title}
       >
-        {/* FRONT FACE — EVENT NAME ONLY */}
+        {/* FRONT FACE — EVENT NAME & FLIP INSTRUCTION */}
         <div className="event-card-front">
           <h3 className="event-card-front-title">
             {comp.title}
           </h3>
+          <div className="event-card-front-hint">
+            <RotateCcw size={12} className="event-card-hint-icon" />
+            <span>CLICK TO EXPLORE</span>
+          </div>
         </div>
       </TiltedCard>
     </div>

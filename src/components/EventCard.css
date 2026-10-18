@@ -62,6 +62,41 @@
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
 }
 
+.event-card-front-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1.35rem;
+  padding: 0.38rem 0.85rem;
+  background: rgba(99, 230, 209, 0.08);
+  border: 1px solid rgba(99, 230, 209, 0.28);
+  border-radius: 9999px;
+  color: #63E6D1;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.25s ease;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.event-card-front:hover .event-card-front-hint {
+  background: rgba(99, 230, 209, 0.16);
+  border-color: rgba(99, 230, 209, 0.5);
+  color: #A7F3D0;
+  transform: translateY(-1px);
+}
+
+.event-card-hint-icon {
+  transition: transform 0.4s ease;
+}
+
+.event-card-front:hover .event-card-hint-icon {
+  transform: rotate(-180deg);
+}
+
 /* --------------------------------------------------------------------------
    BACK FACE — CONCISE PREVIEW & ACTION
    -------------------------------------------------------------------------- */

@@ -76,16 +76,6 @@ export default function RegistrationAuthGuard({ children }) {
     );
   }
 
-  // 2. Bypass in unconfigured local environment (development mock preview)
-  if (!isConfigured) {
-    return children;
-  }
-
-  // 3. Unauthenticated Visitor Guard — Redirect to Login preserving exact destination
-  if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
-  // 4. Authenticated Session Verified
+  // 2. Allow direct participant registration without forced login redirect
   return children;
 }

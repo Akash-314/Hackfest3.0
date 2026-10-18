@@ -174,21 +174,67 @@ export default function DashboardRegistrationPage() {
                   </div>
                 </div>
 
-                {/* Team Roster If Available */}
+                {/* Team Roster with Full Details */}
                 {reg.team && Array.isArray(reg.team.members) && reg.team.members.length > 0 && (
-                  <div style={{ background: '#111827', borderRadius: 'var(--radius-sm)', padding: '1rem', marginBottom: '1.2rem', border: '1px solid var(--border-subtle)' }}>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--color-infinity-gold)', marginBottom: '0.6rem', fontWeight: 600 }}>
-                      TEAM ROSTER ({reg.team.members.length} MEMBERS):
+                  <div style={{ background: '#111827', borderRadius: 'var(--radius-sm)', padding: '1.1rem', marginBottom: '1.2rem', border: '1px solid var(--border-subtle)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--color-infinity-gold)', fontWeight: 600 }}>
+                        TEAM ROSTER ({reg.team.members.length} CONFIRMED MEMBERS):
+                      </div>
+                      <Link
+                        to="/dashboard/team"
+                        style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-arc-cyan)', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                      >
+                        MANAGE ROSTER <ArrowUpRight size={13} />
+                      </Link>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.6rem' }}>
-                      {reg.team.members.map((m) => (
-                        <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.03)', padding: '0.4rem 0.6rem', borderRadius: '4px', fontSize: '0.82rem' }}>
-                          <span style={{ color: '#fff' }}>{m.name || m.profile?.full_name || 'Member'}</span>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: m.role === 'leader' ? 'var(--color-infinity-gold)' : 'var(--text-muted)' }}>
-                            {m.role?.toUpperCase()}
-                          </span>
-                        </div>
-                      ))}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0.75rem' }}>
+                      {reg.team.members.map((m) => {
+                        const isLeader = m.role === 'leader' || m.user_id === reg.team?.leader_id;
+                        const collegeName = m.college || m.profile?.college || reg.team?.college || 'REC Banda';
+                        return (
+                          <div
+                            key={m.id}
+                            style={{
+                              background: 'rgba(255, 255, 255, 0.03)',
+                              padding: '0.75rem',
+                              borderRadius: '6px',
+                              border: `1px solid ${isLeader ? 'rgba(245, 196, 81, 0.3)' : 'rgba(255, 255, 255, 0.06)'}`,
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.35rem' }}>
+                              <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.88rem' }}>
+                                {m.name || m.profile?.full_name || 'Team Member'}
+                              </span>
+                              <span
+                                style={{
+                                  fontFamily: 'var(--font-mono)',
+                                  fontSize: '0.68rem',
+                                  padding: '0.15rem 0.45rem',
+                                  borderRadius: '3px',
+                                  background: isLeader ? 'rgba(245, 196, 81, 0.15)' : 'rgba(0, 217, 255, 0.1)',
+                                  color: isLeader ? 'var(--color-infinity-gold)' : 'var(--color-arc-cyan)',
+                                  border: `1px solid ${isLeader ? 'rgba(245, 196, 81, 0.35)' : 'rgba(0, 217, 255, 0.25)'}`,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {isLeader ? 'LEADER' : 'MEMBER'}
+                              </span>
+                            </div>
+                            <div style={{ fontSize: '0.78rem', color: 'var(--color-arc-cyan)', fontFamily: 'var(--font-mono)', marginBottom: '0.3rem' }}>
+                              {m.email || m.profile?.email}
+                            </div>
+                            <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>
+                              <div>🏛️ {collegeName}</div>
+                              {(m.branch || m.year) && (
+                                <div style={{ color: '#CBD5E1', marginTop: '0.15rem' }}>
+                                  {m.branch ? `Branch: ${m.branch}` : ''} {m.year ? `• Year: ${m.year}` : ''}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

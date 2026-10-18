@@ -220,6 +220,21 @@ export function AuthProvider({ children }) {
     return Promise.resolve(null);
   };
 
+  // Sign in with OTP / Magic Link
+  const signInWithOtp = async (email) => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase is not configured yet.');
+    }
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+    if (error) throw error;
+    return data;
+  };
+
   const isSuperAdmin = Boolean(profile?.is_super_admin === true || profile?.role === 'super_admin');
   const role = isSuperAdmin ? 'super_admin' : (profile?.role || 'participant');
   const isAdmin = role === 'admin' || role === 'organizer' || isSuperAdmin;
@@ -237,6 +252,7 @@ export function AuthProvider({ children }) {
     loading,
     isConfigured: isSupabaseConfigured,
     signIn,
+    signInWithOtp,
     signUp,
     signOut,
     resetPassword,

@@ -121,14 +121,7 @@ export default function App() {
                 <Route path="/mentors" element={<MentorsJudgesPage />} />
                 <Route path="/judges" element={<MentorsJudgesPage />} />
                 <Route path="/sponsors" element={<SponsorsPage />} />
-                <Route
-                  path="/register"
-                  element={
-                    <RegistrationAuthGuard>
-                      <RegisterPage />
-                    </RegistrationAuthGuard>
-                  }
-                />
+                <Route path="/register" element={<RegisterPage />} />
                 <Route path="/leaderboard" element={<LeaderboardPage />} />
                 <Route path="/sdc-members" element={<SdcMembersPage />} />
                 <Route path="/members" element={<SdcMembersPage />} />
