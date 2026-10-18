@@ -19,6 +19,10 @@ function prepareRegistrationRows(registrations) {
     const regDate = r.created_at ? new Date(r.created_at).toLocaleString('en-IN') : 'N/A';
     const regId = r.id || `REG-${index + 1}`;
 
+    const docUrl = r.document_url || r.team?.document_url || '';
+    const docName = r.document_name || r.team?.document_name || (docUrl ? 'Presentation Deck' : 'N/A');
+    const docType = r.document_type || r.team?.document_type || (docUrl ? 'PPTX/PDF' : 'N/A');
+
     return {
       'S.No': index + 1,
       'Registration ID': regId,
@@ -29,6 +33,10 @@ function prepareRegistrationRows(registrations) {
       'Competition': competition,
       'Team Name': teamName,
       'Team Code': teamCode,
+      'PPT Status': docUrl ? 'ATTACHED' : 'NOT UPLOADED',
+      'PPT File Name': docName,
+      'PPT File Type': docType,
+      'PPT URL': docUrl,
       'Experience Level': experience,
       'Status': status,
       'Registration Date': regDate,
@@ -60,6 +68,10 @@ export const exportService = {
       { wch: 20 },  // Arena
       { wch: 22 },  // Team
       { wch: 14 },  // Team Code
+      { wch: 18 },  // PPT Status
+      { wch: 32 },  // PPT File Name
+      { wch: 14 },  // PPT Type
+      { wch: 55 },  // PPT URL
       { wch: 18 },  // Experience
       { wch: 14 },  // Status
       { wch: 22 },  // Date

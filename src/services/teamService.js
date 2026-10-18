@@ -533,19 +533,39 @@ export const teamService = {
 
   async deleteTeamAdmin(teamId) {
     if (!isSupabaseConfigured) throw new Error('Supabase not configured.');
+    if (!teamId) throw new Error('Team ID is required.');
 
-    // 1. Delete associated registrations
+    // 1. Try atomic RPC
+    try {
+      const { data: rpcData, error: rpcError } = await supabase.rpc('delete_team_admin', {
+        p_team_id: teamId,
+      });
+      if (!rpcError && rpcData?.success) {
+        if (Array.isArray(rpcData.storage_paths) && rpcData.storage_paths.length > 0) {
+          await supabase.storage.from('submissions').remove(rpcData.storage_paths).catch(() => {});
+        }
+        return true;
+      }
+      if (rpcError && (rpcError.code === '42501' || rpcError.message?.toLowerCase().includes('access denied'))) {
+        throw new Error(rpcError.message || 'Access denied.');
+      }
+    } catch (err) {
+      if (err.message?.toLowerCase().includes('access denied')) throw err;
+      console.warn('teamService: RPC unavailable, using verified client sequence:', err.message);
+    }
+
+    // 2. Sequential fallback with verification
     await supabase.from('registrations').delete().eq('team_id', teamId).catch(() => {});
-
-    // 2. Delete team members
     await supabase.from('team_members').delete().eq('team_id', teamId).catch(() => {});
-
-    // 3. Delete submissions
     await supabase.from('submissions').delete().eq('team_id', teamId).catch(() => {});
 
-    // 4. Delete team
-    const { error } = await supabase.from('teams').delete().eq('id', teamId);
+    const { error } = await supabase.from('teams').delete().eq('id', teamId).select('id');
     if (error) throw error;
+
+    const { data: stillExists } = await supabase.from('teams').select('id, name').eq('id', teamId).maybeSingle();
+    if (stillExists) {
+      throw new Error(`Failed to delete team "${stillExists.name}". Database permissions prevented deletion.`);
+    }
 
     return true;
   },

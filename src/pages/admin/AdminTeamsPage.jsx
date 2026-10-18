@@ -21,6 +21,8 @@ import {
   Mail,
   Phone,
   FileText,
+  Download,
+  ExternalLink,
 } from 'lucide-react';
 
 export default function AdminTeamsPage() {
@@ -42,9 +44,13 @@ export default function AdminTeamsPage() {
   const [newTeamData, setNewTeamData] = useState({
     name: '',
     college: 'Rajkiya Engineering College Banda',
-    competition_id: '',
+    competition_id: 'c16ff34f-a8ca-4997-bfe9-50757ef3a451',
     description: '',
   });
+
+  // Dedicated in-app permanent delete confirmation modal
+  const [deleteConfirmTeam, setDeleteConfirmTeam] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [memberForm, setMemberForm] = useState({
     name: '',
@@ -145,7 +151,12 @@ export default function AdminTeamsPage() {
       }
       setEditTeamModal(null);
       setShowCreateTeam(false);
-      setNewTeamData({ name: '', college: 'Rajkiya Engineering College Banda', competition_id: '', description: '' });
+      setNewTeamData({
+        name: '',
+        college: 'Rajkiya Engineering College Banda',
+        competition_id: 'c16ff34f-a8ca-4997-bfe9-50757ef3a451',
+        description: '',
+      });
       await loadData();
     } catch (err) {
       showBanner(err.message || 'Operation failed.', 'error');
@@ -154,18 +165,30 @@ export default function AdminTeamsPage() {
     }
   };
 
-  const handleDeleteTeam = async (teamId, teamName) => {
-    if (!window.confirm(`Are you sure you want to permanently delete team "${teamName}"? This will also remove associated team members and event registrations.`)) {
-      return;
-    }
+  const handleRequestDeleteTeam = (team) => {
+    setDeleteConfirmTeam(team);
+  };
 
+  const handleConfirmDeleteTeam = async () => {
+    if (!deleteConfirmTeam) return;
+    const teamId = deleteConfirmTeam.id;
+    const teamName = deleteConfirmTeam.name;
+
+    setIsDeleting(true);
     try {
       await adminService.deleteTeamAdmin(teamId);
-      showBanner(`Team "${teamName}" deleted permanently.`);
+      // Optimistically update local state so team immediately vanishes from UI
+      setTeams((prev) => prev.filter((t) => t.id !== teamId));
       if (manageTeamModal?.id === teamId) setManageTeamModal(null);
+      setDeleteConfirmTeam(null);
+      showBanner(`Team "${teamName}" permanently deleted from database.`, 'success');
+      // Re-sync with backend to ensure exact consistency
       await loadData();
     } catch (err) {
-      showBanner(err.message || 'Failed to delete team.', 'error');
+      console.error('Failed to delete team:', err);
+      showBanner(err.message || 'Failed to delete team from database.', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -442,15 +465,73 @@ export default function AdminTeamsPage() {
                       👑 LEADER: <strong>{leader?.name || leader?.full_name || 'Assigned'}</strong> ({leader?.email || 'N/A'})
                     </div>
 
+                    {/* Attached Presentation Deck */}
+                    {(tm.document_url || tm.registration?.document_url) && (
+                      <div
+                        style={{
+                          background: 'rgba(17, 24, 39, 0.95)',
+                          border: '1px solid rgba(0, 217, 255, 0.25)',
+                          borderRadius: '4px',
+                          padding: '0.6rem 0.8rem',
+                          marginBottom: '0.85rem',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                          gap: '0.5rem',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <FileText size={16} color="var(--color-arc-blue)" />
+                          <div>
+                            <div style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 600, maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {tm.document_name || tm.registration?.document_name || 'Slide Deck'}
+                            </div>
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--color-stark-gold)' }}>
+                              FORMAT: {tm.document_type || tm.registration?.document_type || 'PPTX/PDF'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '0.35rem' }}>
+                          <a
+                            href={tm.document_url || tm.registration?.document_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="btn btn-secondary"
+                            style={{ padding: '0.2rem 0.45rem', fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                            title="Open presentation deck in new tab"
+                          >
+                            <ExternalLink size={11} />
+                            VIEW
+                          </a>
+                          <a
+                            href={tm.document_url || tm.registration?.document_url}
+                            download={tm.document_name || tm.registration?.document_name || 'presentation'}
+                            className="btn btn-secondary"
+                            style={{ padding: '0.2rem 0.45rem', fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                            title="Download presentation file"
+                          >
+                            <Download size={11} />
+                            GET
+                          </a>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Member Roster Preview */}
                     <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '0.75rem', marginBottom: '1rem' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                         <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-warm-amber)', fontWeight: 600 }}>
                           ROSTER ({memberCount} MEMBERS)
                         </span>
-                        {tm.registration?.document_url && (
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--color-arc-blue)' }}>
-                            📄 DECK ATTACHED
+                        {(tm.document_url || tm.registration?.document_url) ? (
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: '#34D399', fontWeight: 700 }}>
+                            ✓ PPT ATTACHED
+                          </span>
+                        ) : (
+                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                            NO PPT
                           </span>
                         )}
                       </div>
@@ -500,7 +581,7 @@ export default function AdminTeamsPage() {
                       <Edit size={14} />
                     </button>
                     <button
-                      onClick={() => handleDeleteTeam(tm.id, tm.name)}
+                      onClick={() => handleRequestDeleteTeam(tm)}
                       style={{
                         background: 'rgba(239, 68, 68, 0.15)',
                         border: '1px solid rgba(239, 68, 68, 0.4)',
@@ -575,6 +656,52 @@ export default function AdminTeamsPage() {
                   <X size={22} />
                 </button>
               </div>
+
+              {/* Attached Team Presentation / Proposal Deck */}
+              {(manageTeamModal.document_url || manageTeamModal.registration?.document_url) && (
+                <div style={{ background: '#111827', borderRadius: '6px', padding: '1rem', marginBottom: '1.25rem', border: '1px solid rgba(0, 217, 255, 0.25)' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-arc-blue)', fontWeight: 700, marginBottom: '0.6rem' }}>
+                    ATTACHED TEAM PRESENTATION / PROPOSAL DECK
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', background: 'rgba(0, 217, 255, 0.05)', padding: '0.75rem', borderRadius: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                      <FileText size={22} color="var(--color-arc-blue)" />
+                      <div>
+                        <div style={{ fontSize: '0.88rem', color: '#fff', fontWeight: 600 }}>
+                          {manageTeamModal.document_name || manageTeamModal.registration?.document_name || 'Team Presentation Deck'}
+                        </div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                          TYPE: {manageTeamModal.document_type || manageTeamModal.registration?.document_type || 'PPTX/PDF'}
+                          {(manageTeamModal.document_size || manageTeamModal.registration?.document_size) &&
+                            ` • ${((manageTeamModal.document_size || manageTeamModal.registration?.document_size) / (1024 * 1024)).toFixed(2)} MB`}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <a
+                        href={manageTeamModal.document_url || manageTeamModal.registration?.document_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}
+                      >
+                        <ExternalLink size={13} />
+                        VIEW DECK
+                      </a>
+                      <a
+                        href={manageTeamModal.document_url || manageTeamModal.registration?.document_url}
+                        download={manageTeamModal.document_name || manageTeamModal.registration?.document_name || 'team-presentation'}
+                        className="btn btn-secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}
+                      >
+                        <Download size={13} />
+                        DOWNLOAD
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Members List */}
               <div style={{ marginBottom: '1.5rem' }}>
@@ -841,7 +968,7 @@ export default function AdminTeamsPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '1rem' }}>
                 <button
                   type="button"
-                  onClick={() => handleDeleteTeam(manageTeamModal.id, manageTeamModal.name)}
+                  onClick={() => handleRequestDeleteTeam(manageTeamModal)}
                   style={{
                     background: 'rgba(239, 68, 68, 0.15)',
                     border: '1px solid rgba(239, 68, 68, 0.4)',
@@ -934,6 +1061,20 @@ export default function AdminTeamsPage() {
 
                 <div>
                   <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-stark-gold)', marginBottom: '0.35rem' }}>
+                    COMPETITION TRACK *
+                  </label>
+                  <select
+                    value={newTeamData.competition_id || 'c16ff34f-a8ca-4997-bfe9-50757ef3a451'}
+                    onChange={(e) => setNewTeamData({ ...newTeamData, competition_id: e.target.value })}
+                    style={{ width: '100%', padding: '0.65rem', background: '#111827', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff', fontSize: '0.9rem' }}
+                  >
+                    <option value="c16ff34f-a8ca-4997-bfe9-50757ef3a451">Hackathon (Team 3–4)</option>
+                    <option value="5a6cea4a-84bc-486b-b34c-afda79232c64">Ideathon (Team 3–4)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-stark-gold)', marginBottom: '0.35rem' }}>
                     DESCRIPTION / NOTES
                   </label>
                   <textarea
@@ -965,6 +1106,112 @@ export default function AdminTeamsPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* IN-APP CONFIRM PERMANENT DELETE MODAL                           */}
+        {/* ============================================================== */}
+        {deleteConfirmTeam && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.85)',
+              zIndex: 1100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '1rem',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            <div
+              style={{
+                background: '#161B22',
+                border: '1px solid rgba(239, 68, 68, 0.6)',
+                borderRadius: '8px',
+                width: '100%',
+                maxWidth: '480px',
+                padding: '1.75rem',
+                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(239, 68, 68, 0.2)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '1rem' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Trash2 size={20} color="#f87171" />
+                </div>
+                <div>
+                  <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', color: '#FFFFFF', margin: 0 }}>
+                    CONFIRM PERMANENT DELETION
+                  </h3>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#f87171', letterSpacing: '0.06em' }}>
+                    ADMINISTRATIVE ACTION • IRREVERSIBLE
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ background: '#0D1117', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', padding: '1rem', marginBottom: '1.25rem' }}>
+                <div style={{ fontSize: '0.88rem', color: '#FFFFFF', fontWeight: 600, marginBottom: '0.25rem' }}>
+                  Team: {deleteConfirmTeam.name} ({deleteConfirmTeam.code || 'NO CODE'})
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  Track: {deleteConfirmTeam.competition?.name || 'Hackathon'} • {deleteConfirmTeam.college || 'REC Banda'}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#ECBA82', fontFamily: 'var(--font-mono)', marginTop: '0.35rem' }}>
+                  Associated Members: {deleteConfirmTeam.members?.length || 0} registered participant(s)
+                </div>
+              </div>
+
+              <p style={{ color: '#E2E8F0', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+                Are you sure you want to delete this team? This operation permanently removes the team, all dependent roster members, and any associated event registrations or document submissions from the database.
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={isDeleting}
+                  onClick={() => setDeleteConfirmTeam(null)}
+                  style={{ fontSize: '0.82rem', padding: '0.55rem 1rem' }}
+                >
+                  CANCEL
+                </button>
+                <button
+                  type="button"
+                  disabled={isDeleting}
+                  onClick={handleConfirmDeleteTeam}
+                  style={{
+                    background: '#DC2626',
+                    border: '1px solid #EF4444',
+                    color: '#FFFFFF',
+                    borderRadius: '4px',
+                    padding: '0.55rem 1.1rem',
+                    fontSize: '0.82rem',
+                    fontFamily: 'var(--font-mono)',
+                    fontWeight: 700,
+                    cursor: isDeleting ? 'not-allowed' : 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    boxShadow: '0 0 15px rgba(220, 38, 38, 0.4)',
+                    opacity: isDeleting ? 0.7 : 1,
+                  }}
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      <span>DELETING FROM DATABASE...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 size={14} />
+                      <span>PERMANENTLY DELETE TEAM</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}

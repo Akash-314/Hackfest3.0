@@ -215,6 +215,7 @@ export default function Navbar() {
   // Drawer Group 1: Explore (One-page Shortcuts)
   const explorePages = [
     { label: 'Home', path: '/', sectionId: 'hero', icon: Home, tag: 'TOP' },
+    { label: 'My Registration', path: '/dashboard', icon: LayoutDashboard, tag: 'STATUS' },
     { label: 'About Event', path: '/#about', sectionId: 'about', icon: Info, tag: 'BRIEFING' },
     { label: 'Competitions', path: '/#competitions', sectionId: 'competitions', icon: Trophy, tag: 'ARENAS' },
     { label: 'Problem Statements', path: '/#problems', sectionId: 'problems', icon: Target, tag: 'TRACKS' },
@@ -384,11 +385,27 @@ export default function Navbar() {
             ) : (
               <div className="nav-auth-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <Link
-                  to="/login"
-                  className="nav-ref-pill-btn"
-                  aria-label="Sign In to HackFest 3.0"
+                  to="/dashboard"
+                  className="nav-ref-pill-btn nav-ref-pill-dash hidden-mobile"
+                  aria-label="Access My Registration and Team Dashboard"
+                  title="View My Registration & Team Status"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderColor: 'rgba(0, 217, 255, 0.35)',
+                    color: '#00D9FF',
+                  }}
                 >
-                  <span>SIGN IN</span>
+                  <span>MY REGISTRATION</span>
+                  <span className="nav-pill-arrow-circle" aria-hidden="true" style={{ background: '#00D9FF' }}>
+                    <LayoutDashboard size={12} color="#08090D" />
+                  </span>
+                </Link>
+                <Link
+                  to="/register"
+                  className="nav-ref-pill-btn"
+                  aria-label="Register Now for HackFest 3.0"
+                >
+                  <span>REGISTER NOW</span>
                   <span className="nav-pill-arrow-circle" aria-hidden="true">
                     <ArrowUpRight size={14} color="#08090D" strokeWidth={2.5} />
                   </span>
@@ -637,6 +654,24 @@ export default function Navbar() {
               </div>
               <div className="drawer-auth-actions" style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                 <Link
+                  to="/dashboard"
+                  onClick={() => setDrawerOpen(false)}
+                  className="btn btn-secondary"
+                  style={{
+                    padding: '0.75rem 1rem',
+                    fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    borderColor: 'rgba(0, 217, 255, 0.35)',
+                    color: '#00D9FF',
+                  }}
+                >
+                  <LayoutDashboard size={15} />
+                  <span>MY REGISTRATION / DASHBOARD</span>
+                </Link>
+                <Link
                   to="/register"
                   onClick={() => setDrawerOpen(false)}
                   className="btn btn-primary"
@@ -652,22 +687,6 @@ export default function Navbar() {
                   <Sparkles size={15} />
                   <span>REGISTER FOR HACKFEST</span>
                   <ArrowUpRight size={15} />
-                </Link>
-                <Link
-                  to="/login"
-                  onClick={() => setDrawerOpen(false)}
-                  className="btn btn-secondary"
-                  style={{
-                    padding: '0.7rem 1rem',
-                    fontSize: '0.82rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                  }}
-                >
-                  <LogIn size={15} />
-                  <span>SIGN IN</span>
                 </Link>
               </div>
             </div>

@@ -47,8 +47,8 @@ export default function AboutSection() {
           <h2 className="heading-section marvel-section-title">
             ABOUT HACKFEST 3.0
           </h2>
-          <p className="section-lead">
-            Organized by the <strong>Student Developer Club (SDC)</strong> at <strong>Rajkiya Engineering College, Banda</strong>, HackFest 3.0 is a premier college hackathon where creativity, passion, and engineering combine to build real-world solutions.
+          <p className="section-lead" style={{ maxWidth: '840px', lineHeight: '1.7', margin: '0 auto' }}>
+            HackFest 3.0 — Doomsday is REC Banda's two-day, offline technology event organized by the REC Banda Incubation Centre Foundation in collaboration with the Student Developer Club, REC Banda. Taking place on 1–2 November 2026, the event brings college students together across three competitions: Hackathon, Ideathon and Codeathon. Participants will tackle real-world challenges, present original ideas and demonstrate their problem-solving skills.
           </p>
         </div>
 

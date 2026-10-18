@@ -22,6 +22,7 @@ import {
   Info,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import { registrationService } from '../services/registrationService';
 import { eventService } from '../services/eventService';
 import { isDeadlineExpired } from '../utils/eventTime';
@@ -331,24 +332,23 @@ export default function RegisterPage() {
       return;
     }
 
-    if (!user) {
-      setError('Authentication required. Please sign in to submit your registration.');
-      navigate('/login', { state: { from: location } });
-      return;
-    }
-
     if (!agreeRules) {
       setError('You must accept the official rules and code of conduct to register.');
       return;
     }
 
-    // Leader validation
+    // Leader / Participant validation
     if (!leaderDetails.fullName.trim()) {
-      setError('Please provide the team leader / participant full name.');
+      setError('Please provide the full name for the participant / team leader.');
+      return;
+    }
+    const cleanLeaderEmail = (leaderDetails.email || user?.email || '').trim().toLowerCase();
+    if (!cleanLeaderEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanLeaderEmail)) {
+      setError('Please enter a valid email address.');
       return;
     }
     if (!leaderDetails.phone.trim() || !/^\+?[0-9\s-]{10,14}$/.test(leaderDetails.phone.trim())) {
-      setError('Please enter a valid 10-digit contact phone number for the team leader.');
+      setError('Please enter a valid 10-digit contact phone number.');
       return;
     }
 
@@ -369,7 +369,7 @@ export default function RegisterPage() {
       }
 
       // Validate all members
-      const emailSet = new Set([leaderDetails.email.trim().toLowerCase()]);
+      const emailSet = new Set([cleanLeaderEmail]);
       for (let i = 0; i < members.length; i++) {
         const m = members[i];
         if (!m.name.trim()) {
@@ -397,32 +397,77 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      let currentUser = user;
+      if (!currentUser) {
+        // Seamlessly authenticate participant directly with Supabase Auth
+        const participantPassword = `Hackfest3!${cleanLeaderEmail.replace(/[^a-zA-Z0-9]/g, '').slice(0, 16)}`;
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: cleanLeaderEmail,
+          password: participantPassword,
+          options: {
+            data: {
+              full_name: leaderDetails.fullName.trim(),
+              college: leaderDetails.college.trim(),
+              branch: leaderDetails.branch.trim(),
+              year: leaderDetails.year,
+              phone: leaderDetails.phone.trim(),
+              role: 'participant',
+            },
+          },
+        });
+
+        if (signUpError) {
+          if (signUpError.message?.toLowerCase().includes('already registered')) {
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email: cleanLeaderEmail,
+              password: participantPassword,
+            });
+            if (!signInError && signInData?.user) {
+              currentUser = signInData.user;
+            } else {
+              throw new Error(`The email "${cleanLeaderEmail}" is already registered. If this is your account, please verify your details.`);
+            }
+          } else {
+            throw new Error(signUpError.message || 'Failed to initialize participant profile.');
+          }
+        } else {
+          currentUser = signUpData.user;
+        }
+      }
+
+      if (!currentUser?.id) {
+        throw new Error('Unable to establish a secure participant session. Please try again.');
+      }
+
       const compId = currentComp.dbId || currentComp.id;
 
       if (isSoloCompetition) {
-        // Individual Registration (Codeathon)
+        // Individual Registration (Codeathon) - PPT upload is NOT required
         const reg = await registrationService.createRegistration({
-          userId: user.id,
+          userId: currentUser.id,
           competitionId: compId,
           problemCategoryId: problemCategory || null,
           experienceLevel: experience,
           notes: teamDescription,
-          email: leaderDetails.email,
-          documentFile: documentFile,
+          email: cleanLeaderEmail,
+          documentFile: documentFile || null,
         });
 
         setConfirmationData({
           type: 'individual',
           registration: reg,
           competition: currentComp,
-          leader: leaderDetails,
+          leader: {
+            ...leaderDetails,
+            email: cleanLeaderEmail,
+          },
           document: documentFile ? { name: documentFile.name, size: documentFile.size } : null,
         });
         setSubmitted(true);
       } else {
         // Consolidated Team Registration (Hackathon / Ideathon)
         const result = await registrationService.createConsolidatedTeamRegistration({
-          userId: user.id,
+          userId: currentUser.id,
           competitionId: compId,
           teamName: teamName.trim(),
           teamCollege: teamCollege.trim(),
@@ -430,7 +475,7 @@ export default function RegisterPage() {
           problemCategoryId: problemCategory || null,
           leaderDetails: {
             ...leaderDetails,
-            email: leaderDetails.email || user.email,
+            email: cleanLeaderEmail,
           },
           members: members.map((m) => ({
             name: m.name.trim(),
@@ -600,10 +645,10 @@ export default function RegisterPage() {
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link to="/dashboard/team" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Users size={16} />
-                VIEW TEAM IN DASHBOARD
+                VIEW MY TEAM
               </Link>
               <Link to="/dashboard/registration" className="btn btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                MY REGISTRATIONS
+                CHECK REGISTRATION STATUS
                 <ArrowUpRight size={16} />
               </Link>
             </div>
@@ -956,23 +1001,25 @@ export default function RegisterPage() {
 
               <div>
                 <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
-                  EMAIL ADDRESS (LOGGED IN) *
+                  {user ? 'EMAIL ADDRESS (LOGGED IN) *' : 'EMAIL ADDRESS *'}
                 </label>
                 <input
                   type="email"
                   required
-                  disabled
-                  value={leaderDetails.email || user?.email || ''}
+                  disabled={Boolean(user)}
+                  value={leaderDetails.email || (user?.email || '')}
+                  onChange={(e) => setLeaderDetails({ ...leaderDetails, email: e.target.value })}
+                  placeholder="e.g. participant@example.com"
                   style={{
                     width: '100%',
                     padding: '0.75rem',
-                    background: '#0d131f',
-                    border: '1px solid var(--border-subtle)',
+                    background: user ? '#0d131f' : '#111827',
+                    border: '1px solid ' + (user ? 'var(--border-subtle)' : 'var(--border-medium)'),
                     borderRadius: 'var(--radius-sm)',
-                    color: 'var(--color-arc-cyan)',
+                    color: user ? 'var(--color-arc-cyan)' : '#fff',
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.88rem',
-                    cursor: 'not-allowed',
+                    cursor: user ? 'not-allowed' : 'text',
                   }}
                 />
               </div>
@@ -1317,11 +1364,15 @@ export default function RegisterPage() {
                 {isSoloCompetition ? '3' : '5'}
               </span>
               <h3 className="heading-display" style={{ fontSize: '1.25rem', margin: 0, color: '#fff' }}>
-                IDEA PRESENTATION / SYNOPSIS (PPTX / PDF)
+                {isSoloCompetition || arena === 'codeathon'
+                  ? 'IDEA PRESENTATION / SYNOPSIS (OPTIONAL FOR CODEATHON)'
+                  : 'IDEA PRESENTATION / SYNOPSIS (PPTX / PDF)'}
               </h3>
             </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
-              Attach your preliminary slide deck, abstract, or synopsis (PPT, PPTX, or PDF, maximum 25MB). You can replace or update this document at any point before judging.
+              {isSoloCompetition || arena === 'codeathon'
+                ? 'Presentation upload is NOT required for Codeathon. You can submit your registration directly without uploading a file, or optionally attach synopsis notes (PPTX, PPT, or PDF, maximum 25MB).'
+                : 'Attach your preliminary slide deck, abstract, or synopsis (PPT, PPTX, or PDF, maximum 25MB). You can replace or update this document at any point before judging.'}
             </p>
 
             <input

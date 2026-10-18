@@ -1,27 +1,31 @@
 import React from 'react';
-import { Trophy, Medal, Award, Sparkles, CheckCircle2 } from 'lucide-react';
-import { prizesData } from '../data/eventData';
+import { Trophy, Medal, Sparkles, Clock } from 'lucide-react';
 import SuperheroPanel from './ui/SuperheroPanel';
 import HoloBadge from './ui/HoloBadge';
 
 export default function PrizesSection() {
-  const podiumWinners = [
-    {
-      place: '2ND PLACE',
-      title: '1ST RUNNER UP',
-      color: '#C7CED8',
-      variant: 'silver',
-      icon: Medal,
-      perks: ['Official Runner-up Trophy', 'Silver Medals', 'Certificates of Merit', 'Grand Rewards to be Announced'],
-    },
+  const placementCards = [
     {
       place: '1ST PLACE',
       title: 'CHAMPION',
       color: '#F5C451',
       variant: 'gold',
       icon: Trophy,
-      perks: ['Official Champion Trophy', 'Gold Medals', 'Certificates of Excellence', 'Grand Rewards to be Announced'],
       dominant: true,
+      badgeText: 'GRAND WINNER',
+      statusNotice: 'PRIZE DETAILS TO BE ANNOUNCED',
+      description: 'Official awards and grand recognition for the 1st place champions of HackFest 3.0 will be revealed in the official announcement.',
+    },
+    {
+      place: '2ND PLACE',
+      title: '1ST RUNNER UP',
+      color: '#C7CED8',
+      variant: 'silver',
+      icon: Medal,
+      dominant: false,
+      badgeText: 'RUNNER UP',
+      statusNotice: 'PRIZE DETAILS TO BE ANNOUNCED',
+      description: 'Official awards and recognition for the 1st runner-up contenders will be revealed in the official announcement.',
     },
     {
       place: '3RD PLACE',
@@ -29,7 +33,10 @@ export default function PrizesSection() {
       color: '#CD7F32',
       variant: 'red',
       icon: Medal,
-      perks: ['Official 2nd Runner-up Trophy', 'Bronze Medals', 'Certificates of Merit', 'Grand Rewards to be Announced'],
+      dominant: false,
+      badgeText: '2ND RUNNER UP',
+      statusNotice: 'PRIZE DETAILS TO BE ANNOUNCED',
+      description: 'Official awards and recognition for the 2nd runner-up contenders will be revealed in the official announcement.',
     },
   ];
 
@@ -45,12 +52,12 @@ export default function PrizesSection() {
           <h2 className="heading-section">
             EXCITING PRIZES AHEAD
           </h2>
-          <p className="section-lead">
+          <p className="section-lead" style={{ maxWidth: '720px', margin: '0 auto' }}>
             Exciting rewards for HackFest 3.0 winners are in the works. Stay tuned for the official announcement.
           </p>
         </div>
 
-        {/* 3-Tier Podium Grid */}
+        {/* 3 Placement Cards: 1ST PLACE, 2ND PLACE, 3RD PLACE */}
         <div
           className="prizes-podium-grid"
           style={{
@@ -58,32 +65,31 @@ export default function PrizesSection() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 310px), 1fr))',
             gap: '1.5rem',
             alignItems: 'stretch',
-            marginBottom: '3rem',
           }}
         >
-          {podiumWinners.map((winner) => {
-            const Icon = winner.icon;
+          {placementCards.map((card) => {
+            const Icon = card.icon;
             return (
               <SuperheroPanel
-                key={winner.place}
-                variant={winner.variant}
-                tag={winner.place}
-                issueNumber={winner.title}
-                className={`podium-card ${winner.dominant ? 'dominant-podium' : ''}`}
-                style={winner.dominant ? { borderColor: 'rgba(245, 196, 81, 0.35)', background: 'rgba(255, 255, 255, 0.055)' } : {}}
+                key={card.place}
+                variant={card.variant}
+                tag={card.place}
+                issueNumber={card.badgeText}
+                className={`podium-card ${card.dominant ? 'dominant-podium' : ''}`}
+                style={card.dominant ? { borderColor: 'rgba(245, 196, 81, 0.4)', background: 'rgba(255, 255, 255, 0.055)' } : {}}
               >
                 <div style={{ display: 'flex', flexDirection: 'column', height: '100%', textAlign: 'center', alignItems: 'center' }}>
                   <div
                     style={{
-                      width: 52,
-                      height: 52,
+                      width: 54,
+                      height: 54,
                       borderRadius: '50%',
-                      background: `${winner.color}18`,
-                      border: `1px solid ${winner.color}45`,
+                      background: `${card.color}18`,
+                      border: `1px solid ${card.color}45`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: winner.color,
+                      color: card.color,
                       marginBottom: '1rem',
                     }}
                   >
@@ -93,127 +99,64 @@ export default function PrizesSection() {
                   <span
                     style={{
                       fontFamily: 'var(--font-mono)',
-                      fontSize: '0.78rem',
-                      color: winner.color,
+                      fontSize: '0.8rem',
+                      color: card.color,
                       letterSpacing: '0.12em',
                       fontWeight: 700,
                       marginBottom: '0.35rem',
                     }}
                   >
-                    {winner.place}
+                    {card.place}
                   </span>
 
                   <h3
                     style={{
                       fontFamily: 'var(--font-heading)',
-                      fontSize: '1.6rem',
+                      fontSize: '1.65rem',
                       color: '#F5F5F7',
-                      marginBottom: '1.4rem',
+                      marginBottom: '1.1rem',
                       letterSpacing: '0.02em',
                     }}
                   >
-                    {winner.title}
+                    {card.title}
                   </h3>
 
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%', textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                    {winner.perks.map((perk, pIdx) => (
-                      <li
-                        key={pIdx}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.6rem',
-                          color: '#A1A6B3',
-                          fontSize: '0.88rem',
-                        }}
-                      >
-                        <CheckCircle2 size={15} color={winner.color} style={{ flexShrink: 0 }} />
-                        <span>{perk}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      background: 'rgba(255, 255, 255, 0.04)',
+                      border: `1px solid ${card.color}35`,
+                      borderRadius: '4px',
+                      padding: '0.35rem 0.75rem',
+                      color: card.color,
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.74rem',
+                      letterSpacing: '0.06em',
+                      fontWeight: 600,
+                      marginBottom: '1.25rem',
+                    }}
+                  >
+                    <Clock size={13} />
+                    <span>{card.statusNotice}</span>
+                  </div>
+
+                  <p
+                    style={{
+                      color: '#94A3B8',
+                      fontSize: '0.88rem',
+                      lineHeight: '1.6',
+                      margin: 0,
+                    }}
+                  >
+                    {card.description}
+                  </p>
                 </div>
               </SuperheroPanel>
             );
           })}
         </div>
-
-        {/* 3 Arenas Category Breakdown */}
-        {Array.isArray(prizesData.arenas) && prizesData.arenas.length > 0 && (
-          <div style={{ marginTop: '2rem' }}>
-            <h3
-              style={{
-                fontFamily: 'var(--font-heading)',
-                fontSize: '1.35rem',
-                color: '#F5F5F7',
-                marginBottom: '1.25rem',
-                textAlign: 'center',
-                letterSpacing: '0.04em',
-              }}
-            >
-              ARENA PRIZE BREAKDOWN
-            </h3>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
-                gap: '1.25rem',
-              }}
-            >
-              {prizesData.arenas.map((arena) => (
-                <div
-                  key={arena.arenaId}
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.035)',
-                    backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(255, 255, 255, 0.06)',
-                    borderRadius: '10px',
-                    padding: '1.25rem',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                    <span style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', color: '#F5F5F7', fontWeight: 600 }}>
-                      {arena.arenaName}
-                    </span>
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '0.72rem',
-                        color: '#63E6D1',
-                        background: 'rgba(99, 230, 209, 0.08)',
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '4px',
-                      }}
-                    >
-                      {arena.subtitle}
-                    </span>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {arena.rewards?.map((r, rIdx) => (
-                      <div
-                        key={rIdx}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          fontSize: '0.84rem',
-                          color: '#A1A6B3',
-                          borderBottom: rIdx < arena.rewards.length - 1 ? '1px solid rgba(255, 255, 255, 0.04)' : 'none',
-                          paddingBottom: '0.4rem',
-                        }}
-                      >
-                        <span style={{ color: '#F5F5F7', fontWeight: 500 }}>{r.position}</span>
-                        <span style={{ fontFamily: 'var(--font-mono)', color: '#C7CED8' }}>{r.details || r.amount}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );

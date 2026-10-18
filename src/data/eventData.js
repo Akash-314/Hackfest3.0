@@ -9,13 +9,13 @@
 export const eventMeta = {
   name: "HACKFEST 3.0",
   edition: "3.0",
-  organizer: "Student Developer Club",
+  organizer: "REC Banda Incubation Centre Foundation in collaboration with Student Developer Club",
   institution: "Rajkiya Engineering College Banda",
   institutionShort: "REC Banda",
   tagline: "THE WORLD IS CHANGING. BUILD WHAT COMES NEXT.",
   theme: "Doomsday Disruption & Rebuilding the Future",
-  dates: "OCTOBER 2026", // Configurable event dates
-  datesDisplay: "2 DAYS OF HIGH-IMPACT COMPUTING",
+  dates: "1–2 NOVEMBER 2026",
+  datesDisplay: "1–2 NOVEMBER 2026 • 2 DAYS OF HIGH-IMPACT COMPUTING",
   venue: "Multipurpose Hall, REC Banda Campus, Atarra, Banda (U.P.)",
   venueShort: "Multipurpose Hall, REC Banda",
   eligibility: "Open to student developers, designers, thinkers, and engineers across all recognized institutions.",
@@ -568,105 +568,28 @@ export const howItWorks = {
 
 export const prizesData = {
   sectionTitle: "EXCITING PRIZES AHEAD",
-  subtitle: "We're preparing exciting rewards for the HackFest 3.0 winners. Stay tuned for the official prize announcement.",
+  subtitle: "Exciting rewards for HackFest 3.0 winners are in the works. Stay tuned for the official announcement.",
   statusBadge: "PRIZES — TO BE ANNOUNCED",
-  note: "Official trophies, medals, certificates of excellence, and curated prize bundles awarded across all three competitions.",
-  arenas: [
-    {
-      arenaId: "hackathon",
-      arenaName: "FLAGSHIP HACKATHON",
-      tagline: "BUILD WHAT COMES NEXT",
-      subtitle: "TO BE ANNOUNCED",
-      rewards: [
-        { position: "1ST PLACE", details: "Official Champion Trophy, Gold Medals & Grand Prize Package" },
-        { position: "2ND PLACE", details: "Official Runner-up Trophy, Silver Medals & Prize Package" },
-        { position: "3RD PLACE", details: "Official 2nd Runner-up Trophy, Bronze Medals & Prize Package" }
-      ]
-    },
-    {
-      arenaId: "codeathon",
-      arenaName: "CODEATHON",
-      tagline: "THINK FAST. CODE SMART.",
-      subtitle: "TO BE ANNOUNCED",
-      rewards: [
-        { position: "1ST PLACE", details: "Codeathon Champion Trophy, Gold Medal & Prize Package" },
-        { position: "2ND PLACE", details: "Runner-up Medal, Merit Certificate & Prize Package" },
-        { position: "3RD PLACE", details: "Bronze Medal, Merit Certificate & Prize Package" }
-      ]
-    },
-    {
-      arenaId: "ideathon",
-      arenaName: "IDEATHON",
-      tagline: "ONE IDEA. ONE PITCH.",
-      subtitle: "TO BE ANNOUNCED",
-      rewards: [
-        { position: "1ST PLACE", details: "Innovation Champion Trophy, Gold Medal & Prize Package" },
-        { position: "2ND PLACE", details: "Runner-up Medal, Merit Certificate & Prize Package" },
-        { position: "3RD PLACE", details: "Bronze Medal, Merit Certificate & Prize Package" }
-      ]
-    }
-  ]
+  note: "Official recognition and awards will be presented to the top teams across all three competitions.",
+  arenas: []
 };
 
 export const mentorsAndJudges = {
-  mentors: [
-    {
-      id: "m1",
-      name: "Senior Tech Mentor 01",
-      designation: "Systems & Cloud Architect",
-      expertise: "Distributed Systems & Cloud Computing",
-      bio: "Guiding teams on scalable backend architecture, microservices, and database resilience."
-    },
-    {
-      id: "m2",
-      name: "Senior Tech Mentor 02",
-      designation: "Applied AI Engineer",
-      expertise: "Machine Learning & Edge Compute",
-      bio: "Assisting teams with neural model deployment, data preprocessing, and edge inferencing."
-    },
-    {
-      id: "m3",
-      name: "Senior Tech Mentor 03",
-      designation: "Full Stack Lead",
-      expertise: "Frontend Architecture & API Design",
-      bio: "Assisting teams in rapid UI prototyping, WebSockets, and seamless user interaction design."
-    },
-    {
-      id: "m4",
-      name: "Senior Tech Mentor 04",
-      designation: "Hardware & IoT Specialist",
-      expertise: "Embedded Systems & Microcontrollers",
-      bio: "Advising on hardware interfaces, sensor telemetry, and reliable low-power protocols."
-    }
-  ],
+  mentors: [],
   judges: [
     {
       id: "j1",
       name: "Dr. Vibhash Yadav",
       designation: "HOD IT",
       organization: "Department of Information Technology, REC Banda",
-      bio: "Guiding academic and industrial technology excellence across computing disciplines."
+      bio: "Guiding academic and technological excellence across computing and engineering disciplines."
     },
     {
       id: "j2",
       name: "Dr. Abhijeet Singh",
       designation: "Faculty Coordinator",
       organization: "REC Banda",
-      bio: "Leading software development and student technological initiatives at REC Banda."
-    },
-    {
-      id: "j3",
-      name: "Industry Guest Jury 01",
-      designation: "Engineering Director",
-      organization: "Enterprise Tech Partner",
-      bio: "Evaluating technical depth, practical feasibility, and enterprise readiness."
-    },
-    {
-      id: "j4",
-      name: "Industry Guest Jury 02",
-      designation: "Product & Strategy Specialist",
-      organization: "Global Technology Ecosystem",
-      bio: "Reviewing usability, scalability potential, and presentation impact."
+      bio: "Leading software engineering education, student innovation, and developer initiatives at REC Banda."
     }
   ]
 };

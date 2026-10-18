@@ -112,7 +112,12 @@ export default function AdminSubmissionsPage() {
 
     setDocLoading(true);
     try {
-      await adminService.replaceSubmissionDocumentAdmin(subId, file);
+      const targetSub = submissions.find((s) => s.id === subId);
+      if (targetSub?.is_registration_deck && targetSub?.registration_id) {
+        await adminService.replaceRegistrationDocumentAdmin(targetSub.registration_id, file);
+      } else {
+        await adminService.replaceSubmissionDocumentAdmin(subId, file);
+      }
       showBanner(`Document "${file.name}" uploaded successfully!`);
       await loadData();
     } catch (err) {
@@ -129,7 +134,12 @@ export default function AdminSubmissionsPage() {
 
     setDocLoading(true);
     try {
-      await adminService.deleteSubmissionDocumentAdmin(subId);
+      const targetSub = submissions.find((s) => s.id === subId);
+      if (targetSub?.is_registration_deck && targetSub?.registration_id) {
+        await adminService.deleteRegistrationDocumentAdmin(targetSub.registration_id);
+      } else {
+        await adminService.deleteSubmissionDocumentAdmin(subId);
+      }
       showBanner('Document attachment removed.');
       await loadData();
     } catch (err) {
@@ -362,9 +372,27 @@ export default function AdminSubmissionsPage() {
                   <div>
                     {/* Header */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                      <span className="chapter-badge" style={{ margin: 0, fontSize: '0.68rem' }}>
-                        {sub.competition?.name || 'HACKATHON'}
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <span className="chapter-badge" style={{ margin: 0, fontSize: '0.68rem' }}>
+                          {sub.competition?.name || 'HACKATHON'}
+                        </span>
+                        {sub.is_registration_deck && (
+                          <span
+                            style={{
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '0.65rem',
+                              color: '#34D399',
+                              background: 'rgba(52, 211, 153, 0.15)',
+                              border: '1px solid rgba(52, 211, 153, 0.35)',
+                              padding: '0.1rem 0.4rem',
+                              borderRadius: '3px',
+                              fontWeight: 700,
+                            }}
+                          >
+                            REGISTRATION DECK
+                          </span>
+                        )}
+                      </div>
                       <span
                         style={{
                           fontFamily: 'var(--font-mono)',
@@ -398,24 +426,44 @@ export default function AdminSubmissionsPage() {
                     <div style={{ background: 'rgba(17, 24, 39, 0.95)', border: '1px solid rgba(0, 217, 255, 0.15)', borderRadius: '4px', padding: '0.65rem 0.85rem', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <FileText size={16} color="var(--color-arc-blue)" />
-                        <span style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 600 }}>
-                          {sub.document_url ? 'Presentation Deck Attached' : 'No Document Attached'}
-                        </span>
+                        <div>
+                          <div style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 600 }}>
+                            {sub.document_name || (sub.document_url ? 'Presentation Deck Attached' : 'No Document Attached')}
+                          </div>
+                          {sub.document_type && (
+                            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--color-stark-gold)' }}>
+                              FORMAT: {sub.document_type}
+                              {sub.document_size && ` • ${(sub.document_size / (1024 * 1024)).toFixed(2)} MB`}
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div style={{ display: 'flex', gap: '0.35rem' }}>
                         {sub.document_url && (
-                          <a
-                            href={sub.document_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="btn btn-secondary"
-                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
-                            title="Open presentation deck"
-                          >
-                            <ExternalLink size={12} />
-                            OPEN
-                          </a>
+                          <>
+                            <a
+                              href={sub.document_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="btn btn-secondary"
+                              style={{ padding: '0.25rem 0.5rem', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                              title="Open presentation deck"
+                            >
+                              <ExternalLink size={12} />
+                              OPEN
+                            </a>
+                            <a
+                              href={sub.document_url}
+                              download={sub.document_name || 'presentation'}
+                              className="btn btn-secondary"
+                              style={{ padding: '0.25rem 0.5rem', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                              title="Download presentation deck"
+                            >
+                              <Download size={12} />
+                              GET
+                            </a>
+                          </>
                         )}
                         <button
                           type="button"
