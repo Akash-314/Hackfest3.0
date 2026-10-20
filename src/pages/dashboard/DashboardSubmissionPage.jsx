@@ -6,7 +6,6 @@ import { teamService } from '../../services/teamService';
 import { eventService } from '../../services/eventService';
 import { isDeadlineExpired } from '../../utils/eventTime';
 import { CheckCircle2, AlertCircle, Loader2, ExternalLink, Video, Lock, FileText, Info } from 'lucide-react';
-import { problemCategories } from '../../data/eventData';
 
 const GithubIcon = ({ size = 18, color = 'var(--color-soft-gray)' }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -19,6 +18,7 @@ export default function DashboardSubmissionPage() {
   const { user, isConfigured } = useAuth();
   const [submissions, setSubmissions] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [eventSettings, setEventSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,14 +41,16 @@ export default function DashboardSubmissionPage() {
   const loadData = async () => {
     if (!user) return;
     try {
-      const [subs, tms, settings] = await Promise.all([
+      const [subs, tms, settings, cats] = await Promise.all([
         submissionService.getUserSubmissions(user.id),
         teamService.getUserTeams(user.id),
         eventService.getSettings(),
+        eventService.getProblemCategories().catch(() => []),
       ]);
       setSubmissions(subs);
       setTeams(tms);
       if (settings) setEventSettings(settings);
+      if (cats) setCategories(cats);
 
       if (subs.length > 0) {
         const first = subs[0];
@@ -286,9 +288,9 @@ export default function DashboardSubmissionPage() {
                 style={{ width: '100%', padding: '0.75rem 1rem', background: '#111827', border: '1px solid var(--border-medium)', borderRadius: 'var(--radius-sm)', color: 'var(--color-warm-off-white)', fontSize: '0.92rem' }}
               >
                 <option value="">Select Crisis Problem Statement Track</option>
-                {problemCategories.map((cat) => (
+                {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
-                    Track {cat.number} — {cat.theme}
+                    Track {cat.number} — {cat.title || cat.theme}
                   </option>
                 ))}
               </select>

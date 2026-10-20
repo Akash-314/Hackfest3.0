@@ -98,7 +98,8 @@ export const competitions = [
       "Strict 1.5 hours (90 minutes) window. Timers start simultaneously for all participants.",
       "All submissions must pass automated test vectors within prescribed execution time and memory limits.",
       "Plagiarism checks are executed post-contest; identical logic or unauthorized assistance results in immediate disqualification.",
-      "Standard programming languages supported: C++, Java, Python, and C.",
+      "Standard programming languages supported: C, C++, Java, Python, and JavaScript.",
+      "A presentation PPT is NOT required for Codeathon. Ranking is determined purely by problems solved, time taken, and submission penalties.",
       "Any form of external communication or tab-switching outside the testing platform is logged and strictly barred."
     ],
     resultCriteria: {
@@ -185,11 +186,13 @@ export const competitions = [
     fullOverview: "In a world destabilized by rapid shifts, the Hackathon is where engineers stand up and rebuild. Spanning Day 2 in full force, teams select one of 6 official crisis categories announced at the event. Through dedicated mentoring touchpoints and rigorous live testing, participants transform abstract concepts into deployable code, responsive web apps, AI systems, and hardware integrations.",
     rules: [
       "Team size: 3 to 4 registered participants (Leader + 2 to 3 members). Cross-year and inter-departmental teams are encouraged.",
+      "Two-round format: Round 1 – Idea Pitching / Shortlisting round, followed by Round 2 – Project Building for shortlisted teams on Day 2.",
+      "The presentation PPT must contain a maximum of 6 to 7 pages. Each team delivers a 5-minute pitch followed by 2 minutes of judge Q&A unless different timings are announced.",
       "All code and project repositories must be started afresh during HackFest 3.0. Open-source libraries and APIs are permitted with clear attribution.",
-      "Teams must pick exactly one of the 6 official problem categories.",
+      "Teams must pick exactly one of the 6 official problem categories revealed from the database.",
       "Attendance at mandatory mentoring rounds is required for qualification to final judging.",
       "All repositories must contain a comprehensive README, setup instructions, and architecture breakdown prior to final submission cutoff.",
-      "Final presentations require a live, functioning prototype demonstration on stage in the Multipurpose Hall."
+      "Final presentations require a live, functioning prototype demonstration on stage."
     ],
     judgingCriteria: [
       { criterion: "PROBLEM UNDERSTANDING", weight: "TO BE DECIDED" },
@@ -596,37 +599,50 @@ export const mentorsAndJudges = {
 
 export const rulesData = [
   {
-    category: "Participation",
+    category: "General & Participation",
     rules: [
-      "Open to bona fide undergraduate and postgraduate students from any recognized institution.",
-      "Valid college identity card or bonafide certificate is required during on-campus physical verification.",
-      "Participants must adhere to the Student Developer Club Code of Conduct throughout the event."
+      "Open to college students from any recognized institution.",
+      "All participants must carry the valid college ID card of their own institution. Registration and ID are verified at check-in before each competition.",
+      "Participants must maintain discipline inside the venue and campus, and follow the event code of conduct and instructions of organizers and volunteers.",
+      "Judges' decisions will be final and binding on all participants.",
+      "Participants should bring and use their own laptops, chargers, and development resources unless otherwise specified."
     ]
   },
   {
-    category: "Team Regulations",
+    category: "Eligibility & Teams",
     rules: [
-      "Hackathon teams must consist of 2 to 4 members.",
-      "Ideathon teams must consist of 1 to 3 members.",
-      "Codeathon is strictly an individual competition.",
+      "The Hackathon and Ideathon are team events requiring 3 to 4 members (1 leader + 2 to 3 teammates) under the active approved configuration.",
+      "Team members may come from the same college or from different outside colleges.",
+      "The Codeathon is strictly an individual event — no teamwork or collaboration allowed during the contest.",
       "Team composition cannot be altered once registration has officially closed."
     ]
   },
   {
-    category: "Originality & Integrity",
+    category: "Competition Protocols & Originality",
     rules: [
-      "All hackathon code must be authored afresh during the designated competition hours.",
-      "Utilizing pre-existing complete applications or presenting past projects is grounds for immediate disqualification.",
-      "Open source third-party packages, libraries, and frameworks are allowed if documented in the repository.",
-      "Generative AI tools may be used as development assistants for debugging or boilerplate generation, but fundamental system architecture and application logic must be understood and defensible by the team."
+      "Hackathon (Day 2): Two rounds — idea pitching / PPT shortlisting round (max 6–7 pages PPT, 5-minute pitch + 2-minute Q&A) followed by Day 2 project building.",
+      "Ideathon (Day 1): Single pitch round after lunch. Teams present problem, solution, uniqueness, feasibility, and impact before the jury.",
+      "Codeathon (Day 1): 1.5-hour timed algorithmic contest. Supported languages: C, C++, Java, Python, JavaScript. Live leaderboard ranking based on problems solved, time taken, and penalties. A PPT is NOT required.",
+      "All project and idea submissions must be original and created during the event. Use of pre-existing completed projects or plagiarism leads to immediate disqualification.",
+      "External APIs, frameworks, and open-source libraries are permitted with proper attribution."
     ]
   },
   {
-    category: "Submission Protocols",
+    category: "Accommodation & Logistics",
     rules: [
-      "Submissions must be delivered to the official portal prior to the hard deadline timer.",
-      "Every Hackathon submission must include a public Git repository with a clear README, setup guide, and architectural breakdown.",
-      "Late submissions will not be entertained under any circumstance."
+      "Accommodation is provided for participants coming from outside REC Banda. College ID verification is mandatory at check-in.",
+      "Only accommodation is provided; participants are responsible for arranging their own meals, which can be purchased from the college canteen.",
+      "On-ground support includes a registration desk, technical assistance, power and Wi-Fi arrangements, and volunteers for logistics, issue reporting, and time announcements."
+    ]
+  },
+  {
+    category: "Disqualification Criteria",
+    rules: [
+      "Plagiarism or submission of previously made projects.",
+      "Misconduct or violation of venue or accommodation rules.",
+      "Unauthorised collaboration or helping other teams.",
+      "Not following time limits or submission format.",
+      "Providing false information or a fake/invalid college ID during registration or check-in."
     ]
   }
 ];
@@ -634,43 +650,43 @@ export const rulesData = [
 export const faqsData = [
   {
     q: "Who can participate in HackFest 3.0?",
-    a: "HackFest 3.0 is open to all students currently enrolled in undergraduate or postgraduate programs across engineering, science, design, and management disciplines."
+    a: "HackFest 3.0 is open to college students. Participants must register through the official registration process and carry a valid college ID card from their institution for verification."
   },
   {
     q: "What is the team size for each event?",
-    a: "Hackathon: 2 to 4 members per team. Ideathon: 1 to 3 members per team. Codeathon: strictly individual participation."
+    a: "The Codeathon is strictly an individual event. Hackathon and Ideathon are team events requiring 3 to 4 members (1 leader + 2 to 3 teammates) under the committee-approved active configuration. (Note: The rulebook notes 4 members in specific contest sections; our active registration accommodates 3 to 4 members)."
   },
   {
-    q: "How many problem categories exist for the Hackathon?",
-    a: "There are exactly six multi-disciplinary crisis problem categories. Teams select one category at the start of Day 2 to focus their solution."
+    q: "Is a PPT presentation required for Codeathon?",
+    a: "No. A presentation PPT is strictly NOT required for Codeathon. It is an individual 1.5-hour competitive algorithmic contest evaluated via real-time leaderboard ranking."
   },
   {
-    q: "What is the duration of the Hackathon?",
-    a: "The main Hackathon takes place on Day 2, spanning intense development sprints, scheduled mentoring rounds, and live evening presentations."
+    q: "What are the presentation PPT requirements for Hackathon?",
+    a: "For the Hackathon idea-pitching round, the presentation PPT must contain a maximum of 6 to 7 pages. During pitching, each team delivers a 5-minute pitch followed by 2 minutes of judge Q&A."
   },
   {
-    q: "What is the Codeathon duration and format?",
-    a: "The Codeathon is a 1.5-hour (90 minutes) competitive coding contest hosted on a dedicated algorithmic platform with real-time ranking."
+    q: "When and where do the competitions take place?",
+    a: "HackFest 3.0 is an offline event held at REC Banda on 1–2 November 2026. Opening venue is Seminar Hall (SAC). Day 1 features Codeathon (1.5 hours) and Ideathon (single pitch round after lunch). Day 2 features the Hackathon build sprint, mentoring, live demos, and closing ceremony."
   },
   {
-    q: "How does the Ideathon work?",
-    a: "The Ideathon features a single high-impact pitching round where teams present an original tech solution followed by an intense Q&A defense with the jury."
+    q: "What programming languages are supported in Codeathon?",
+    a: "The official languages allowed for the Codeathon are C, C++, Java, Python, and JavaScript."
   },
   {
-    q: "How are projects evaluated?",
-    a: "Projects are evaluated by a multidisciplinary jury panel against strict criteria: problem understanding, solution quality, innovation, technical depth, functionality, scalability, and live demo."
+    q: "Is accommodation and food provided?",
+    a: "Accommodation will be provided to all participants coming from outside REC Banda upon verification of their college ID. Only accommodation is provided; participants arrange their own meals, which can be purchased from the college canteen."
   },
   {
     q: "What should participants bring to the venue?",
-    a: "Participants should bring their laptops, chargers, extension cords, any required hardware components/microcontrollers, student ID cards, and personal essentials."
+    a: "Participants should bring and use their own laptops, chargers, extension cords, valid college ID cards, and any necessary development resources."
   },
   {
-    q: "Can participants join more than one competition?",
-    a: "Yes! Since Codeathon and Ideathon take place on Day 1 and the Flagship Hackathon takes place on Day 2, eligible participants may participate across different tracks provided their schedules do not directly conflict."
+    q: "How are projects and competitions evaluated?",
+    a: "Hackathon is evaluated on 9 criteria (Problem Understanding, Quality of Solution, Innovation, Technical Implementation, Functionality, Usability & Feasibility, Impact, Scalability, Presentation & Demo). Ideathon is evaluated on 8 criteria (Problem Identification, Originality, Solution Approach, Feasibility, Impact, Scalability, Presentation, Q&A/Defense). Codeathon is ranked by problems solved, time taken, and wrong submission penalties."
   },
   {
-    q: "How do I register for HackFest 3.0?",
-    a: "Registrations can be completed through the registration portal by clicking the 'REGISTER NOW' buttons on this website. Early registration is recommended as seat caps apply."
+    q: "What actions can lead to disqualification?",
+    a: "Immediate disqualification may result from plagiarism or using pre-existing projects, misconduct, unauthorized collaboration, failing to follow time limits or formats, or providing false registration information or an invalid college ID."
   }
 ];
 

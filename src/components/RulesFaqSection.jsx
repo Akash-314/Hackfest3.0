@@ -18,69 +18,113 @@ import HoloBadge from './ui/HoloBadge';
 
 export const rulebookCategories = [
   {
+    id: 'overview',
+    title: 'Event at a Glance',
+    rules: [
+      'Event: HackFest 3.0 — Doomsday, organized by the REC Banda Incubation Centre Foundation in collaboration with the Student Developer Club, REC Banda.',
+      'Dates & Mode: 1st & 2nd November 2026 (Sunday & Monday), Offline on-campus at REC Banda.',
+      'Events: Hackathon (Team Event), Ideathon (Team Event), and Codeathon (Individual Event).',
+      'Opening Venue: Seminar Hall (SAC), REC Banda. General Venue: Seminar Hall (SAC) and Computer Centre (CC), REC Banda.',
+      'Day 1 (Sunday, 1 Nov 2026): Opening Ceremony, Codeathon (1.5 hours), Ideathon (single pitch round).',
+      'Day 2 (Monday, 2 Nov 2026): Hackathon with mentoring and final presentations, Grand Result Announcement, awards and closing ceremony.',
+    ],
+  },
+  {
     id: 'general',
     title: 'General Rules',
     rules: [
-      'Register using the official event registration process.',
-      'Carry a valid college identity card for on-campus verification.',
-      'Maintain discipline and follow campus and event committee instructions.',
-      'Plagiarism, unfair means, and unauthorized collaboration are grounds for immediate disqualification.',
-      'The decisions of the judging panel and organizing committee are final and binding.',
-      'Bring your own laptop, charger, and necessary development resources unless otherwise specified.',
+      'Participants must register before the given deadline through the official HackFest 3.0 registration form.',
+      'All participants must carry the valid college ID card of their own institution. Registration and ID are verified at check-in before each competition.',
+      'Use of unfair means or plagiarism will lead to immediate disqualification.',
+      'Participants must maintain discipline inside the venue and the campus, and follow the event code of conduct and instructions of organizers and volunteers.',
+      'Judges\' decisions will be final and binding.',
+      'Participants should bring and use their own laptops, chargers, and development resources unless otherwise specified.',
+      'Reporting times, venues, platform links, submission methods, and deadlines will be shared with registered teams through WhatsApp groups, emails, and official social media handles.',
+    ],
+  },
+  {
+    id: 'eligibility',
+    title: 'Eligibility, Teams & Registration',
+    rules: [
+      'The Hackathon and the Ideathon are team events. Team members may come from the same college or from different outside colleges.',
+      'The Codeathon is strictly an individual event.',
+      'The registration form asks for the team name, member details (including college name), contact information of the team lead, previous hackathon experience (if any), and tech stack and required resources.',
+      'Presentation PPT: Teams must submit their PPT on or before the announced deadline. Shortlisted teams will be announced prior to the event. The submission link and format will be shared with registered teams.',
+      'Only accommodation will be provided. Participants are responsible for arranging their own meals, which can be purchased from the college canteen.',
     ],
   },
   {
     id: 'hackathon',
-    title: 'Hackathon',
+    title: 'Hackathon Rules (Team Event)',
     rules: [
-      'The Hackathon takes place on Day 2, Monday, 2 November 2026.',
-      'Teams work on selected problem statements and build their solutions during the event.',
-      'Previously completed projects must not be presented as newly developed work.',
-      'The rulebook specifies a PPT of 6–7 pages and a 5-minute pitch followed by 2 minutes of Q&A, unless different timings are officially announced.',
-      'External APIs, frameworks, and open-source libraries are allowed with clear attribution.',
-      'Final submission instructions and deadlines must be taken from the currently approved event configuration.',
+      'Held on Day 2 (Monday, 2nd November 2026).',
+      'The Hackathon has 2 rounds: Round 1 – Idea Pitching / Shortlisting and Round 2 – Project Building (shortlisted teams build on Day 2).',
+      'At the start of Day 2, teams will begin working on their pre-selected problem statements from one of the six categories.',
+      'Detailed problem statements will be shared with registered teams in advance.',
+      'Projects must be developed only during the event. All work must be original; use of pre-existing projects is prohibited.',
+      'The presentation PPT must contain a maximum of 6 to 7 pages.',
+      'Each team delivers a 5-minute pitch + 2-minute Q&A in front of the judges, unless different timings are announced.',
+      'Use of external APIs, frameworks, and open-source libraries is allowed with proper attribution.',
+      'The submission format and final submission deadline (2nd November 2026) will be communicated to all teams before the event.',
     ],
   },
   {
     id: 'ideathon',
-    title: 'Ideathon',
+    title: 'Ideathon Rules (Team Event)',
     rules: [
-      'The Ideathon is a single pitch round on Day 1, Sunday, 1 November 2026.',
-      'Teams present the problem, proposed solution, uniqueness, feasibility, and expected impact.',
-      'Each pitch is followed by judge Q&A.',
-      'Ideas must be original; plagiarism or presenting a previously made idea or project is grounds for disqualification.',
-      'Pitch and Q&A durations will be announced officially at the Day 1 briefing.',
+      'The Ideathon is a single pitch round held on Day 1 (Sunday, 1st November 2026), after lunch.',
+      'Teams pitch the problem, proposed solution, uniqueness, feasibility, and expected impact to the judging panel.',
+      'Each pitch is followed by judge Q&A. Pitch and Q&A durations will be announced.',
+      'Ideas must be original. Plagiarism or presenting a previously made idea or project will lead to disqualification.',
+      'Teams are scored on the approved evaluation criteria listed in the rulebook.',
     ],
   },
   {
     id: 'codeathon',
-    title: 'Codeathon',
+    title: 'Codeathon Rules (Individual Event)',
     rules: [
-      'The Codeathon is an individual event on Day 1 and lasts 1.5 hours.',
-      'Teamwork and discussion during the contest are not permitted.',
-      'The listed languages are C, C++, Java, Python, and JavaScript.',
-      'Internet access will be limited and monitored during the contest.',
-      'Rankings are determined by problems solved, time taken, and penalties for wrong submissions, according to declared contest rules.',
+      'The Codeathon is strictly individual – no teamwork or discussion allowed.',
+      'It is a 1.5-hour timed contest held on Day 1 (Sunday, 1st November 2026).',
+      'Participants must bring their own laptops and chargers.',
+      'Internet access will be limited and monitored. External-resource and plagiarism policies of the platform will be declared before the contest.',
+      'Coding languages allowed: C, C++, Java, Python, JavaScript.',
+      'Problems will be released on a competitive coding platform (HackerRank / CodeChef or an offline platform). The platform and number of problems will be announced.',
+      'Ranking will be based on: 1. Number of problems solved, 2. Time taken, 3. Penalties for wrong submissions.',
+      'A live leaderboard is maintained. Winners are decided by the final published ranking under the contest rules and tie-breaking method declared before the contest.',
+      'A PPT presentation is NOT required for Codeathon.',
     ],
   },
   {
     id: 'accommodation',
     title: 'Accommodation & Facilities',
     rules: [
-      'Accommodation is provided for participants coming from outside REC Banda.',
-      'Participants must bring a valid college ID for campus access and room allotment.',
-      'Participants are responsible for arranging their own meals.',
-      'On-ground support includes registration, technical assistance, power/Wi-Fi arrangements, and logistics support as described in the rulebook.',
+      'Accommodation will be provided to all participants coming from outside REC Banda. Details will be shared with registered teams.',
+      'Outside participants must carry their valid college ID card for verification at check-in and at the accommodation.',
+      'Participants must follow the rules of the accommodation and campus, and are responsible for safeguarding their personal belongings.',
+      'On-ground support includes a registration desk, technical support, power and Wi-Fi arrangements, and volunteers for logistics, issue reporting, and time announcements.',
+      'Only accommodation is provided. Participants will be responsible for arranging their own meals, which can be purchased from the college canteen.',
     ],
   },
   {
     id: 'evaluation',
-    title: 'Evaluation & Disqualification',
+    title: 'Evaluation Criteria',
     rules: [
-      'Hackathon evaluations consider problem understanding, solution quality, innovation, technical implementation, functionality, usability/feasibility, impact, scalability, and presentation.',
-      'Ideathon evaluations consider problem identification, originality, solution approach, feasibility, impact, scalability, presentation, and Q&A defense.',
-      'Codeathon rankings follow the declared contest rules and tie-breaking methods.',
-      'Plagiarism, misconduct, unauthorized collaboration, breaking time or submission rules, and false registration information or invalid college ID can lead to disqualification.',
+      'Evaluation is conducted by a judging panel, with scores recorded on confirmed score sheets and verified before any result is announced. Criterion weightages will be announced before the event.',
+      'Hackathon (9 Criteria): Problem Understanding, Quality of Solution, Innovation, Technical Implementation, Functionality, Usability & Feasibility, Impact, Scalability, and Presentation & Demo.',
+      'Ideathon (8 Criteria): Problem Identification, Originality, Solution Approach, Feasibility, Impact, Scalability, Presentation, and Q&A / Defense.',
+      'Codeathon: Ranking based strictly on number of problems solved, time taken, and penalties for wrong submissions under the declared contest rules and tie-breaking method.',
+    ],
+  },
+  {
+    id: 'disqualification',
+    title: 'Disqualification Criteria',
+    rules: [
+      'Plagiarism or submission of previously made projects.',
+      'Misconduct or violation of venue or accommodation rules.',
+      'Unauthorised collaboration or helping other teams.',
+      'Not following the time limits or submission format.',
+      'Providing false information or a fake/invalid college ID during registration or check-in.',
+      'Any violation of these rules may lead to immediate disqualification.',
     ],
   },
 ];
@@ -296,8 +340,16 @@ export default function RulesFaqSection() {
             >
               <Info size={18} color="var(--color-arc-cyan)" style={{ marginTop: 2, flexShrink: 0 }} />
               <div style={{ fontSize: '0.82rem', color: '#94A3B8', lineHeight: '1.55' }}>
-                <strong style={{ color: '#E2E8F0' }}>Notice on Rulebook Draft Variations: </strong>
-                The printed rulebook PDF contains historical draft variations across sections (such as team sizes noted as 3–5 vs. 4 in specific contest pages). The website preserves the latest approved committee configuration (Codeathon: individual solo; Hackathon & Ideathon: 3–4 members, leader + 2–3 teammates; Codeathon PPT not required). Please refer to the downloaded PDF for complete guidelines and attend the Day 1 opening briefing for official real-time updates.
+                <strong style={{ color: '#E2E8F0' }}>Notice on Rulebook Draft Inconsistencies &amp; Committee Configuration: </strong>
+                The printed rulebook PDF contains two internal draft discrepancies:
+                <ul style={{ margin: '0.4rem 0 0 1.2rem', padding: 0 }}>
+                  <li>
+                    <strong>Team Size:</strong> Section 3 states "Every team must have 2-4 members. No solo or 2-member teams are allowed", while Sections 4 and 5 specify "Teams must have 4 members". The website preserves the latest approved committee configuration: <strong>Codeathon is strictly 1 member (individual solo)</strong>, while <strong>Hackathon and Ideathon require 3 to 4 members (1 leader + 2 to 3 teammates)</strong>.
+                  </li>
+                  <li>
+                    <strong>PPT Deadlines &amp; Shortlisting:</strong> Section 1 lists PPT submission 18–26 October with shortlisting on 28 October, whereas Section 4 lists PPT submission by 24 October with shortlisting on 26 October. Deadlines are managed dynamically via committee settings and will be announced during official briefings.
+                  </li>
+                </ul>
               </div>
             </div>
           </HudPanel>

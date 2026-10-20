@@ -86,76 +86,74 @@ export const eventService = {
     }
   },
 
-  // Get problem categories
+  // Get problem categories (purely database-driven)
   async getProblemCategories() {
-    if (!isSupabaseConfigured) return fallbackProblemCategories;
-    try {
-      const { data, error } = await supabase
-        .from('problem_categories')
-        .select('*')
-        .or('is_active.eq.true,is_published.eq.true')
-        .order('sort_order', { ascending: true });
-
-      if (error || !data || data.length === 0) return fallbackProblemCategories;
-
-      // Merge DB rows with the 6 authoritative categories to preserve exact canonical titles and valid IDs
-      return fallbackProblemCategories.map((fb, index) => {
-        const dbMatch = data.find(
-          (d) => d.slug === fb.id || d.number === fb.number || d.slug === `cat-0${index + 1}` || d.id === fb.id
-        );
-        if (!dbMatch) return fb;
-        return {
-          ...fb,
-          id: dbMatch.id,
-          dbId: dbMatch.id,
-          number: fb.number,
-          title: fb.title, // Authoritative canonical track title
-          slug: dbMatch.slug || fb.id,
-          theme: fb.theme,
-          summary: fb.summary,
-          placeholderNotice: dbMatch.placeholder_notice || fb.placeholderNotice,
-          background: dbMatch.background || fb.background,
-          challenge: dbMatch.challenge || fb.challenge,
-          requirements: Array.isArray(dbMatch.requirements) && dbMatch.requirements.length > 0 ? dbMatch.requirements : fb.requirements,
-          expectedOutcome: dbMatch.expected_outcome || fb.expectedOutcome,
-          suggestedDirection: dbMatch.technical_directions || fb.suggestedDirection,
-          submissionInfo: dbMatch.submission_info || fb.submissionInfo,
-          isActive: dbMatch.is_active ?? dbMatch.is_published ?? true,
-          sortOrder: dbMatch.sort_order ?? index,
-        };
-      });
-    } catch {
-      return fallbackProblemCategories;
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase database client is not configured.');
     }
+    const { data, error } = await supabase
+      .from('problem_categories')
+      .select('*')
+      .or('is_active.eq.true,is_published.eq.true')
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      console.error('Failed to fetch problem categories from DB:', error.message);
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      return [];
+    }
+
+    return data.map((d, index) => {
+      const rawNum = d.number != null ? String(d.number).replace(/^0+/, '') : String(index + 1);
+      const trackNum = (rawNum || String(index + 1)).padStart(2, '0');
+      return {
+        id: d.id,
+        dbId: d.id,
+        number: trackNum,
+        title: d.title || `Track ${trackNum}`,
+        slug: d.slug || `track-${trackNum}`,
+        theme: d.theme || '',
+        summary: d.challenge || d.description || d.background || '',
+        placeholderNotice: d.placeholder_notice || null,
+        background: d.background || d.description || '',
+        challenge: d.challenge || d.description || '',
+        requirements: Array.isArray(d.requirements) ? d.requirements : [],
+        expectedOutcome: d.expected_outcome || '',
+        suggestedDirection: d.technical_directions || '',
+        submissionInfo: d.submission_info || '',
+        isActive: d.is_active ?? d.is_published ?? true,
+        sortOrder: d.sort_order ?? index + 1,
+      };
+    });
   },
 
   // Get problem statements (published statements linked to categories)
   async getProblemStatements(categoryId = null) {
-    if (!isSupabaseConfigured) return [];
-    try {
-      let query = supabase
-        .from('problem_statements')
-        .select(`
-          *,
-          category:problem_categories(*)
-        `)
-        .eq('is_published', true)
-        .order('sort_order', { ascending: true });
-
-      if (categoryId) {
-        query = query.eq('category_id', categoryId);
-      }
-
-      const { data, error } = await query;
-      if (error) {
-        console.warn('Failed to fetch problem statements from DB:', error.message);
-        return [];
-      }
-      return data || [];
-    } catch (err) {
-      console.warn('Error fetching problem statements:', err);
-      return [];
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase database client is not configured.');
     }
+    let query = supabase
+      .from('problem_statements')
+      .select(`
+        *,
+        category:problem_categories(*)
+      `)
+      .eq('is_published', true)
+      .order('sort_order', { ascending: true });
+
+    if (categoryId && categoryId !== 'all') {
+      query = query.eq('category_id', categoryId);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error('Failed to fetch problem statements from DB:', error.message);
+      throw error;
+    }
+    return data || [];
   },
 
   // Get schedule (Dynamic Multi-Day + Backward-Compatible)
@@ -343,7 +341,7 @@ export const eventService = {
     }
   },
 
-  // Get FAQs
+  // Get FAQs (authoritative official rulebook FAQs with optional custom CMS additions)
   async getFaqs() {
     if (!isSupabaseConfigured) return fallbackFaqsData;
     try {
@@ -354,7 +352,26 @@ export const eventService = {
         .order('sort_order', { ascending: true });
 
       if (error || !data || data.length === 0) return fallbackFaqsData;
-      return data.map((d) => ({ q: d.question, a: d.answer, category: d.category }));
+
+      // Filter out outdated pre-rulebook seeded entries, prioritizing official rulebook FAQs
+      const oldSeedQuestions = new Set([
+        'Who can participate in HackFest 3.0?',
+        'What is the team size for each event?',
+        'How many problem categories exist for the Hackathon?',
+        'What is the duration of the Hackathon?',
+        'What is the Codeathon duration and format?',
+        'How does the Ideathon work?',
+        'How are projects evaluated?',
+        'What should participants bring to the venue?',
+        'Can participants join more than one competition?',
+        'How do I register for HackFest 3.0?',
+      ]);
+
+      const customFaqs = data
+        .filter((d) => !oldSeedQuestions.has(d.question?.trim()))
+        .map((d) => ({ q: d.question, a: d.answer, category: d.category }));
+
+      return [...fallbackFaqsData, ...customFaqs];
     } catch {
       return fallbackFaqsData;
     }

@@ -55,7 +55,7 @@ export default function RegisterSection() {
 
   const deploymentSteps = [
     { num: 'STEP 01', label: 'CHOOSE COMPETITION', desc: 'Codeathon, Ideathon, or Flagship Hackathon' },
-    { num: 'STEP 02', label: 'FORM YOUR TEAM', desc: 'Form a team of 2 to 4 or register solo' },
+    { num: 'STEP 02', label: 'FORM YOUR TEAM', desc: 'Form a team of 3 to 4 or register solo' },
     { num: 'STEP 03', label: 'SELECT TRACK', desc: 'Pick from 6 problem tracks' },
     { num: 'STEP 04', label: 'BUILD & SUBMIT', desc: 'Build and showcase your prototype' },
   ];
@@ -84,7 +84,7 @@ export default function RegisterSection() {
             </p>
 
             <p style={{ color: '#94A3B8', fontSize: '1.05rem', maxWidth: '640px', margin: '0 auto', lineHeight: '1.6' }}>
-              Team up with peers from your college or form cross-college teams.
+              Team up with peers from your college or form cross-college teams (3–4 members for Hackathon &amp; Ideathon; solo for Codeathon).
               Balance your team across development, UI/UX design, and presentation to compete in <strong>HackFest 3.0</strong>.
             </p>
           </div>
