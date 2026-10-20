@@ -5,7 +5,7 @@ import React from 'react';
  * Rendered at low opacity (8-14%) with dark radial gradient overlays to maintain crystal-clear text readability.
  */
 export default function SuperheroTrackArt({ trackIndex = 0, variant = 'teal' }) {
-  const strokeColor = variant === 'teal' ? '#63E6D1' : variant === 'gold' ? '#F5C451' : '#81C14B';
+  const strokeColor = variant === 'teal' ? '#39FF88' : variant === 'gold' ? '#F5C451' : '#16845B';
 
   switch (trackIndex) {
     // Track 01: Resilient Infrastructure — Fortress Shield & Hex Lattice

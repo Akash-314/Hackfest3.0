@@ -61,9 +61,9 @@
   -webkit-text-fill-color: transparent !important;
   -webkit-text-stroke: clamp(1.5px, 0.2vw, 2.4px) #F4F7FB;
   text-shadow:
-    0 0 2px rgba(0, 217, 255, 0.95),
-    0 0 12px rgba(0, 217, 255, 0.4),
-    0 0 28px rgba(0, 217, 255, 0.18),
+    0 0 2px rgba(57, 255, 136, 0.9),
+    0 0 12px rgba(57, 255, 136, 0.35),
+    0 0 28px rgba(22, 132, 91, 0.2),
     0 6px 20px rgba(0, 0, 0, 0.95);
   z-index: 2;
 }
@@ -75,8 +75,8 @@
   display: inline-block;
   color: transparent !important;
   -webkit-text-fill-color: transparent !important;
-  -webkit-text-stroke: clamp(3px, 0.36vw, 4.5px) rgba(0, 217, 255, 0.45);
-  filter: drop-shadow(0 0 8px rgba(0, 217, 255, 0.65));
+  -webkit-text-stroke: clamp(3px, 0.36vw, 4.5px) rgba(57, 255, 136, 0.45);
+  filter: drop-shadow(0 0 8px rgba(57, 255, 136, 0.5));
   z-index: 1;
   pointer-events: none;
 }

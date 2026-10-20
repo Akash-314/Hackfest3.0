@@ -100,9 +100,9 @@ export default function CompetitionsSection() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.5rem',
-              background: 'rgba(99, 230, 209, 0.06)',
-              borderColor: 'rgba(99, 230, 209, 0.25)',
-              color: '#63E6D1',
+              background: 'rgba(57, 255, 136, 0.08)',
+              borderColor: 'rgba(57, 255, 136, 0.25)',
+              color: '#39FF88',
             }}
           >
             <Calendar size={15} />

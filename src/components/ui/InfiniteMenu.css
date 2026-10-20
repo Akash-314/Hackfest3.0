@@ -95,7 +95,7 @@
 
 .infinite-menu__action:hover {
   transform: translateX(-50%) scale(1.1);
-  box-shadow: 0 6px 26px rgba(99, 230, 209, 0.4);
+  box-shadow: 0 6px 26px rgba(57, 255, 136, 0.35);
 }
 
 .infinite-menu__action:focus-visible {

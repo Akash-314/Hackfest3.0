@@ -63,13 +63,67 @@ const isDark = color => {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b < 0.5;
 };
 
+function LinkedInIcon({ size = 15 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+      <rect x="2" y="9" width="4" height="12" />
+      <circle cx="4" cy="4" r="2" />
+    </svg>
+  );
+}
+
+function GitHubIcon({ size = 15 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+    </svg>
+  );
+}
+
 function MailIcon({ size = 15 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect width="20" height="16" x="2" y="4" rx="2" />
       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
     </svg>
   );
+}
+
+function sanitizeExternalUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== 'string') return null;
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return null;
+  // Disallow dangerous URI schemes
+  if (/^(javascript|data|vbscript):/i.test(trimmed)) return null;
+
+  let candidate = trimmed;
+  if (!/^https?:\/\//i.test(candidate)) {
+    candidate = `https://${candidate}`;
+  }
+
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.href;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function sanitizePublicEmail(rawEmail) {
+  if (!rawEmail || typeof rawEmail !== 'string') return null;
+  const trimmed = rawEmail.trim().replace(/^mailto:/i, '');
+  if (!trimmed) return null;
+  // Disallow CRLF / header injection
+  if (/[\r\n]/.test(trimmed)) return null;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (emailRegex.test(trimmed)) {
+    return trimmed;
+  }
+  return null;
 }
 
 const ProfileCard = ({
@@ -81,7 +135,11 @@ const ProfileCard = ({
   handle = 'javicodes',
   status = 'Online',
   statusColor = '#22c55e',
-  contactText = 'Contact',
+  socialLinks,
+  linkedinUrl,
+  githubUrl,
+  contactEmail,
+  contactText,
   contactHref,
   showUserInfo = true,
   onContactClick,
@@ -299,6 +357,17 @@ const ProfileCard = ({
     ? `linear-gradient(180deg, color-mix(in srgb, ${backdropColor}, #ffffff 12%) 0%, color-mix(in srgb, ${backdropColor}, #000000 18%) 100%)`
     : 'var(--pc-tile)';
 
+  // Resolve and validate optional social links
+  const resolvedLinkedin = sanitizeExternalUrl(linkedinUrl || socialLinks?.linkedin);
+  const resolvedGithub = sanitizeExternalUrl(githubUrl || socialLinks?.github);
+  const resolvedEmail = sanitizePublicEmail(
+    contactEmail ||
+    socialLinks?.email ||
+    (contactHref && contactHref.startsWith('mailto:') ? contactHref : null)
+  );
+
+  const hasSocials = Boolean(resolvedLinkedin || resolvedGithub || resolvedEmail);
+
   return (
     <div
       ref={rootRef}
@@ -370,29 +439,48 @@ const ProfileCard = ({
               {handle && <span className="profile-card__handle">@{handle.replace(/^@/, '')}</span>}
               {status && <span className="profile-card__status">{status}</span>}
             </div>
-            {contactText && (
-              contactHref ? (
-                <a
-                  href={contactHref}
-                  target={contactHref.startsWith('http') ? '_blank' : undefined}
-                  rel={contactHref.startsWith('http') ? 'noopener noreferrer' : undefined}
-                  className="profile-card__contact"
-                  aria-label={name ? `${contactText} ${name}` : contactText}
-                >
-                  <MailIcon size={14} />
-                  {contactText}
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  className="profile-card__contact"
-                  onClick={onContactClick}
-                  aria-label={name ? `${contactText} ${name}` : contactText}
-                >
-                  <MailIcon size={14} />
-                  {contactText}
-                </button>
-              )
+
+            {hasSocials && (
+              <div
+                className="profile-card__socials"
+                role="group"
+                aria-label={`Social links for ${name || 'member'}`}
+              >
+                {resolvedLinkedin && (
+                  <a
+                    href={resolvedLinkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="profile-card__social-btn"
+                    title="View LinkedIn profile"
+                    aria-label={name ? `View LinkedIn profile of ${name}` : 'View LinkedIn profile'}
+                  >
+                    <LinkedInIcon size={15} />
+                  </a>
+                )}
+                {resolvedGithub && (
+                  <a
+                    href={resolvedGithub}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="profile-card__social-btn"
+                    title="View GitHub profile"
+                    aria-label={name ? `View GitHub profile of ${name}` : 'View GitHub profile'}
+                  >
+                    <GitHubIcon size={15} />
+                  </a>
+                )}
+                {resolvedEmail && (
+                  <a
+                    href={`mailto:${resolvedEmail}`}
+                    className="profile-card__social-btn"
+                    title="Send email"
+                    aria-label={name ? `Send email to ${name}` : 'Send email'}
+                  >
+                    <MailIcon size={15} />
+                  </a>
+                )}
+              </div>
             )}
           </div>
         )}

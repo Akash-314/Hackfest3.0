@@ -61,7 +61,6 @@ export default function AboutSection() {
                 key={pillar.title}
                 variant={pillar.variant}
                 tag={pillar.code}
-                issueNumber={pillar.title}
                 className="briefing-hud-card"
               >
                 <div className="briefing-card-content">

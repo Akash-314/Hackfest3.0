@@ -249,7 +249,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #00f0ff;
+  background: #39FF88;
 }
 
 .hud-badge-info {
@@ -262,7 +262,7 @@
   font-family: monospace;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #00bfff;
+  color: #39FF88;
   letter-spacing: 0.1em;
 }
 
@@ -411,8 +411,8 @@
   margin-top: 0.75rem;
   width: clamp(120px, 30vw, 280px);
   height: 3px;
-  background: linear-gradient(90deg, transparent, #00bfff, transparent);
-  box-shadow: 0 0 15px #00bfff;
+  background: linear-gradient(90deg, transparent, #39FF88, transparent);
+  box-shadow: 0 0 15px rgba(57, 255, 136, 0.4);
 }
 
 .cinematic-subtitle-tag {
@@ -420,10 +420,10 @@
   font-size: clamp(0.85rem, 2.2vw, 1.4rem);
   font-weight: 800;
   letter-spacing: 0.28em;
-  color: #00f0ff;
+  color: #39FF88;
   margin: 0;
   text-transform: uppercase;
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.7);
+  text-shadow: 0 0 20px rgba(57, 255, 136, 0.6);
 }
 
 .cinematic-inst-tag {
@@ -502,15 +502,15 @@
 }
 
 .active-stage {
-  color: #00bfff;
+  color: #39FF88;
   font-weight: 700;
-  text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+  text-shadow: 0 0 10px rgba(57, 255, 136, 0.5);
 }
 
 .active-stage-cyan {
-  color: #00e5ff;
+  color: #39FF88;
   font-weight: 700;
-  text-shadow: 0 0 12px rgba(0, 229, 255, 0.7);
+  text-shadow: 0 0 12px rgba(57, 255, 136, 0.6);
 }
 
 .active-stage-amber {

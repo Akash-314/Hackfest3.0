@@ -8,6 +8,7 @@ import {
   Users,
   Shield,
   RefreshCw,
+  HeartHandshake,
 } from 'lucide-react';
 
 export default function SdcMembersSection() {
@@ -15,6 +16,7 @@ export default function SdcMembersSection() {
     faculty: [],
     mentors: [],
     coordinators: [],
+    volunteers: [],
     all: [],
   });
   const [loading, setLoading] = useState(true);
@@ -25,7 +27,13 @@ export default function SdcMembersSection() {
       try {
         const data = await sdcService.getPublicMembers();
         if (isMounted && data) {
-          setMembers(data);
+          setMembers({
+            faculty: data.faculty || [],
+            mentors: data.mentors || [],
+            coordinators: data.coordinators || [],
+            volunteers: data.volunteers || [],
+            all: data.all || [],
+          });
         }
       } catch (err) {
         console.error('Failed to load SDC members:', err);
@@ -42,14 +50,16 @@ export default function SdcMembersSection() {
   const renderMemberCard = (member, categoryKey = 'faculty') => {
     const isFaculty = categoryKey === 'faculty' || member.category === 'faculty_coordinator';
 
-    const contactEmail = member.email || member.social_links?.email || (!isFaculty ? 'sdc2021recbanda@gmail.com' : null);
-    const contactHref = (!isFaculty && contactEmail) ? `mailto:${contactEmail}` : null;
-    const contactText = isFaculty ? null : 'Contact';
+    // Social links (all optional, validated inside ProfileCard)
+    const linkedinUrl = member.social_links?.linkedin || member.linkedin_url || null;
+    const githubUrl = member.social_links?.github || member.github_url || null;
+    const contactEmail = member.public_contact_email || member.email || member.social_links?.email || null;
 
     const defaultAvatars = {
       faculty: '/images/faculty/dr_vibhash_yadav.png',
       mentor: '/images/sdc-avatar-placeholder.svg',
       coordinator: '/images/sdc-avatar-placeholder.svg',
+      volunteer: '/images/sdc-avatar-placeholder.svg',
     };
 
     const avatar = member.avatarUrl || member.photo_url || defaultAvatars[categoryKey] || defaultAvatars.coordinator;
@@ -58,8 +68,9 @@ export default function SdcMembersSection() {
 
     const statusDefaults = {
       faculty: { status: 'Faculty Leadership', statusColor: '#F5C451', backdrop: '#282015' },
-      mentor: { status: 'Technical Mentor', statusColor: '#63E6D1', backdrop: '#10262b' },
+      mentor: { status: 'Technical Mentor', statusColor: '#39FF88', backdrop: '#0B1711' },
       coordinator: { status: 'Event Coordinator', statusColor: '#10B981', backdrop: '#1f162b' },
+      volunteer: { status: 'SDC Volunteer', statusColor: '#A78BFA', backdrop: '#1c152b' },
     };
 
     const currentStatus = member.status || statusDefaults[categoryKey]?.status || 'Active Member';
@@ -76,8 +87,9 @@ export default function SdcMembersSection() {
           handle={handle}
           status={currentStatus}
           statusColor={currentStatusColor}
-          contactText={contactText}
-          contactHref={contactHref}
+          linkedinUrl={linkedinUrl}
+          githubUrl={githubUrl}
+          contactEmail={contactEmail}
           backdropColor={currentBackdrop}
           theme="dark"
           holo={0.82}
@@ -293,6 +305,66 @@ export default function SdcMembersSection() {
                   }}
                 >
                   {members.coordinators.map((member) => renderMemberCard(member, 'coordinator'))}
+                </div>
+              </div>
+            )}
+
+            {/* 4. VOLUNTEERS */}
+            {members.volunteers.length > 0 && (
+              <div aria-labelledby="heading-volunteers-sec">
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    marginBottom: '1.5rem',
+                    paddingBottom: '0.75rem',
+                    borderBottom: '1px solid rgba(167, 139, 250, 0.3)',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '6px',
+                      background: 'rgba(167, 139, 250, 0.15)',
+                      border: '1px solid #A78BFA',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#A78BFA',
+                    }}
+                  >
+                    <HeartHandshake size={20} />
+                  </div>
+                  <div>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#A78BFA', letterSpacing: '0.12em' }}>
+                      OPERATIONAL CORPS
+                    </span>
+                    <h3
+                      id="heading-volunteers-sec"
+                      style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: '1.65rem',
+                        color: 'var(--color-warm-off-white)',
+                        margin: 0,
+                      }}
+                    >
+                      VOLUNTEERS ({members.volunteers.length})
+                    </h3>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                    gap: '2.5rem',
+                    justifyContent: 'center',
+                    alignItems: 'start',
+                  }}
+                >
+                  {members.volunteers.map((member) => renderMemberCard(member, 'volunteer'))}
                 </div>
               </div>
             )}

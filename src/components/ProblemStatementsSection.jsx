@@ -97,7 +97,6 @@ export default function ProblemStatementsSection() {
                 key={prob.id || idx}
                 variant={idx % 2 === 0 ? 'teal' : 'gold'}
                 tag={`TRACK ${trackNum}`}
-                issueNumber="HACKATHON"
                 className="problem-superhero-card"
                 backgroundArt={<SuperheroTrackArt trackIndex={idx} variant={idx % 2 === 0 ? 'teal' : 'gold'} />}
               >
@@ -120,23 +119,10 @@ export default function ProblemStatementsSection() {
                   }}
                 >
                   <div style={{ marginBottom: '0.85rem' }}>
-                    <div
-                      style={{
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: '0.72rem',
-                        color: idx % 2 === 0 ? '#63E6D1' : '#F5C451',
-                        letterSpacing: '0.08em',
-                        marginBottom: '0.35rem',
-                        textTransform: 'uppercase',
-                        fontWeight: 600,
-                      }}
-                    >
-                      TRACK {trackNum}
-                    </div>
                     <h3
                       style={{
                         fontFamily: 'var(--font-heading)',
-                        fontSize: '1.22rem',
+                        fontSize: '1.25rem',
                         lineHeight: '1.35',
                         color: '#FFFFFF',
                         margin: 0,
@@ -173,7 +159,7 @@ export default function ProblemStatementsSection() {
                       borderTop: '1px solid rgba(255, 255, 255, 0.08)',
                       paddingTop: '0.9rem',
                       marginTop: 'auto',
-                      color: idx % 2 === 0 ? '#63E6D1' : '#F5C451',
+                      color: idx % 2 === 0 ? '#39FF88' : '#F5C451',
                       fontSize: '0.82rem',
                       fontWeight: 600,
                       fontFamily: 'var(--font-mono)',

@@ -169,13 +169,13 @@ export default function SponsorsSection() {
               }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                <Orbit size={18} color="var(--color-arc-cyan, #63E6D1)" className="animate-spin-slow" />
+                <Orbit size={18} color="var(--color-arc-cyan, #39FF88)" className="animate-spin-slow" />
                 <span
                   style={{
                     fontFamily: 'var(--font-mono)',
                     fontSize: '0.82rem',
                     letterSpacing: '0.12em',
-                    color: 'var(--color-arc-cyan, #63E6D1)',
+                    color: 'var(--color-arc-cyan, #39FF88)',
                     textTransform: 'uppercase',
                     fontWeight: 600,
                   }}
@@ -211,9 +211,9 @@ export default function SponsorsSection() {
                 width: '100%',
                 borderRadius: '16px',
                 overflow: 'hidden',
-                background: 'radial-gradient(ellipse at center, rgba(16, 26, 36, 0.75) 0%, rgba(8, 9, 13, 0.95) 75%)',
-                border: '1px solid rgba(99, 230, 209, 0.25)',
-                boxShadow: '0 24px 60px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(99, 230, 209, 0.04)',
+                background: 'radial-gradient(ellipse at center, rgba(11, 23, 17, 0.75) 0%, rgba(8, 10, 9, 0.95) 75%)',
+                border: '1px solid #1C382A',
+                boxShadow: '0 24px 60px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(57, 255, 136, 0.04)',
               }}
             >
               <InfiniteMenu
@@ -231,7 +231,7 @@ export default function SponsorsSection() {
                 intro={true}
                 showInfo={true}
                 theme="dark"
-                accentColor="var(--color-arc-cyan, #63E6D1)"
+                accentColor="var(--color-arc-cyan, #39FF88)"
               />
 
               {/* HUD corner metadata overlay */}
@@ -257,7 +257,7 @@ export default function SponsorsSection() {
                   right: '1.25rem',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.72rem',
-                  color: 'var(--color-arc-cyan, #63E6D1)',
+                  color: 'var(--color-arc-cyan, #39FF88)',
                   pointerEvents: 'none',
                   letterSpacing: '0.08em',
                   zIndex: 2,
@@ -316,9 +316,9 @@ export default function SponsorsSection() {
                         fontSize: '0.72rem',
                         color: tier.variant === 'gold' ? 'var(--color-infinity-gold)' : 'var(--color-arc-cyan)',
                         background:
-                          tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.12)' : 'rgba(0, 217, 255, 0.12)',
+                          tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.12)' : 'rgba(57, 255, 136, 0.12)',
                         border: `1px solid ${
-                          tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.3)' : 'rgba(0, 217, 255, 0.3)'
+                          tier.variant === 'gold' ? 'rgba(245, 196, 81, 0.3)' : 'rgba(57, 255, 136, 0.3)'
                         }`,
                         padding: '0.2rem 0.6rem',
                         borderRadius: '4px',
@@ -357,7 +357,7 @@ export default function SponsorsSection() {
                                 ? 'rgba(245, 196, 81, 0.45)'
                                 : tier.variant === 'gold'
                                 ? 'rgba(245, 196, 81, 0.3)'
-                                : 'rgba(0, 217, 255, 0.25)'
+                                : 'rgba(57, 255, 136, 0.25)'
                             }`,
                             borderRadius: 'var(--radius-md)',
                             padding: tier.id === 'title' ? '2.25rem 2rem' : '1.5rem',
@@ -414,7 +414,7 @@ export default function SponsorsSection() {
                                 border:
                                   sponsor.theme === 'light'
                                     ? '1px solid rgba(255, 255, 255, 0.3)'
-                                    : '1px solid rgba(99, 230, 209, 0.2)',
+                                    : '1px solid #1C382A',
                                 boxShadow:
                                   tier.id === 'title'
                                     ? '0 8px 24px rgba(0,0,0,0.35), inset 0 0 10px rgba(245,196,81,0.06)'
@@ -446,7 +446,7 @@ export default function SponsorsSection() {
                                 background:
                                   tier.variant === 'gold'
                                     ? 'rgba(245, 196, 81, 0.15)'
-                                    : 'rgba(0, 217, 255, 0.15)',
+                                    : 'rgba(57, 255, 136, 0.15)',
                                 border: `1px solid ${
                                   tier.variant === 'gold'
                                     ? 'var(--color-infinity-gold)'
@@ -489,7 +489,7 @@ export default function SponsorsSection() {
                               style={{
                                 fontFamily: 'var(--font-mono)',
                                 fontSize: tier.id === 'title' ? '0.82rem' : '0.74rem',
-                                color: tier.id === 'title' ? 'var(--color-infinity-gold, #F5C451)' : 'var(--color-arc-cyan, #63E6D1)',
+                                color: tier.id === 'title' ? 'var(--color-infinity-gold, #F5C451)' : 'var(--color-arc-cyan, #39FF88)',
                                 letterSpacing: '0.06em',
                                 fontWeight: tier.id === 'title' ? 600 : 400,
                                 marginBottom: '0.5rem',

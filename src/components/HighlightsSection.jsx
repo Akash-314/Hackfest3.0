@@ -35,7 +35,6 @@ export default function HighlightsSection() {
               key={idx}
               variant={variants[idx % variants.length]}
               tag={`HIGHLIGHT 0${idx + 1}`}
-              issueNumber="STAT"
               className="stark-stat-card"
             >
               <div className="stark-stat-card-inner">

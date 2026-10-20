@@ -339,9 +339,9 @@ export default function Navbar() {
               theme="dark"
               size="sm"
               frame={true}
-              color="#222832"
+              color="#0B1711"
               activeTextColor="#FFFFFF"
-              colors={['#272E3B', '#1E242E', '#323B4A']}
+              colors={['#14281F', '#0B1711', '#1C382A']}
               particleCount={14}
               spread={74}
               animationTime={550}
@@ -391,13 +391,13 @@ export default function Navbar() {
                   title="View My Registration & Team Status"
                   style={{
                     background: 'rgba(255, 255, 255, 0.05)',
-                    borderColor: 'rgba(0, 217, 255, 0.35)',
-                    color: '#00D9FF',
+                    borderColor: 'var(--border-subtle)',
+                    color: '#39FF88',
                   }}
                 >
                   <span>MY REGISTRATION</span>
-                  <span className="nav-pill-arrow-circle" aria-hidden="true" style={{ background: '#00D9FF' }}>
-                    <LayoutDashboard size={12} color="#08090D" />
+                  <span className="nav-pill-arrow-circle" aria-hidden="true" style={{ background: '#39FF88' }}>
+                    <LayoutDashboard size={12} color="#080A09" />
                   </span>
                 </Link>
                 <Link
@@ -664,8 +664,8 @@ export default function Navbar() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.5rem',
-                    borderColor: 'rgba(0, 217, 255, 0.35)',
-                    color: '#00D9FF',
+                    borderColor: 'var(--border-subtle)',
+                    color: '#39FF88',
                   }}
                 >
                   <LayoutDashboard size={15} />

@@ -33,9 +33,9 @@ export default function ProblemDetailModal({ problem, onClose }) {
             <span style={{
               fontFamily: 'var(--font-mono)',
               fontSize: '0.8rem',
-              color: '#63E6D1',
-              background: 'rgba(99, 230, 209, 0.1)',
-              border: '1px solid rgba(99, 230, 209, 0.25)',
+              color: '#39FF88',
+              background: 'rgba(57, 255, 136, 0.1)',
+              border: '1px solid rgba(57, 255, 136, 0.25)',
               padding: '0.2rem 0.65rem',
               borderRadius: '4px',
               fontWeight: 600,
@@ -52,7 +52,7 @@ export default function ProblemDetailModal({ problem, onClose }) {
             {mainTitle}
           </h2>
           {subTheme && (
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.86rem', color: '#63E6D1', marginBottom: '0.35rem', letterSpacing: '0.02em' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.86rem', color: '#8DDBB0', marginBottom: '0.35rem', letterSpacing: '0.02em' }}>
               {subTheme}
             </div>
           )}
@@ -114,8 +114,8 @@ export default function ProblemDetailModal({ problem, onClose }) {
             {/* Reference File / Attachment */}
             {problem.referenceFileUrl && (
               <div style={{
-                background: 'rgba(99, 230, 209, 0.08)',
-                border: '1px solid rgba(99, 230, 209, 0.25)',
+                background: 'rgba(57, 255, 136, 0.08)',
+                border: '1px solid #1C382A',
                 padding: '0.85rem 1rem',
                 borderRadius: 'var(--radius-sm)',
                 display: 'flex',
@@ -124,7 +124,7 @@ export default function ProblemDetailModal({ problem, onClose }) {
                 flexWrap: 'wrap',
                 gap: '0.6rem',
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#63E6D1', fontSize: '0.88rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#39FF88', fontSize: '0.88rem' }}>
                   <FileText size={18} />
                   <span>Reference Specification Attachment</span>
                 </div>
@@ -150,7 +150,7 @@ export default function ProblemDetailModal({ problem, onClose }) {
               <span style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.76rem',
-                color: '#63E6D1',
+                color: '#39FF88',
                 letterSpacing: '0.08em',
                 fontWeight: 600,
                 display: 'block',
@@ -174,7 +174,7 @@ export default function ProblemDetailModal({ problem, onClose }) {
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                   {problem.requirements.map((req, i) => (
                     <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', fontSize: '0.9rem', color: '#D1D5DB', lineHeight: '1.55' }}>
-                      <CheckCircle2 size={16} color="#63E6D1" style={{ marginTop: 3, flexShrink: 0 }} />
+                      <CheckCircle2 size={16} color="#39FF88" style={{ marginTop: 3, flexShrink: 0 }} />
                       <span>{req}</span>
                     </li>
                   ))}
@@ -217,13 +217,13 @@ export default function ProblemDetailModal({ problem, onClose }) {
               <div>
                 <h4 className="detail-section-label">INPUT / OUTPUT SPECIFICATIONS</h4>
                 <div style={{
-                  background: '#0D1117',
+                  background: '#0B1711',
                   padding: '0.85rem 1rem',
                   borderRadius: 'var(--radius-sm)',
-                  border: '1px solid rgba(99, 230, 209, 0.2)',
+                  border: '1px solid #1C382A',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '0.82rem',
-                  color: '#63E6D1',
+                  color: '#8DDBB0',
                   whiteSpace: 'pre-wrap',
                   lineHeight: '1.55',
                 }}>

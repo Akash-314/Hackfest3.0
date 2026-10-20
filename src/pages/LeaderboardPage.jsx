@@ -113,7 +113,7 @@ export default function LeaderboardPage() {
             {standings.length >= 3 && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.2rem', marginBottom: '1.5rem' }}>
                 {/* 1st Place */}
-                <SuperheroPanel variant="gold" tag="#1 CHAMPION" issueNumber="1ST" className="podium-top-card">
+                <SuperheroPanel variant="gold" tag="#1 CHAMPION" className="podium-top-card">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.6rem' }}>
                     <div style={{ width: 38, height: 38, borderRadius: '4px', background: 'rgba(245, 182, 66, 0.2)', border: '1px solid var(--color-stark-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-stark-gold)' }}>
                       <CrownIcon />
@@ -131,7 +131,7 @@ export default function LeaderboardPage() {
                 </SuperheroPanel>
 
                 {/* 2nd Place */}
-                <SuperheroPanel variant="blue" tag="#2 RUNNER-UP" issueNumber="2ND" className="podium-top-card">
+                <SuperheroPanel variant="blue" tag="#2 RUNNER-UP" className="podium-top-card">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.6rem' }}>
                     <div style={{ width: 38, height: 38, borderRadius: '4px', background: 'rgba(0, 191, 255, 0.2)', border: '1px solid var(--color-arc-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-arc-blue)' }}>
                       <Star size={18} />
@@ -149,7 +149,7 @@ export default function LeaderboardPage() {
                 </SuperheroPanel>
 
                 {/* 3rd Place */}
-                <SuperheroPanel variant="red" tag="#3 RUNNER-UP" issueNumber="3RD" className="podium-top-card">
+                <SuperheroPanel variant="red" tag="#3 RUNNER-UP" className="podium-top-card">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.6rem' }}>
                     <div style={{ width: 38, height: 38, borderRadius: '4px', background: 'rgba(230, 36, 41, 0.2)', border: '1px solid var(--color-energy-red)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-energy-red)' }}>
                       <Award size={18} />

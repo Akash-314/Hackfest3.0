@@ -68,7 +68,6 @@ export default function RegisterSection() {
         <SuperheroPanel
           variant="red"
           tag="REGISTRATION • TEAM FORMATION"
-          issueNumber="HACKFEST 3.0"
           className="avengers-main-card"
         >
           <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>

@@ -129,9 +129,9 @@ export default function CursorTrail() {
 
       ctx.beginPath();
       ctx.arc(currentX, currentY, ringRadius, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(99, 230, 209, ${ringOpacity})`;
+      ctx.strokeStyle = `rgba(57, 255, 136, ${ringOpacity})`;
       ctx.lineWidth = isHovering ? 1.5 : 1.0;
-      ctx.shadowColor = 'rgba(99, 230, 209, 0.45)';
+      ctx.shadowColor = 'rgba(57, 255, 136, 0.45)';
       ctx.shadowBlur = isHovering ? 10 : 5;
       ctx.stroke();
 
@@ -139,7 +139,7 @@ export default function CursorTrail() {
       if (isHovering || isPressed) {
         ctx.beginPath();
         ctx.arc(currentX, currentY, ringRadius + 4, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(129, 193, 75, 0.25)';
+        ctx.strokeStyle = 'rgba(22, 132, 91, 0.25)';
         ctx.lineWidth = 1;
         ctx.stroke();
       }
@@ -148,8 +148,8 @@ export default function CursorTrail() {
       const dotRadius = isPressed ? 2.5 : isHovering ? 4.0 : 3.0;
       ctx.beginPath();
       ctx.arc(currentX, currentY, dotRadius, 0, Math.PI * 2);
-      ctx.fillStyle = '#63E6D1';
-      ctx.shadowColor = '#81C14B';
+      ctx.fillStyle = '#39FF88';
+      ctx.shadowColor = '#16845B';
       ctx.shadowBlur = 8;
       ctx.fill();
 

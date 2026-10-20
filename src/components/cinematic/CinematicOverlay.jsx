@@ -15,7 +15,7 @@ export default function CinematicOverlay({ progress = 0, onSkip = () => {}, isMo
   let phaseDetail = 'QUIET COSMOS • MULTI-DEPTH STARFIELD';
   if (progress >= 0.10 && progress < 0.22) {
     phaseName = 'SUPERSONIC FLYBY // SPACE FIGHTER';
-    phaseDetail = 'CYAN ENGINE THRUSTERS • CELESTIAL HORIZON';
+    phaseDetail = 'EMERALD ENGINE THRUSTERS • CELESTIAL HORIZON';
   } else if (progress >= 0.22 && progress < 0.35) {
     phaseName = 'DOCTOR DOOM // LATVERIAN MONARCH';
     phaseDetail = 'EMERALD ENERGY RIM • ARMORED COMMAND';
@@ -148,7 +148,7 @@ export default function CinematicOverlay({ progress = 0, onSkip = () => {}, isMo
             title={audioEnabled ? 'Mute Core Hum' : 'Enable Core Hum'}
             className="hud-action-btn hud-sound-btn"
           >
-            {audioEnabled ? <Volume2 size={16} className="text-cyan pulse" /> : <VolumeX size={16} />}
+            {audioEnabled ? <Volume2 size={16} className="pulse" style={{ color: '#39FF88' }} /> : <VolumeX size={16} />}
           </button>
 
           {/* Skip Intro */}
@@ -211,7 +211,7 @@ export default function CinematicOverlay({ progress = 0, onSkip = () => {}, isMo
 
         <div className="cinematic-timeline-legend">
           <div className="timeline-legend-item">
-            <span className="text-cyan">TIMELINE:</span>
+            <span style={{ color: '#39FF88' }}>TIMELINE:</span>
             <span>{Math.round(progress * 100)}%</span>
           </div>
           <div className="timeline-stages-desktop">

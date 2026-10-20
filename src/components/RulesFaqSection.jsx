@@ -126,7 +126,7 @@ export default function RulesFaqSection() {
         <div
           style={{
             background: 'linear-gradient(135deg, rgba(18, 37, 28, 0.95) 0%, rgba(8, 10, 9, 0.98) 100%)',
-            border: '1px solid rgba(99, 230, 209, 0.35)',
+            border: '1px solid rgba(57, 255, 136, 0.35)',
             borderRadius: '12px',
             padding: '1.75rem 2rem',
             marginBottom: '2.5rem',
@@ -139,7 +139,7 @@ export default function RulesFaqSection() {
           }}
         >
           <div style={{ maxWidth: '600px' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#63E6D1', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', letterSpacing: '0.08em', marginBottom: '0.4rem', fontWeight: 600 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: '#39FF88', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', letterSpacing: '0.08em', marginBottom: '0.4rem', fontWeight: 600 }}>
               <BookOpen size={16} />
               <span>OFFICIAL EVENT DOCUMENTATION</span>
             </div>

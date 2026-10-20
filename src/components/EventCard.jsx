@@ -19,19 +19,19 @@ export default function EventCard({ comp, meta }) {
       <div className="event-card-back-facts">
         {meta?.meta1 && (
           <span className="event-card-fact-badge">
-            <Users size={12} color="#63E6D1" />
+            <Users size={12} color="#8DDBB0" />
             {meta.meta1}
           </span>
         )}
         {(comp.duration || meta?.meta2) && (
           <span className="event-card-fact-badge">
-            <Clock size={12} color="#63E6D1" />
+            <Clock size={12} color="#8DDBB0" />
             {comp.duration || meta?.meta2}
           </span>
         )}
         {comp.format && (
           <span className="event-card-fact-badge">
-            <Trophy size={12} color="#63E6D1" />
+            <Trophy size={12} color="#8DDBB0" />
             {comp.format}
           </span>
         )}
