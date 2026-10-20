@@ -26,7 +26,7 @@ import { supabase } from '../lib/supabase';
 import { registrationService } from '../services/registrationService';
 import { eventService } from '../services/eventService';
 import { isDeadlineExpired } from '../utils/eventTime';
-import { competitions, problemCategories } from '../data/eventData';
+import { competitions } from '../data/eventData';
 import CompetitionDropdown from '../components/ui/CompetitionDropdown';
 import CustomSelect from '../components/ui/CustomSelect';
 
@@ -90,7 +90,7 @@ export default function RegisterPage() {
   const [agreeRules, setAgreeRules] = useState(false);
 
   const [availableCompetitions, setAvailableCompetitions] = useState(competitions);
-  const [availableCategories, setAvailableCategories] = useState(problemCategories);
+  const [availableCategories, setAvailableCategories] = useState([]);
   const [eventSettings, setEventSettings] = useState(null);
   const [userRegistrations, setUserRegistrations] = useState([]);
 
@@ -1364,7 +1364,7 @@ export default function RegisterPage() {
                 </h3>
               </div>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', marginBottom: '1.25rem' }}>
-                Attach your preliminary slide deck, abstract, or synopsis (PPT, PPTX, or PDF, maximum 25MB). You can replace or update this document at any point before judging.
+                Attach your preliminary slide deck, abstract, or synopsis (PPT, PPTX, or PDF, maximum 25MB). Per the official rulebook, presentation slide decks must contain a maximum of 6 to 7 pages. You can replace or update this document at any point before judging.
               </p>
 
               <input
