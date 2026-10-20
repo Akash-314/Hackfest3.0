@@ -1986,11 +1986,11 @@
 }
 
 .marvel-title-number {
-  color: #00bfff;
+  color: #39FF88;
   margin-left: 0.4rem;
   text-shadow: 
-    0 0 25px rgba(0, 191, 255, 0.8),
-    0 0 50px rgba(0, 191, 255, 0.4);
+    0 0 25px rgba(57, 255, 136, 0.7),
+    0 0 50px rgba(57, 255, 136, 0.35);
 }
 
 .marvel-impact-burst-tag {
@@ -2047,9 +2047,9 @@
 }
 
 .btn-replay-sequence:hover {
-  border-color: #00bfff;
+  border-color: #39FF88;
   color: #ffffff;
-  box-shadow: 0 0 15px rgba(0, 191, 255, 0.3);
+  box-shadow: 0 0 15px rgba(57, 255, 136, 0.25);
 }
 
 .marvel-roster-strip {
@@ -2450,7 +2450,7 @@
   align-items: center;
   gap: 0.5rem;
   background: rgba(13, 17, 26, 0.8);
-  border: 1px solid rgba(0, 191, 255, 0.3);
+  border: 1px solid var(--border-subtle);
   padding: 0.5rem 1rem;
   border-radius: 4px;
 }
@@ -2458,7 +2458,7 @@
 .phase-step-num {
   font-family: var(--font-mono);
   font-size: 0.74rem;
-  color: #00bfff;
+  color: #39FF88;
   font-weight: 700;
 }
 

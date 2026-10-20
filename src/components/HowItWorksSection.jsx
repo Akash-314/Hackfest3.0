@@ -66,7 +66,6 @@ export default function HowItWorksSection() {
               key={i}
               variant={variants[i % variants.length]}
               tag={`PHASE 0${st.step}`}
-              issueNumber={st.phase}
               className="workflow-step-card"
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>

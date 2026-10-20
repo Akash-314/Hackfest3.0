@@ -411,10 +411,11 @@ export const sdcService = {
   },
 
   /**
-   * Group members into the exact required 3 sections:
+   * Group members into sections:
    * 1. Faculty Coordinator
    * 2. Mentors
    * 3. Coordinators
+   * 4. Volunteers
    */
   groupMembers(list) {
     const faculty = list
@@ -429,11 +430,16 @@ export const sdcService = {
       .filter((m) => m.category === 'coordinator')
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
+    const volunteers = list
+      .filter((m) => m.category === 'volunteer')
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
     return {
       faculty,
       mentors,
       coordinators,
-      all: [...faculty, ...mentors, ...coordinators],
+      volunteers,
+      all: [...faculty, ...mentors, ...coordinators, ...volunteers],
     };
   },
 
@@ -450,7 +456,12 @@ export const sdcService = {
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      return data || [];
+      return (data || []).map((m) => ({
+        ...m,
+        linkedin_url: m.social_links?.linkedin || m.linkedin_url || '',
+        github_url: m.social_links?.github || m.github_url || '',
+        public_contact_email: m.social_links?.email || m.public_contact_email || m.email || '',
+      }));
     } catch (err) {
       console.warn('Failed to load sdc_members from Supabase:', err.message);
       return [];
@@ -458,11 +469,24 @@ export const sdcService = {
   },
 
   /**
-   * Add a new SDC member
+   * Add a new SDC member or volunteer
    */
   async createMember(memberData) {
     if (!isSupabaseConfigured) {
       throw new Error('Supabase is not configured.');
+    }
+
+    const social_links = {
+      ...(memberData.social_links || {}),
+    };
+    if (memberData.linkedin_url !== undefined) {
+      social_links.linkedin = memberData.linkedin_url.trim() || undefined;
+    }
+    if (memberData.github_url !== undefined) {
+      social_links.github = memberData.github_url.trim() || undefined;
+    }
+    if (memberData.public_contact_email !== undefined) {
+      social_links.email = memberData.public_contact_email.trim() || undefined;
     }
 
     const { data, error } = await supabase
@@ -474,7 +498,7 @@ export const sdcService = {
           role_title: memberData.role_title,
           bio: memberData.bio || '',
           photo_url: memberData.photo_url || null,
-          social_links: memberData.social_links || {},
+          social_links,
           sort_order: memberData.sort_order || 0,
           is_active: memberData.is_active !== undefined ? memberData.is_active : true,
           created_at: new Date().toISOString(),
@@ -489,17 +513,36 @@ export const sdcService = {
   },
 
   /**
-   * Update an existing SDC member
+   * Update an existing SDC member or volunteer
    */
   async updateMember(id, updates) {
     if (!isSupabaseConfigured) {
       throw new Error('Supabase is not configured.');
     }
 
+    const payload = { ...updates };
+
+    // Format social_links safely
+    if (
+      updates.linkedin_url !== undefined ||
+      updates.github_url !== undefined ||
+      updates.public_contact_email !== undefined
+    ) {
+      payload.social_links = {
+        ...(payload.social_links || {}),
+        ...(updates.linkedin_url !== undefined ? { linkedin: updates.linkedin_url.trim() || undefined } : {}),
+        ...(updates.github_url !== undefined ? { github: updates.github_url.trim() || undefined } : {}),
+        ...(updates.public_contact_email !== undefined ? { email: updates.public_contact_email.trim() || undefined } : {}),
+      };
+      delete payload.linkedin_url;
+      delete payload.github_url;
+      delete payload.public_contact_email;
+    }
+
     const { data, error } = await supabase
       .from('sdc_members')
       .update({
-        ...updates,
+        ...payload,
         updated_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -511,7 +554,7 @@ export const sdcService = {
   },
 
   /**
-   * Delete an SDC member
+   * Delete an SDC member or volunteer
    */
   async deleteMember(id) {
     if (!isSupabaseConfigured) {

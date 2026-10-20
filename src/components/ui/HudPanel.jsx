@@ -35,7 +35,7 @@ export default function HudPanel({
           left: '12%',
           right: '12%',
           height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(99, 230, 209, 0.35), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(57, 255, 136, 0.35), transparent)',
           pointerEvents: 'none',
         }}
       />
@@ -43,36 +43,45 @@ export default function HudPanel({
       {/* Header Tag Bar */}
       {tag && (
         <div
+          className="hud-panel-header"
           style={{
-            padding: '0.65rem 1.15rem',
+            position: 'relative',
+            zIndex: 2,
+            padding: '0.75rem 1.25rem',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-            background: 'rgba(255, 255, 255, 0.015)',
+            borderBottom: '1px solid var(--border-subtle, #1C382A)',
+            background: 'rgba(11, 23, 17, 0.75)',
+            boxSizing: 'border-box',
           }}
         >
-          <span
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.72rem',
-              letterSpacing: '0.09em',
-              textTransform: 'uppercase',
-              color: 'var(--color-text-secondary)',
-              fontWeight: 600,
-            }}
-          >
-            {tag}
-          </span>
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: '#63E6D1',
-              boxShadow: '0 0 8px rgba(99, 230, 209, 0.6)',
-            }}
-          />
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.55rem', minWidth: 0 }}>
+            <span
+              style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: '#39FF88',
+                boxShadow: '0 0 6px rgba(57, 255, 136, 0.45)',
+                flexShrink: 0,
+              }}
+              aria-hidden="true"
+            />
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 'clamp(0.8125rem, 1.1vw, 0.875rem)',
+                letterSpacing: '0.11em',
+                textTransform: 'uppercase',
+                color: 'var(--color-holo-cyan, #8DDBB0)',
+                fontWeight: 600,
+                lineHeight: 1.2,
+              }}
+            >
+              {tag}
+            </span>
+          </div>
         </div>
       )}
 

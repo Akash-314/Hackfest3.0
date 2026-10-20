@@ -10,6 +10,7 @@ import {
   Shield,
   ArrowLeft,
   RefreshCw,
+  HeartHandshake,
 } from 'lucide-react';
 
 export default function SdcMembersPage() {
@@ -17,6 +18,7 @@ export default function SdcMembersPage() {
     faculty: [],
     mentors: [],
     coordinators: [],
+    volunteers: [],
     all: [],
   });
   const [loading, setLoading] = useState(true);
@@ -30,7 +32,13 @@ export default function SdcMembersPage() {
     setLoading(true);
     try {
       const data = await sdcService.getPublicMembers();
-      setMembers(data);
+      setMembers({
+        faculty: data.faculty || [],
+        mentors: data.mentors || [],
+        coordinators: data.coordinators || [],
+        volunteers: data.volunteers || [],
+        all: data.all || [],
+      });
     } catch (err) {
       console.error('Failed to load SDC members:', err);
     } finally {
@@ -41,14 +49,16 @@ export default function SdcMembersPage() {
   const renderMemberCard = (member, categoryKey = 'faculty') => {
     const isFaculty = categoryKey === 'faculty' || member.category === 'faculty_coordinator';
 
-    const contactEmail = member.email || member.social_links?.email || (!isFaculty ? 'sdc2021recbanda@gmail.com' : null);
-    const contactHref = (!isFaculty && contactEmail) ? `mailto:${contactEmail}` : null;
-    const contactText = isFaculty ? null : 'Contact';
+    // Social links (all optional, validated inside ProfileCard)
+    const linkedinUrl = member.social_links?.linkedin || member.linkedin_url || null;
+    const githubUrl = member.social_links?.github || member.github_url || null;
+    const contactEmail = member.public_contact_email || member.email || member.social_links?.email || null;
 
     const defaultAvatars = {
       faculty: '/images/faculty/dr_vibhash_yadav.png',
       mentor: '/images/sdc-avatar-placeholder.svg',
       coordinator: '/images/sdc-avatar-placeholder.svg',
+      volunteer: '/images/sdc-avatar-placeholder.svg',
     };
 
     const avatar = member.avatarUrl || member.photo_url || defaultAvatars[categoryKey] || defaultAvatars.coordinator;
@@ -58,8 +68,9 @@ export default function SdcMembersPage() {
 
     const statusDefaults = {
       faculty: { status: 'Faculty Leadership', statusColor: '#F5C451', backdrop: '#282015' },
-      mentor: { status: 'Technical Mentor', statusColor: '#63E6D1', backdrop: '#10262b' },
+      mentor: { status: 'Technical Mentor', statusColor: '#39FF88', backdrop: '#0B1711' },
       coordinator: { status: 'Event Coordinator', statusColor: '#10B981', backdrop: '#1f162b' },
+      volunteer: { status: 'SDC Volunteer', statusColor: '#A78BFA', backdrop: '#1c152b' },
     };
 
     const currentStatus = member.status || statusDefaults[categoryKey]?.status || 'Active Member';
@@ -76,8 +87,9 @@ export default function SdcMembersPage() {
           handle={handle}
           status={currentStatus}
           statusColor={currentStatusColor}
-          contactText={contactText}
-          contactHref={contactHref}
+          linkedinUrl={linkedinUrl}
+          githubUrl={githubUrl}
+          contactEmail={contactEmail}
           backdropColor={currentBackdrop}
           theme="dark"
           holo={0.82}
@@ -358,6 +370,86 @@ export default function SdcMembersPage() {
                   }}
                 >
                   {members.coordinators.map((member) => renderMemberCard(member, 'coordinator'))}
+                </div>
+              )}
+            </section>
+
+            {/* ============================================================== */}
+            {/* 4. VOLUNTEERS SECTION (NEW DEDICATED SECTION)                   */}
+            {/* ============================================================== */}
+            <section aria-labelledby="heading-volunteers">
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  marginBottom: '1.5rem',
+                  paddingBottom: '0.75rem',
+                  borderBottom: '1px solid rgba(167, 139, 250, 0.3)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '6px',
+                    background: 'rgba(167, 139, 250, 0.15)',
+                    border: '1px solid #A78BFA',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#A78BFA',
+                  }}
+                >
+                  <HeartHandshake size={20} />
+                </div>
+                <div>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#A78BFA', letterSpacing: '0.12em' }}>
+                    OPERATIONAL SUPPORT CORPS
+                  </span>
+                  <h2
+                    id="heading-volunteers"
+                    style={{
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: '1.65rem',
+                      color: 'var(--color-warm-off-white)',
+                      margin: 0,
+                    }}
+                  >
+                    VOLUNTEERS {members.volunteers.length > 0 ? `(${members.volunteers.length})` : ''}
+                  </h2>
+                </div>
+              </div>
+
+              {members.volunteers.length === 0 ? (
+                <div
+                  style={{
+                    padding: '3rem 2rem',
+                    textAlign: 'center',
+                    background: 'rgba(30, 41, 59, 0.35)',
+                    border: '1px dashed rgba(167, 139, 250, 0.3)',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <HeartHandshake size={34} style={{ margin: '0 auto 0.75rem auto', display: 'block', color: '#A78BFA', opacity: 0.7 }} />
+                  <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', color: '#fff', letterSpacing: '0.05em' }}>
+                    VOLUNTEER PROFILES COMING SOON
+                  </div>
+                  <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)', maxWidth: '520px', margin: '0.5rem auto 0 auto', lineHeight: '1.55' }}>
+                    Our dedicated student volunteers supporting hackathon operations, technical logistics, and participant assistance will be announced here soon.
+                  </p>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                    gap: '2.5rem',
+                    justifyContent: 'center',
+                    alignItems: 'start',
+                  }}
+                >
+                  {members.volunteers.map((member) => renderMemberCard(member, 'volunteer'))}
                 </div>
               )}
             </section>

@@ -75,8 +75,8 @@
 .sponsor-marquee-card {
   width: clamp(230px, 20vw, 275px);
   height: 132px;
-  background: linear-gradient(135deg, rgba(16, 22, 32, 0.9) 0%, rgba(8, 10, 16, 0.95) 100%);
-  border: 1px solid rgba(0, 217, 255, 0.2);
+  background: linear-gradient(135deg, rgba(11, 23, 17, 0.92) 0%, rgba(8, 10, 9, 0.98) 100%);
+  border: 1px solid var(--border-subtle);
   border-radius: 10px;
   padding: 1rem 1.2rem;
   display: flex;
@@ -92,8 +92,8 @@
 }
 
 .sponsor-marquee-card:hover {
-  border-color: var(--color-arc-cyan, #00D9FF);
-  box-shadow: 0 0 25px rgba(0, 217, 255, 0.3), 0 8px 24px rgba(0, 0, 0, 0.7);
+  border-color: var(--color-primary-emerald, #39FF88);
+  box-shadow: 0 0 20px rgba(57, 255, 136, 0.22), 0 8px 24px rgba(0, 0, 0, 0.7);
   transform: translateY(-3px);
 }
 
@@ -158,7 +158,7 @@
 .sponsor-marquee-tag {
   font-family: var(--font-mono, monospace);
   font-size: 0.68rem;
-  color: var(--color-arc-cyan, #00D9FF);
+  color: var(--color-muted-green, #8DDBB0);
   letter-spacing: 0.08em;
   font-weight: 600;
   white-space: nowrap;

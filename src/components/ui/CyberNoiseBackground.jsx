@@ -17,9 +17,9 @@ export default function CyberNoiseBackground() {
     const particleCount = Math.min(width > 768 ? 40 : 18, 40);
     const particles = [];
 
-    // Refined premium color system: Teal, Silver, Muted Violet
+    // Refined premium color system: Emerald, Silver, Muted Violet
     const colors = [
-      'rgba(99, 230, 209, 0.25)',  // #63E6D1 teal
+      'rgba(57, 255, 136, 0.20)',  // #39FF88 emerald
       'rgba(199, 206, 216, 0.20)', // #C7CED8 silver
       'rgba(155, 138, 251, 0.18)', // #9B8AFB muted violet
     ];

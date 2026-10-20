@@ -74,7 +74,6 @@ export default function PrizesSection() {
                 key={card.place}
                 variant={card.variant}
                 tag={card.place}
-                issueNumber={card.badgeText}
                 className={`podium-card ${card.dominant ? 'dominant-podium' : ''}`}
                 style={card.dominant ? { borderColor: 'rgba(245, 196, 81, 0.4)', background: 'rgba(255, 255, 255, 0.055)' } : {}}
               >

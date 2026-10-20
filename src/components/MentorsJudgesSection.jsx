@@ -86,7 +86,7 @@ export default function MentorsJudgesSection() {
                   key={judge.id || idx}
                   variant="teal"
                   tag={`ACADEMIC JURY 0${idx + 1}`}
-                  issueNumber={judge.organization ? judge.organization.slice(0, 14) : 'PATRON'}
+                  issueNumber={judge.organization ? judge.organization.slice(0, 14) : ''}
                 >
                   <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.85rem' }}>
@@ -95,12 +95,12 @@ export default function MentorsJudgesSection() {
                           width: 42,
                           height: 42,
                           borderRadius: '50%',
-                          background: 'rgba(99, 230, 209, 0.1)',
-                          border: '1px solid rgba(99, 230, 209, 0.25)',
+                          background: 'rgba(57, 255, 136, 0.08)',
+                          border: '1px solid #1C382A',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          color: '#63E6D1',
+                          color: '#39FF88',
                           flexShrink: 0,
                         }}
                       >
@@ -110,7 +110,7 @@ export default function MentorsJudgesSection() {
                         <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', color: '#F5F5F7', margin: 0 }}>
                           {judge.name}
                         </h3>
-                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: '#63E6D1' }}>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: '#8DDBB0' }}>
                           {judge.designation}
                         </div>
                       </div>
@@ -127,7 +127,6 @@ export default function MentorsJudgesSection() {
             <SuperheroPanel
               variant="gold"
               tag="EXTERNAL JURY"
-              issueNumber="ANNOUNCEMENT"
               style={{ opacity: 0.95 }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center' }}>
@@ -184,7 +183,7 @@ export default function MentorsJudgesSection() {
                       key={mentor.id || idx}
                       variant="violet"
                       tag={`MENTOR 0${idx + 1}`}
-                      issueNumber={mentor.organization ? mentor.organization.slice(0, 14) : 'ENGINEER'}
+                      issueNumber={mentor.organization ? mentor.organization.slice(0, 14) : ''}
                     >
                       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.85rem' }}>
@@ -269,7 +268,7 @@ export default function MentorsJudgesSection() {
               gap: '1.5rem',
             }}
           >
-            <SuperheroPanel variant="teal" tag="RUBRIC 01" issueNumber="HACKATHON">
+            <SuperheroPanel variant="teal" tag="RUBRIC 01">
               <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', color: '#F5F5F7', marginBottom: '1rem' }}>
                 Hackathon Scoring Rubric
               </h3>
@@ -283,13 +282,13 @@ export default function MentorsJudgesSection() {
                 ]).map((c, i) => (
                   <li key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#A1A6B3', borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '0.4rem' }}>
                     <span>{c.criterion || c}</span>
-                    <span style={{ fontFamily: 'var(--font-mono)', color: '#63E6D1', fontWeight: 600 }}>{c.weight || ''}</span>
+                    <span style={{ fontFamily: 'var(--font-mono)', color: '#39FF88', fontWeight: 600 }}>{c.weight || ''}</span>
                   </li>
                 ))}
               </ul>
             </SuperheroPanel>
 
-            <SuperheroPanel variant="violet" tag="RUBRIC 02" issueNumber="IDEATHON">
+            <SuperheroPanel variant="violet" tag="RUBRIC 02">
               <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', color: '#F5F5F7', marginBottom: '1rem' }}>
                 Ideathon Scoring Rubric
               </h3>

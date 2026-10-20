@@ -38,7 +38,7 @@ export default function Footer() {
           left: '15%',
           right: '15%',
           height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(99, 230, 209, 0.35), transparent)',
+          background: 'linear-gradient(90deg, transparent, rgba(57, 255, 136, 0.35), transparent)',
         }}
       />
 
@@ -48,7 +48,7 @@ export default function Footer() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '1.2rem' }}>
               <h3 className="heading-display" style={{ fontSize: '1.5rem', letterSpacing: '0.04em', color: '#F5F5F7', margin: 0 }}>
-                HACKFEST <span style={{ color: '#63E6D1' }}>3.0</span>
+                HACKFEST <span style={{ color: '#39FF88' }}>3.0</span>
               </h3>
             </div>
             <p style={{ color: '#A1A6B3', fontSize: '0.9rem', marginBottom: '1.2rem', lineHeight: '1.6' }}>
@@ -103,15 +103,15 @@ export default function Footer() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#747B89', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
-              <MapPin size={15} color="#63E6D1" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
+              <MapPin size={15} color="#39FF88" />
               <span>{meta.venueShort}</span>
             </div>
           </div>
 
           {/* Col 2: Quick Links */}
           <div>
-            <h4 className="footer-col-title" style={{ fontFamily: 'var(--font-heading)', color: '#63E6D1', letterSpacing: '0.1em' }}>
+            <h4 className="footer-col-title" style={{ fontFamily: 'var(--font-heading)', color: '#39FF88', letterSpacing: '0.1em' }}>
               QUICK LINKS
             </h4>
             <ul className="footer-links">
@@ -227,8 +227,8 @@ export default function Footer() {
               </a>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#A1A6B3', fontSize: '0.84rem' }}>
-              <Mail size={14} color="#63E6D1" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-secondary)', fontSize: '0.84rem' }}>
+              <Mail size={14} color="#39FF88" />
               <a href={`mailto:${meta?.contactEmail || eventMeta.contactEmail || 'sdc2021recbanda@gmail.com'}`} style={{ color: 'inherit', textDecoration: 'none' }}>
                 {meta?.contactEmail || eventMeta.contactEmail || 'sdc2021recbanda@gmail.com'}
               </a>

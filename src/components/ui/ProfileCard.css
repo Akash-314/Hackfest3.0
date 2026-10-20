@@ -40,7 +40,7 @@
 }
 
 .profile-card:hover .profile-card__body {
-  border-color: rgba(99, 230, 209, 0.4);
+  border-color: rgba(57, 255, 136, 0.35);
 }
 
 .profile-card__tile {
@@ -295,6 +295,8 @@
   line-height: 1.25;
   color: var(--pc-muted);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-card__status::before {
@@ -305,6 +307,76 @@
   border-radius: 50%;
   background: var(--pc-status);
   box-shadow: 0 0 6px var(--pc-status);
+}
+
+.profile-card__socials {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  margin-left: auto;
+}
+
+.profile-card__social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: calc(var(--pc-radius) * 0.5);
+  background: var(--pc-tile);
+  box-shadow:
+    inset 0 0 0 1px var(--pc-tile-edge),
+    inset 0 1px 0 var(--pc-tile-highlight),
+    var(--pc-tile-shadow);
+  color: var(--pc-ink);
+  cursor: pointer;
+  transition:
+    filter 0.2s ease,
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+  text-decoration: none;
+  flex: none;
+}
+
+.profile-card__social-btn:hover {
+  background: rgba(57, 255, 136, 0.12);
+  color: #39FF88;
+  filter: var(--pc-hover);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(57, 255, 136, 0.35),
+    inset 0 1px 0 var(--pc-tile-highlight),
+    0 4px 12px rgba(57, 255, 136, 0.15);
+}
+
+.profile-card__social-btn:active {
+  filter: var(--pc-press);
+  transform: scale(0.94);
+  transition-duration: 0s;
+}
+
+.profile-card__social-btn:focus-visible {
+  outline: 2px solid var(--color-arc-blue, #00BFFF);
+  outline-offset: 2px;
+}
+
+@media (max-width: 360px) {
+  .profile-card__socials {
+    gap: 4px;
+  }
+  .profile-card__social-btn {
+    width: 28px;
+    height: 28px;
+  }
+  .profile-card__social-btn svg {
+    width: 13px;
+    height: 13px;
+  }
 }
 
 .profile-card__contact {
@@ -334,8 +406,8 @@
 }
 
 .profile-card__contact:hover {
-  background: rgba(99, 230, 209, 0.15);
-  color: #63E6D1;
+  background: rgba(57, 255, 136, 0.12);
+  color: #39FF88;
 }
 
 .profile-card__contact:active {

@@ -149,8 +149,8 @@ export default function CompetitionDropdown({
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0.8rem 1rem',
-          background: 'rgba(17, 24, 39, 0.95)',
-          border: isOpen ? '1px solid #63E6D1' : '1px solid rgba(255, 255, 255, 0.12)',
+          background: 'rgba(11, 23, 17, 0.95)',
+          border: isOpen ? '1px solid #39FF88' : '1px solid #1C382A',
           borderRadius: '8px',
           color: '#F4F4F5',
           fontFamily: 'var(--font-body)',
@@ -158,7 +158,7 @@ export default function CompetitionDropdown({
           cursor: disabled ? 'not-allowed' : 'pointer',
           textAlign: 'left',
           boxShadow: isOpen
-            ? '0 0 0 2px rgba(99, 230, 209, 0.2), 0 8px 24px rgba(0, 0, 0, 0.5)'
+            ? '0 0 0 2px rgba(57, 255, 136, 0.2), 0 8px 24px rgba(0, 0, 0, 0.5)'
             : '0 4px 12px rgba(0, 0, 0, 0.25)',
           transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
           outline: 'none',
@@ -170,12 +170,12 @@ export default function CompetitionDropdown({
               width: '28px',
               height: '28px',
               borderRadius: '6px',
-              background: 'rgba(99, 230, 209, 0.1)',
-              border: '1px solid rgba(99, 230, 209, 0.25)',
+              background: 'rgba(57, 255, 136, 0.1)',
+              border: '1px solid rgba(57, 255, 136, 0.25)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#63E6D1',
+              color: '#39FF88',
               flexShrink: 0,
             }}
           >
@@ -220,8 +220,8 @@ export default function CompetitionDropdown({
             margin: 0,
             padding: '6px',
             listStyle: 'none',
-            background: '#12151D',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
+            background: '#0B1711',
+            border: '1px solid #1C382A',
             borderRadius: '10px',
             boxShadow: '0 16px 40px -8px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.04)',
             backdropFilter: 'blur(20px)',
@@ -251,7 +251,7 @@ export default function CompetitionDropdown({
                   borderRadius: '6px',
                   cursor: opt.isClosed ? 'not-allowed' : 'pointer',
                   background: isSelected
-                    ? 'rgba(99, 230, 209, 0.12)'
+                    ? 'rgba(57, 255, 136, 0.12)'
                     : isHighlighted
                     ? 'rgba(255, 255, 255, 0.06)'
                     : 'transparent',
@@ -267,15 +267,15 @@ export default function CompetitionDropdown({
                       height: '26px',
                       borderRadius: '5px',
                       background: isSelected
-                        ? 'rgba(99, 230, 209, 0.2)'
+                        ? 'rgba(57, 255, 136, 0.2)'
                         : 'rgba(255, 255, 255, 0.05)',
                       border: isSelected
-                        ? '1px solid rgba(99, 230, 209, 0.4)'
+                        ? '1px solid rgba(57, 255, 136, 0.4)'
                         : '1px solid rgba(255, 255, 255, 0.08)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: isSelected ? '#63E6D1' : '#9CA3AF',
+                      color: isSelected ? '#39FF88' : '#9CA3AF',
                       flexShrink: 0,
                     }}
                   >
@@ -287,7 +287,7 @@ export default function CompetitionDropdown({
                         style={{
                           fontWeight: isSelected ? 600 : 500,
                           fontSize: '0.92rem',
-                          color: opt.isClosed ? '#6B7280' : isSelected ? '#63E6D1' : '#F3F4F6',
+                          color: opt.isClosed ? '#6B7280' : isSelected ? '#39FF88' : '#F3F4F6',
                         }}
                       >
                         {opt.name}
@@ -323,7 +323,7 @@ export default function CompetitionDropdown({
                 </div>
 
                 {isSelected && (
-                  <Check size={16} color="#63E6D1" style={{ flexShrink: 0, marginLeft: '0.5rem' }} />
+                  <Check size={16} color="#39FF88" style={{ flexShrink: 0, marginLeft: '0.5rem' }} />
                 )}
               </li>
             );

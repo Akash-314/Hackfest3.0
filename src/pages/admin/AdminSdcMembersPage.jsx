@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminNav from '../../components/admin/AdminNav';
 import { sdcService } from '../../services/sdcService';
 import SuperheroPanel from '../../components/ui/SuperheroPanel';
+import ProfileCard from '../../components/ui/ProfileCard';
 import {
   Users2,
   Plus,
@@ -20,6 +21,7 @@ import {
   RefreshCw,
   X,
   Check,
+  HeartHandshake,
 } from 'lucide-react';
 
 function LinkedInIcon({ size = 16 }) {
@@ -159,40 +161,104 @@ export default function AdminSdcMembersPage() {
   const handleSaveMember = async (e) => {
     e.preventDefault();
     if (!form.name.trim() || !form.role_title.trim()) {
-      notify('Full name and role title are required', 'error');
+      notify('Full name and role / designation title are required', 'error');
       return;
+    }
+
+    // Validate LinkedIn URL if configured
+    const trimmedLinkedin = form.social_links.linkedin.trim();
+    if (trimmedLinkedin) {
+      let candidate = trimmedLinkedin;
+      if (!/^https?:\/\//i.test(candidate)) candidate = `https://${candidate}`;
+      try {
+        const parsed = new URL(candidate);
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          notify('Please provide a valid web URL for LinkedIn (e.g. https://linkedin.com/in/username)', 'error');
+          return;
+        }
+      } catch {
+        notify('Please provide a valid URL for LinkedIn (e.g. https://linkedin.com/in/username)', 'error');
+        return;
+      }
+    }
+
+    // Validate GitHub URL if configured
+    const trimmedGithub = form.social_links.github.trim();
+    if (trimmedGithub) {
+      let candidate = trimmedGithub;
+      if (!/^https?:\/\//i.test(candidate)) candidate = `https://${candidate}`;
+      try {
+        const parsed = new URL(candidate);
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          notify('Please provide a valid web URL for GitHub (e.g. https://github.com/username)', 'error');
+          return;
+        }
+      } catch {
+        notify('Please provide a valid URL for GitHub (e.g. https://github.com/username)', 'error');
+        return;
+      }
+    }
+
+    // Validate Public Contact Email if configured
+    const trimmedEmail = form.social_links.email.trim().replace(/^mailto:/i, '');
+    if (trimmedEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedEmail) || /[\r\n]/.test(trimmedEmail)) {
+        notify('Please provide a valid Public Contact Email address (e.g. volunteer@domain.com)', 'error');
+        return;
+      }
     }
 
     setSaving(true);
     try {
+      const social_links = {};
+      if (trimmedLinkedin) {
+        social_links.linkedin = /^https?:\/\//i.test(trimmedLinkedin) ? trimmedLinkedin : `https://${trimmedLinkedin}`;
+      }
+      if (trimmedGithub) {
+        social_links.github = /^https?:\/\//i.test(trimmedGithub) ? trimmedGithub : `https://${trimmedGithub}`;
+      }
+      if (trimmedEmail) {
+        social_links.email = trimmedEmail;
+      }
+      if (form.social_links.twitter?.trim()) {
+        social_links.twitter = form.social_links.twitter.trim();
+      }
+
       const payload = {
         name: form.name.trim(),
         category: form.category,
         role_title: form.role_title.trim(),
         bio: form.bio.trim(),
         photo_url: form.photo_url.trim() || null,
-        social_links: {
-          linkedin: form.social_links.linkedin.trim() || undefined,
-          github: form.social_links.github.trim() || undefined,
-          email: form.social_links.email.trim() || undefined,
-          twitter: form.social_links.twitter.trim() || undefined,
-        },
+        social_links,
         sort_order: Number(form.sort_order) || 1,
         is_active: form.is_active,
       };
 
+      const entityType = form.category === 'volunteer' ? 'Volunteer' : 'SDC Member';
+
       if (editingMember) {
         await sdcService.updateMember(editingMember.id, payload);
-        notify(`Updated SDC Member profile for "${payload.name}"`);
+        notify(`Updated ${entityType} profile for "${payload.name}" successfully.`);
       } else {
         await sdcService.createMember(payload);
-        notify(`Added new SDC Member "${payload.name}"`);
+        notify(`Added new ${entityType} "${payload.name}" successfully.`);
       }
 
       setModalOpen(false);
       await loadMembers();
     } catch (err) {
-      notify('Failed to save SDC member: ' + err.message, 'error');
+      console.error('Failed to save SDC member:', err);
+      const isConstraintError = err.message?.includes('check constraint') || err.message?.includes('sdc_members_category_check');
+      if (isConstraintError && form.category === 'volunteer') {
+        notify(
+          'Database constraint: The "volunteer" category requires executing migration 20261018_add_volunteer_and_social_links_to_sdc_members.sql in Supabase SQL editor.',
+          'error'
+        );
+      } else {
+        notify('Failed to save profile: ' + (err.message || 'Unknown database error'), 'error');
+      }
     } finally {
       setSaving(false);
     }
@@ -200,13 +266,13 @@ export default function AdminSdcMembersPage() {
 
   // Delete Member
   const handleDeleteMember = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to remove member "${name}" from the SDC roster?`)) return;
+    if (!window.confirm(`Are you sure you want to remove "${name}" from the roster?`)) return;
     try {
       await sdcService.deleteMember(id);
-      notify(`Member "${name}" has been removed from SDC registry.`);
+      notify(`Profile "${name}" has been removed from SDC registry.`);
       setMembers(members.filter((m) => m.id !== id));
     } catch (err) {
-      notify('Failed to delete member: ' + err.message, 'error');
+      notify('Failed to delete profile: ' + err.message, 'error');
     }
   };
 
@@ -242,6 +308,14 @@ export default function AdminSdcMembersPage() {
         color: 'var(--color-arc-blue)',
         bg: 'rgba(0, 191, 255, 0.15)',
         icon: Sparkles,
+      };
+    }
+    if (cat === 'volunteer') {
+      return {
+        label: 'VOLUNTEER',
+        color: '#A78BFA',
+        bg: 'rgba(167, 139, 250, 0.15)',
+        icon: HeartHandshake,
       };
     }
     return {
@@ -343,6 +417,7 @@ export default function AdminSdcMembersPage() {
               { id: 'faculty_coordinator', label: '1. FACULTY COORDINATOR' },
               { id: 'mentor', label: '2. MENTORS' },
               { id: 'coordinator', label: '3. COORDINATORS' },
+              { id: 'volunteer', label: '4. VOLUNTEERS' },
             ].map((tab) => {
               const active = categoryFilter === tab.id;
               return (
@@ -401,7 +476,7 @@ export default function AdminSdcMembersPage() {
                 >
                   <th style={{ padding: '0.9rem 1rem' }}>MEMBER / PHOTOGRAPH</th>
                   <th style={{ padding: '0.9rem 1rem' }}>CATEGORY</th>
-                  <th style={{ padding: '0.9rem 1rem' }}>ROLE / DESIGNATION</th>
+                  <th style={{ padding: '0.9rem 1rem' }}>ROLE & SOCIAL LINKS</th>
                   <th style={{ padding: '0.9rem 1rem', textAlign: 'center' }}>SORT ORDER</th>
                   <th style={{ padding: '0.9rem 1rem' }}>STATUS</th>
                   <th style={{ padding: '0.9rem 1rem', textAlign: 'right' }}>ACTIONS</th>
@@ -420,17 +495,17 @@ export default function AdminSdcMembersPage() {
                     <td colSpan="6" style={{ padding: '3.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                       <Users2 size={36} style={{ margin: '0 auto 0.75rem auto', display: 'block', opacity: 0.3 }} />
                       <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', color: '#fff' }}>
-                        NO SDC MEMBERS IN THIS CATEGORY
+                        NO PROFILES IN THIS CATEGORY
                       </div>
                       <p style={{ fontSize: '0.85rem', margin: '0.3rem 0 1rem 0' }}>
-                        Click "Add Member" above to register leaders, mentors, or student coordinators.
+                        Click "Add Member" above to register faculty leaders, mentors, coordinators, or volunteers.
                       </p>
                       <button
                         onClick={handleOpenAdd}
                         className="btn btn-primary"
                         style={{ padding: '0.45rem 1rem', fontSize: '0.8rem' }}
                       >
-                        + ADD NEW MEMBER
+                        + ADD NEW PROFILE
                       </button>
                     </td>
                   </tr>
@@ -509,9 +584,75 @@ export default function AdminSdcMembersPage() {
                           </span>
                         </td>
 
-                        {/* Role Title */}
+                        {/* Role Title & Social Links */}
                         <td style={{ padding: '0.9rem 1rem', fontSize: '0.85rem', color: 'var(--color-warm-off-white)' }}>
-                          {m.role_title}
+                          <div style={{ fontWeight: 500, marginBottom: '0.3rem' }}>{m.role_title}</div>
+                          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                            {m.social_links?.linkedin && (
+                              <a
+                                href={m.social_links.linkedin}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title={`LinkedIn: ${m.social_links.linkedin}`}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: '22px',
+                                  height: '22px',
+                                  borderRadius: '3px',
+                                  background: 'rgba(0, 119, 181, 0.2)',
+                                  color: '#60A5FA',
+                                  border: '1px solid rgba(96, 165, 250, 0.3)',
+                                }}
+                              >
+                                <LinkedInIcon size={12} />
+                              </a>
+                            )}
+                            {m.social_links?.github && (
+                              <a
+                                href={m.social_links.github}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title={`GitHub: ${m.social_links.github}`}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: '22px',
+                                  height: '22px',
+                                  borderRadius: '3px',
+                                  background: 'rgba(255, 255, 255, 0.1)',
+                                  color: '#F1F5F9',
+                                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                                }}
+                              >
+                                <GitHubIcon size={12} />
+                              </a>
+                            )}
+                            {m.social_links?.email && (
+                              <a
+                                href={`mailto:${m.social_links.email}`}
+                                title={`Email: ${m.social_links.email}`}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: '22px',
+                                  height: '22px',
+                                  borderRadius: '3px',
+                                  background: 'rgba(52, 211, 153, 0.15)',
+                                  color: '#34D399',
+                                  border: '1px solid rgba(52, 211, 153, 0.3)',
+                                }}
+                              >
+                                <Mail size={12} />
+                              </a>
+                            )}
+                            {!m.social_links?.linkedin && !m.social_links?.github && !m.social_links?.email && (
+                              <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>No social links</span>
+                            )}
+                          </div>
                         </td>
 
                         {/* Sort Order */}
@@ -655,7 +796,9 @@ export default function AdminSdcMembersPage() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                 <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.35rem', color: '#fff', margin: 0 }}>
-                  {editingMember ? 'UPDATE SDC MEMBER PROFILE' : 'ADD SDC MEMBER'}
+                  {editingMember
+                    ? `UPDATE ${form.category === 'volunteer' ? 'VOLUNTEER' : 'SDC MEMBER'} PROFILE`
+                    : `ADD ${form.category === 'volunteer' ? 'VOLUNTEER' : 'SDC MEMBER'}`}
                 </h3>
                 <button
                   onClick={() => setModalOpen(false)}
@@ -680,6 +823,7 @@ export default function AdminSdcMembersPage() {
                       <option value="faculty_coordinator">1. FACULTY COORDINATOR</option>
                       <option value="mentor">2. MENTOR</option>
                       <option value="coordinator">3. COORDINATOR</option>
+                      <option value="volunteer">4. VOLUNTEER</option>
                     </select>
                   </div>
 
@@ -841,57 +985,58 @@ export default function AdminSdcMembersPage() {
                 </div>
 
                 {/* Social Links */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>
-                      LINKEDIN URL:
+                <div style={{ background: '#111827', padding: '1rem', borderRadius: '6px', marginBottom: '1.25rem', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <label style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-stark-gold)', fontWeight: 600 }}>
+                      SOCIAL PROFILES & CONTACT (ALL OPTIONAL):
                     </label>
-                    <input
-                      type="url"
-                      value={form.social_links.linkedin}
-                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, linkedin: e.target.value } })}
-                      placeholder="https://linkedin.com/in/..."
-                      style={{ width: '100%', padding: '0.55rem', background: '#111827', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff', fontSize: '0.8rem' }}
-                    />
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                      Leave blank to remove or omit icon from card
+                    </span>
                   </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>
-                      GITHUB URL:
-                    </label>
-                    <input
-                      type="url"
-                      value={form.social_links.github}
-                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, github: e.target.value } })}
-                      placeholder="https://github.com/..."
-                      style={{ width: '100%', padding: '0.55rem', background: '#111827', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff', fontSize: '0.8rem' }}
-                    />
-                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '0.75rem' }}>
+                    <div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#93C5FD', marginBottom: '0.25rem' }}>
+                        <LinkedInIcon size={13} />
+                        LINKEDIN PROFILE URL:
+                      </label>
+                      <input
+                        type="url"
+                        value={form.social_links.linkedin}
+                        onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, linkedin: e.target.value } })}
+                        placeholder="https://linkedin.com/in/username"
+                        style={{ width: '100%', padding: '0.55rem', background: '#1A1F26', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff', fontSize: '0.8rem' }}
+                      />
+                    </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>
-                      EMAIL / CONTACT:
-                    </label>
-                    <input
-                      type="text"
-                      value={form.social_links.email}
-                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, email: e.target.value } })}
-                      placeholder="member@gmail.com"
-                      style={{ width: '100%', padding: '0.55rem', background: '#111827', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff', fontSize: '0.8rem' }}
-                    />
-                  </div>
+                    <div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#D1D5DB', marginBottom: '0.25rem' }}>
+                        <GitHubIcon size={13} />
+                        GITHUB PROFILE URL:
+                      </label>
+                      <input
+                        type="url"
+                        value={form.social_links.github}
+                        onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, github: e.target.value } })}
+                        placeholder="https://github.com/username"
+                        style={{ width: '100%', padding: '0.55rem', background: '#1A1F26', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff', fontSize: '0.8rem' }}
+                      />
+                    </div>
 
-                  <div>
-                    <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '0.2rem' }}>
-                      TWITTER / PORTFOLIO:
-                    </label>
-                    <input
-                      type="url"
-                      value={form.social_links.twitter}
-                      onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, twitter: e.target.value } })}
-                      placeholder="https://x.com/..."
-                      style={{ width: '100%', padding: '0.55rem', background: '#111827', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff', fontSize: '0.8rem' }}
-                    />
+                    <div>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#34D399', marginBottom: '0.25rem' }}>
+                        <Mail size={13} />
+                        PUBLIC CONTACT EMAIL:
+                      </label>
+                      <input
+                        type="email"
+                        value={form.social_links.email}
+                        onChange={(e) => setForm({ ...form, social_links: { ...form.social_links, email: e.target.value } })}
+                        placeholder="volunteer@domain.com"
+                        style={{ width: '100%', padding: '0.55rem', background: '#1A1F26', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff', fontSize: '0.8rem' }}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -917,7 +1062,7 @@ export default function AdminSdcMembersPage() {
                     disabled={saving || uploadingPhoto}
                     className="btn btn-primary"
                   >
-                    {saving ? 'SAVING...' : editingMember ? 'UPDATE PROFILE' : 'ADD MEMBER'}
+                    {saving ? 'SAVING...' : editingMember ? 'UPDATE PROFILE' : 'ADD PROFILE'}
                   </button>
                 </div>
               </form>
@@ -948,7 +1093,7 @@ export default function AdminSdcMembersPage() {
                 border: '1px solid var(--color-arc-blue)',
                 borderRadius: '8px',
                 width: '100%',
-                maxWidth: '460px',
+                maxWidth: '400px',
                 padding: '1.5rem',
               }}
             >
@@ -962,65 +1107,67 @@ export default function AdminSdcMembersPage() {
                 </button>
               </div>
 
-              {/* Render Public Card representation */}
-              <SuperheroPanel
-                variant={previewMember.category === 'faculty_coordinator' ? 'gold' : 'blue'}
-                tag={`SDC // #${String(previewMember.sort_order || 1).padStart(2, '0')}`}
-                issueNumber="SDC"
-              >
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                  <div
-                    style={{
-                      width: '84px',
-                      height: '84px',
-                      borderRadius: '8px',
-                      overflow: 'hidden',
-                      flexShrink: 0,
-                      background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9))',
-                      border: '1px solid var(--color-stark-gold)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {previewMember.photo_url ? (
-                      <img
-                        src={previewMember.photo_url}
-                        alt={previewMember.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <User size={36} color="var(--color-stark-gold)" />
-                    )}
-                  </div>
-                  <div>
-                    <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', color: '#fff', margin: '0 0 0.25rem 0' }}>
-                      {previewMember.name}
-                    </h3>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--color-stark-gold)', fontWeight: 600 }}>
-                      {previewMember.role_title}
-                    </div>
-                  </div>
-                </div>
-
-                {previewMember.bio && (
-                  <p style={{ color: '#94A3B8', fontSize: '0.86rem', lineHeight: '1.55', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '0.75rem', margin: '0 0 1rem 0' }}>
-                    {previewMember.bio}
-                  </p>
-                )}
-
-                <div style={{ display: 'flex', gap: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  {previewMember.social_links?.linkedin && (
-                    <a href={previewMember.social_links.linkedin} target="_blank" rel="noreferrer" style={{ color: '#fff' }}><LinkedInIcon size={16} /></a>
-                  )}
-                  {previewMember.social_links?.github && (
-                    <a href={previewMember.social_links.github} target="_blank" rel="noreferrer" style={{ color: '#fff' }}><GitHubIcon size={16} /></a>
-                  )}
-                  {previewMember.social_links?.email && (
-                    <a href={`mailto:${previewMember.social_links.email}`} style={{ color: '#fff' }}><Mail size={16} /></a>
-                  )}
-                </div>
-              </SuperheroPanel>
+              {/* Render Public ProfileCard identical to the live site */}
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <ProfileCard
+                  avatarUrl={
+                    previewMember.photo_url ||
+                    (previewMember.category === 'faculty_coordinator'
+                      ? '/images/faculty/dr_vibhash_yadav.png'
+                      : '/images/sdc-avatar-placeholder.svg')
+                  }
+                  miniAvatarUrl={
+                    previewMember.photo_url ||
+                    (previewMember.category === 'faculty_coordinator'
+                      ? '/images/faculty/dr_vibhash_yadav_mini.png'
+                      : '/images/sdc-avatar-placeholder.svg')
+                  }
+                  name={previewMember.name}
+                  title={previewMember.role_title}
+                  handle={
+                    previewMember.category === 'faculty_coordinator'
+                      ? null
+                      : previewMember.handle || previewMember.name.toLowerCase().replace(/[^a-z0-9]/g, '_')
+                  }
+                  status={
+                    previewMember.category === 'faculty_coordinator'
+                      ? 'Faculty Leadership'
+                      : previewMember.category === 'mentor'
+                      ? 'Technical Mentor'
+                      : previewMember.category === 'volunteer'
+                      ? 'SDC Volunteer'
+                      : 'Event Coordinator'
+                  }
+                  statusColor={
+                    previewMember.category === 'faculty_coordinator'
+                      ? '#F5C451'
+                      : previewMember.category === 'mentor'
+                      ? '#39FF88'
+                      : previewMember.category === 'volunteer'
+                      ? '#A78BFA'
+                      : '#10B981'
+                  }
+                  linkedinUrl={previewMember.social_links?.linkedin}
+                  githubUrl={previewMember.social_links?.github}
+                  contactEmail={previewMember.social_links?.email}
+                  backdropColor={
+                    previewMember.category === 'faculty_coordinator'
+                      ? '#282015'
+                      : previewMember.category === 'mentor'
+                      ? '#0B1711'
+                      : previewMember.category === 'volunteer'
+                      ? '#1c152b'
+                      : '#1f162b'
+                  }
+                  theme="dark"
+                  holo={0.82}
+                  glare={0.48}
+                  tiltStrength={11}
+                  parallax={8}
+                  enableTilt={true}
+                  radius={16}
+                />
+              </div>
             </div>
           </div>
         )}
