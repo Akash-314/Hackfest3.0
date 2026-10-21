@@ -697,6 +697,7 @@ export const sponsorsData = {
     { name: "Rajkiya Engineering College Banda", tag: "REC Banda", role: "Host Institution" }
   ],
   partners: [
+    { name: ".xyz Domains", type: "Domain & Web3 Partner", logoText: ".XYZ DOMAINS" },
     { name: "Tech Partner Network", type: "Technical Platform", logoText: "PLATFORM PARTNER" },
     { name: "Community Ecosystem", type: "Student Community", logoText: "OUTREACH PARTNER" },
     { name: "Developer Guild", type: "Industry Mentorship", logoText: "KNOWLEDGE PARTNER" }
@@ -766,6 +767,22 @@ export const currentSponsorsList = [
     cardLogo: "/images/sponsors/kraftoper.png",
     website_url: "https://kraftoper.com",
     link: "https://kraftoper.com",
+    tier: "gold",
+    tierLabel: "OFFICIAL SPONSOR",
+    badge: "CONFIRMED ALLIANCE",
+    theme: "light",
+    is_published: true
+  },
+  {
+    id: "xyz",
+    name: ".xyz",
+    title: ".xyz Domains",
+    subtitle: "For Every Website, Everywhere®",
+    description: "The premier domain name registry unlocking innovative digital real estate for next-generation builders, creators, and Web3 developers worldwide.",
+    image: "/images/sponsors/xyz-tile.png",
+    cardLogo: "/images/sponsors/xyz.png",
+    website_url: "https://gen.xyz",
+    link: "https://gen.xyz",
     tier: "gold",
     tierLabel: "OFFICIAL SPONSOR",
     badge: "CONFIRMED ALLIANCE",

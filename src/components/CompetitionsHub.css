@@ -1,0 +1,174 @@
+/* ============================================================================
+   HACKFEST 3.0 — COMPETITIONS & CHALLENGES UNIFIED HUB
+   ============================================================================ */
+
+.competitions-unified-hub-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.hub-anchor-target {
+  position: relative;
+  top: -85px;
+  visibility: hidden;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+.hub-nav-banner {
+  background: linear-gradient(180deg, rgba(17, 24, 39, 0.95) 0%, rgba(10, 14, 20, 0.98) 100%);
+  border: 1px solid rgba(129, 193, 75, 0.25);
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.hub-nav-meta-top {
+  display: flex;
+  align-items: center;
+  justifyContent: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.hub-click-instruction {
+  font-family: var(--font-mono, 'Space Mono', monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--color-warm-amber, #ECBA82);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.hub-tabs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 992px) {
+  .hub-tabs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .hub-tabs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.hub-category-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justifyContent: space-between;
+  padding: 1rem 1.15rem;
+  background: rgba(22, 28, 38, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.hub-category-card:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(129, 193, 75, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.hub-category-card.active {
+  background: linear-gradient(145deg, rgba(30, 42, 56, 0.95) 0%, rgba(18, 26, 36, 0.98) 100%);
+  border-color: rgba(129, 193, 75, 0.8);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(129, 193, 75, 0.15);
+}
+
+.hub-category-card-top {
+  display: flex;
+  align-items: center;
+  justifyContent: space-between;
+  margin-bottom: 0.65rem;
+}
+
+.hub-category-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hub-category-badge {
+  font-family: var(--font-mono, 'Space Mono', monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  border: 1px solid;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.hub-category-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.hub-category-title {
+  font-family: var(--font-heading, 'Cinzel', serif);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+}
+
+.hub-category-sublabel {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary, #94A3B8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hub-category-active-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.hub-category-card.active .hub-category-active-bar {
+  opacity: 1;
+}
+
+.hub-tab-fade-in {
+  animation: hubFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes hubFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

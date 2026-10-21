@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Shield, Award, CheckCircle2 } from 'lucide-react';
+import { Users, Shield, CheckCircle2 } from 'lucide-react';
 import { mentorsAndJudges as defaultData, competitions } from '../data/eventData';
 import { eventService } from '../services/eventService';
 import SuperheroPanel from './ui/SuperheroPanel';
@@ -122,46 +122,6 @@ export default function MentorsJudgesSection() {
                   </div>
                 </SuperheroPanel>
               ))}
-
-            {/* Unannounced Guest Jury Status Card */}
-            <SuperheroPanel
-              variant="gold"
-              tag="EXTERNAL JURY"
-              style={{ opacity: 0.95 }}
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.85rem' }}>
-                  <div
-                    style={{
-                      width: 42,
-                      height: 42,
-                      borderRadius: '50%',
-                      background: 'rgba(245, 196, 81, 0.1)',
-                      border: '1px solid rgba(245, 196, 81, 0.25)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#F5C451',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Award size={20} />
-                  </div>
-                  <div>
-                    <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', color: '#F5F5F7', margin: 0 }}>
-                      GUEST INDUSTRY JURY
-                    </h3>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: '#F5C451' }}>
-                      DETAILS TO BE ANNOUNCED
-                    </div>
-                  </div>
-                </div>
-
-                <p style={{ color: '#A1A6B3', fontSize: '0.86rem', lineHeight: '1.5', margin: 0 }}>
-                  Distinguished industry leaders and technical evaluators from partner organizations are currently being finalized for the final evaluations.
-                </p>
-              </div>
-            </SuperheroPanel>
           </div>
         )}
 

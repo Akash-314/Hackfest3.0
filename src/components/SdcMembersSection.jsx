@@ -13,6 +13,7 @@ import {
 
 export default function SdcMembersSection() {
   const [members, setMembers] = useState({
+    director: [],
     faculty: [],
     mentors: [],
     coordinators: [],
@@ -20,6 +21,7 @@ export default function SdcMembersSection() {
     all: [],
   });
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('leadership'); // 'leadership' | 'mentors' | 'coordinators' | 'volunteers' | 'all'
 
   useEffect(() => {
     let isMounted = true;
@@ -28,6 +30,7 @@ export default function SdcMembersSection() {
         const data = await sdcService.getPublicMembers();
         if (isMounted && data) {
           setMembers({
+            director: data.director || [],
             faculty: data.faculty || [],
             mentors: data.mentors || [],
             coordinators: data.coordinators || [],
@@ -48,7 +51,7 @@ export default function SdcMembersSection() {
   }, []);
 
   const renderMemberCard = (member, categoryKey = 'faculty') => {
-    const isFaculty = categoryKey === 'faculty' || member.category === 'faculty_coordinator';
+    const isLeadership = categoryKey === 'director' || categoryKey === 'faculty' || member.category === 'director' || member.category === 'faculty_coordinator';
 
     // Social links (all optional, validated inside ProfileCard)
     const linkedinUrl = member.social_links?.linkedin || member.linkedin_url || null;
@@ -56,17 +59,24 @@ export default function SdcMembersSection() {
     const contactEmail = member.public_contact_email || member.email || member.social_links?.email || null;
 
     const defaultAvatars = {
-      faculty: '/images/faculty/dr_vibhash_yadav.png',
+      director: '/images/sdc-avatar-placeholder.svg',
+      faculty: '/images/sdc-avatar-placeholder.svg',
       mentor: '/images/sdc-avatar-placeholder.svg',
       coordinator: '/images/sdc-avatar-placeholder.svg',
       volunteer: '/images/sdc-avatar-placeholder.svg',
     };
 
-    const avatar = member.avatarUrl || member.photo_url || defaultAvatars[categoryKey] || defaultAvatars.coordinator;
+    let specificAvatar = null;
+    if (!member.avatarUrl && !member.photo_url && member.name?.toLowerCase().includes('vibhash')) {
+      specificAvatar = '/images/faculty/dr_vibhash_yadav.png';
+    }
+
+    const avatar = member.avatarUrl || member.photo_url || specificAvatar || defaultAvatars[categoryKey] || defaultAvatars.coordinator;
     const miniAvatar = member.miniAvatarUrl || avatar;
-    const handle = isFaculty ? null : (member.handle || member.name.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+    const handle = isLeadership ? null : (member.handle || member.name.toLowerCase().replace(/[^a-z0-9]/g, '_'));
 
     const statusDefaults = {
+      director: { status: 'Patron in Chief', statusColor: '#F5C451', backdrop: '#282015' },
       faculty: { status: 'Faculty Leadership', statusColor: '#F5C451', backdrop: '#282015' },
       mentor: { status: 'Technical Mentor', statusColor: '#39FF88', backdrop: '#0B1711' },
       coordinator: { status: 'Event Coordinator', statusColor: '#10B981', backdrop: '#1f162b' },
@@ -128,53 +138,176 @@ export default function SdcMembersSection() {
             </div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
-            {/* 1. FACULTY COORDINATOR */}
-            <div aria-labelledby="heading-faculty-sec">
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  marginBottom: '1.5rem',
-                  paddingBottom: '0.75rem',
-                  borderBottom: '1px solid rgba(245, 182, 66, 0.3)',
-                }}
-              >
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '6px',
-                    background: 'rgba(245, 182, 66, 0.15)',
-                    border: '1px solid var(--color-stark-gold)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--color-stark-gold)',
-                  }}
-                >
-                  <GraduationCap size={20} />
-                </div>
-                <div>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-stark-gold)', letterSpacing: '0.12em' }}>
-                    FACULTY LEADERSHIP
-                  </span>
-                  <h3
-                    id="heading-faculty-sec"
+          <div>
+            {/* Interactive Category Filter Toolbar */}
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '0.65rem',
+                flexWrap: 'wrap',
+                marginBottom: '2.5rem',
+              }}
+            >
+              {[
+                { id: 'leadership', label: 'LEADERSHIP & PATRONS', count: members.director.length + members.faculty.length, color: 'var(--color-stark-gold)', icon: GraduationCap },
+                { id: 'mentors', label: 'TECHNICAL MENTORS', count: members.mentors.length, color: 'var(--color-arc-blue)', icon: Sparkles },
+                { id: 'coordinators', label: 'STUDENT COORDINATORS', count: members.coordinators.length, color: '#ffb4b7', icon: Users },
+                { id: 'volunteers', label: 'VOLUNTEERS', count: members.volunteers.length, color: '#A78BFA', icon: HeartHandshake },
+                { id: 'all', label: 'VIEW ALL', count: members.director.length + members.faculty.length + members.mentors.length + members.coordinators.length + members.volunteers.length, color: 'var(--color-arc-cyan)', icon: Shield },
+              ].map((cat) => {
+                const active = selectedCategory === cat.id;
+                const Icon = cat.icon;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat.id)}
                     style={{
-                      fontFamily: 'var(--font-heading)',
-                      fontSize: '1.65rem',
-                      color: 'var(--color-warm-off-white)',
-                      margin: 0,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.45rem',
+                      padding: '0.55rem 1.15rem',
+                      borderRadius: '8px',
+                      border: active ? `1px solid ${cat.color}` : '1px solid rgba(255, 255, 255, 0.1)',
+                      background: active ? 'rgba(30, 42, 56, 0.95)' : 'rgba(18, 24, 34, 0.85)',
+                      color: active ? '#FFFFFF' : 'var(--color-text-secondary)',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.06em',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: active ? `0 4px 16px ${cat.color}25` : 'none',
                     }}
                   >
-                    FACULTY COORDINATOR
-                  </h3>
+                    <Icon size={14} color={active ? cat.color : 'currentColor'} />
+                    <span>{cat.label}</span>
+                    <span
+                      style={{
+                        padding: '0.12rem 0.45rem',
+                        borderRadius: '4px',
+                        background: active ? cat.color : 'rgba(255, 255, 255, 0.08)',
+                        color: active ? '#0B0F14' : 'var(--color-text-secondary)',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                      }}
+                    >
+                      {cat.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3.5rem' }}>
+              {/* 0. PATRON / DIRECTOR */}
+              {(selectedCategory === 'leadership' || selectedCategory === 'all') && members.director.length > 0 && (
+                <div aria-labelledby="heading-director-sec">
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    marginBottom: '1.5rem',
+                    paddingBottom: '0.75rem',
+                    borderBottom: '1px solid rgba(245, 182, 66, 0.3)',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '6px',
+                      background: 'rgba(245, 182, 66, 0.15)',
+                      border: '1px solid var(--color-stark-gold)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--color-stark-gold)',
+                    }}
+                  >
+                    <Shield size={20} />
+                  </div>
+                  <div>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-stark-gold)', letterSpacing: '0.12em' }}>
+                      PATRON IN CHIEF
+                    </span>
+                    <h3
+                      id="heading-director-sec"
+                      style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: '1.65rem',
+                        color: 'var(--color-warm-off-white)',
+                        margin: 0,
+                      }}
+                    >
+                      DIRECTOR
+                    </h3>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 340px))',
+                    gap: '2.5rem',
+                    justifyContent: 'center',
+                    alignItems: 'start',
+                  }}
+                >
+                  {members.director.map((member) => renderMemberCard(member, 'director'))}
                 </div>
               </div>
+            )}
 
-              {members.faculty.length > 0 && (
+            {/* 1. FACULTY COORDINATOR */}
+            {(selectedCategory === 'leadership' || selectedCategory === 'all') && members.faculty.length > 0 && (
+              <div aria-labelledby="heading-faculty-sec">
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    marginBottom: '1.5rem',
+                    paddingBottom: '0.75rem',
+                    borderBottom: '1px solid rgba(245, 182, 66, 0.3)',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '6px',
+                      background: 'rgba(245, 182, 66, 0.15)',
+                      border: '1px solid var(--color-stark-gold)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--color-stark-gold)',
+                    }}
+                  >
+                    <GraduationCap size={20} />
+                  </div>
+                  <div>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-stark-gold)', letterSpacing: '0.12em' }}>
+                      FACULTY LEADERSHIP
+                    </span>
+                    <h3
+                      id="heading-faculty-sec"
+                      style={{
+                        fontFamily: 'var(--font-heading)',
+                        fontSize: '1.65rem',
+                        color: 'var(--color-warm-off-white)',
+                        margin: 0,
+                      }}
+                    >
+                      FACULTY COORDINATOR
+                    </h3>
+                  </div>
+                </div>
+
                 <div
                   style={{
                     display: 'grid',
@@ -186,11 +319,11 @@ export default function SdcMembersSection() {
                 >
                   {members.faculty.map((member) => renderMemberCard(member, 'faculty'))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* 2. MENTORS */}
-            {members.mentors.length > 0 && (
+            {(selectedCategory === 'mentors' || selectedCategory === 'all') && members.mentors.length > 0 && (
               <div aria-labelledby="heading-mentors-sec">
                 <div
                   style={{
@@ -250,7 +383,7 @@ export default function SdcMembersSection() {
             )}
 
             {/* 3. COORDINATORS */}
-            {members.coordinators.length > 0 && (
+            {(selectedCategory === 'coordinators' || selectedCategory === 'all') && members.coordinators.length > 0 && (
               <div aria-labelledby="heading-coordinators-sec">
                 <div
                   style={{
@@ -310,7 +443,7 @@ export default function SdcMembersSection() {
             )}
 
             {/* 4. VOLUNTEERS */}
-            {members.volunteers.length > 0 && (
+            {(selectedCategory === 'volunteers' || selectedCategory === 'all') && members.volunteers.length > 0 && (
               <div aria-labelledby="heading-volunteers-sec">
                 <div
                   style={{
@@ -369,7 +502,8 @@ export default function SdcMembersSection() {
               </div>
             )}
           </div>
-        )}
+        </div>
+      )}
       </div>
     </section>
   );

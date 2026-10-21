@@ -15,6 +15,7 @@ import {
 
 export default function SdcMembersPage() {
   const [members, setMembers] = useState({
+    director: [],
     faculty: [],
     mentors: [],
     coordinators: [],
@@ -33,6 +34,7 @@ export default function SdcMembersPage() {
     try {
       const data = await sdcService.getPublicMembers();
       setMembers({
+        director: data.director || [],
         faculty: data.faculty || [],
         mentors: data.mentors || [],
         coordinators: data.coordinators || [],
@@ -47,7 +49,7 @@ export default function SdcMembersPage() {
   };
 
   const renderMemberCard = (member, categoryKey = 'faculty') => {
-    const isFaculty = categoryKey === 'faculty' || member.category === 'faculty_coordinator';
+    const isLeadership = categoryKey === 'director' || categoryKey === 'faculty' || member.category === 'director' || member.category === 'faculty_coordinator';
 
     // Social links (all optional, validated inside ProfileCard)
     const linkedinUrl = member.social_links?.linkedin || member.linkedin_url || null;
@@ -55,18 +57,25 @@ export default function SdcMembersPage() {
     const contactEmail = member.public_contact_email || member.email || member.social_links?.email || null;
 
     const defaultAvatars = {
-      faculty: '/images/faculty/dr_vibhash_yadav.png',
+      director: '/images/sdc-avatar-placeholder.svg',
+      faculty: '/images/sdc-avatar-placeholder.svg',
       mentor: '/images/sdc-avatar-placeholder.svg',
       coordinator: '/images/sdc-avatar-placeholder.svg',
       volunteer: '/images/sdc-avatar-placeholder.svg',
     };
 
-    const avatar = member.avatarUrl || member.photo_url || defaultAvatars[categoryKey] || defaultAvatars.coordinator;
+    let specificAvatar = null;
+    if (!member.avatarUrl && !member.photo_url && member.name?.toLowerCase().includes('vibhash')) {
+      specificAvatar = '/images/faculty/dr_vibhash_yadav.png';
+    }
+
+    const avatar = member.avatarUrl || member.photo_url || specificAvatar || defaultAvatars[categoryKey] || defaultAvatars.coordinator;
     const miniAvatar = member.miniAvatarUrl || avatar;
-    // For faculty coordinators, remove @something handle completely
-    const handle = isFaculty ? null : (member.handle || member.name.toLowerCase().replace(/[^a-z0-9]/g, '_'));
+    // For leadership, remove @something handle completely
+    const handle = isLeadership ? null : (member.handle || member.name.toLowerCase().replace(/[^a-z0-9]/g, '_'));
 
     const statusDefaults = {
+      director: { status: 'Patron in Chief', statusColor: '#F5C451', backdrop: '#282015' },
       faculty: { status: 'Faculty Leadership', statusColor: '#F5C451', backdrop: '#282015' },
       mentor: { status: 'Technical Mentor', statusColor: '#39FF88', backdrop: '#0B1711' },
       coordinator: { status: 'Event Coordinator', statusColor: '#10B981', backdrop: '#1f162b' },
@@ -149,6 +158,81 @@ export default function SdcMembersPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4rem' }}>
+            {/* ============================================================== */}
+            {/* 0. DIRECTOR SECTION (PATRON IN CHIEF)                           */}
+            {/* ============================================================== */}
+            <section aria-labelledby="heading-director">
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  marginBottom: '1.5rem',
+                  paddingBottom: '0.75rem',
+                  borderBottom: '1px solid rgba(245, 182, 66, 0.3)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '6px',
+                    background: 'rgba(245, 182, 66, 0.15)',
+                    border: '1px solid var(--color-stark-gold)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--color-stark-gold)',
+                  }}
+                >
+                  <Shield size={20} />
+                </div>
+                <div>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-stark-gold)', letterSpacing: '0.12em' }}>
+                    PATRON IN CHIEF
+                  </span>
+                  <h2
+                    id="heading-director"
+                    style={{
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: '1.65rem',
+                      color: 'var(--color-warm-off-white)',
+                      margin: 0,
+                    }}
+                  >
+                    DIRECTOR
+                  </h2>
+                </div>
+              </div>
+
+              {members.director.length === 0 ? (
+                <div
+                  style={{
+                    padding: '2.5rem',
+                    textAlign: 'center',
+                    background: 'rgba(30, 41, 59, 0.4)',
+                    border: '1px dashed rgba(255, 255, 255, 0.15)',
+                    borderRadius: '8px',
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  Director & Patron profile is being updated.
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 340px))',
+                    gap: '2.5rem',
+                    justifyContent: 'center',
+                    alignItems: 'start',
+                  }}
+                >
+                  {members.director.map((member) => renderMemberCard(member, 'director'))}
+                </div>
+              )}
+            </section>
+
             {/* ============================================================== */}
             {/* 1. FACULTY COORDINATOR SECTION (FIRST PER MANDATE)              */}
             {/* ============================================================== */}

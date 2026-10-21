@@ -7,17 +7,12 @@ import ironImg from '../assets/iron.png';
 // All Sections for the Complete One-Page Website
 import AnnouncementTicker from '../components/AnnouncementTicker';
 import AboutSection from '../components/AboutSection';
-import HighlightsSection from '../components/HighlightsSection';
-import CompetitionsSection from '../components/CompetitionsSection';
-import ProblemStatementsSection from '../components/ProblemStatementsSection';
+import CompetitionsHub from '../components/CompetitionsHub';
 import ScheduleSection from '../components/ScheduleSection';
-import HowItWorksSection from '../components/HowItWorksSection';
 import MentorsJudgesSection from '../components/MentorsJudgesSection';
 import PrizesSection from '../components/PrizesSection';
-import RulesFaqSection from '../components/RulesFaqSection';
 import SponsorsSection from '../components/SponsorsSection';
 import SdcMembersSection from '../components/SdcMembersSection';
-import RegisterSection from '../components/RegisterSection';
 
 // Event start date: 1 November 2026 00:00:00 IST
 const TARGET_EVENT_DATE = new Date('2026-11-01T00:00:00+05:30');
@@ -275,41 +270,26 @@ export default function HomePage() {
         <AnnouncementTicker />
       </div>
 
-      {/* 03. ABOUT EVENT */}
+      {/* 03. ABOUT EVENT & SCALE */}
       <AboutSection />
 
-      {/* 04. EVENT HIGHLIGHTS */}
-      <HighlightsSection />
+      {/* 04. COMPETITIONS, PROBLEMS, HOW IT WORKS & RULES/FAQS (COMMAND CENTER HUB) */}
+      <CompetitionsHub />
 
-      {/* 05. COMPETITIONS (CODEATHON, IDEATHON, HACKATHON) */}
-      <CompetitionsSection />
-
-      {/* 06. PROBLEM STATEMENTS / TRACKS */}
-      <ProblemStatementsSection />
-
-      {/* 07. SCHEDULE */}
+      {/* 05. SCHEDULE */}
       <ScheduleSection />
 
-      {/* 08. HOW IT WORKS */}
-      <HowItWorksSection />
-
-      {/* 09. MENTORS & JUDGES */}
+      {/* 06. MENTORS & JUDGES */}
       <MentorsJudgesSection />
 
-      {/* 10. PRIZES */}
+      {/* 07. PRIZES */}
       <PrizesSection />
 
-      {/* 11. RULES & FAQ */}
-      <RulesFaqSection />
-
-      {/* 12. SPONSORS */}
+      {/* 08. SPONSORS */}
       <SponsorsSection />
 
-      {/* 13. SDC FAMILY MEMBERS */}
+      {/* 09. SDC TEAM & ORGANIZERS */}
       <SdcMembersSection />
-
-      {/* 14. REGISTER */}
-      <RegisterSection />
     </main>
   );
 }
