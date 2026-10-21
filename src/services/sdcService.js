@@ -3,6 +3,24 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 // Default initial SDC member hierarchy for REC Banda
 export const defaultSdcMembers = [
   // ==========================================
+  // 0. DIRECTOR & PATRON (1 CARD)
+  // ==========================================
+  {
+    id: 'director-1',
+    name: 'Prof. Deependra Singh',
+    category: 'director',
+    role_title: 'Director, REC Banda',
+    status: 'Patron & Director',
+    statusColor: '#F5C451',
+    backdropColor: '#282015',
+    avatarUrl: '/images/sdc-avatar-placeholder.svg',
+    miniAvatarUrl: '/images/sdc-avatar-placeholder.svg',
+    bio: 'Director, Rajkiya Engineering College, Banda. Patronizing academic excellence, technology innovation, and hackathon culture.',
+    sort_order: 1,
+    is_active: true,
+  },
+
+  // ==========================================
   // 1. FACULTY COORDINATOR (2 CARDS)
   // ==========================================
   {
@@ -412,12 +430,22 @@ export const sdcService = {
 
   /**
    * Group members into sections:
+   * 0. Director
    * 1. Faculty Coordinator
    * 2. Mentors
    * 3. Coordinators
    * 4. Volunteers
    */
   groupMembers(list) {
+    let director = list
+      .filter((m) => m.category === 'director' || m.category === 'patron')
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+    // Fallback to default director if none found in active DB list
+    if (director.length === 0) {
+      director = defaultSdcMembers.filter((m) => m.category === 'director');
+    }
+
     const faculty = list
       .filter((m) => m.category === 'faculty_coordinator')
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
@@ -435,11 +463,12 @@ export const sdcService = {
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
     return {
+      director,
       faculty,
       mentors,
       coordinators,
       volunteers,
-      all: [...faculty, ...mentors, ...coordinators, ...volunteers],
+      all: [...director, ...faculty, ...mentors, ...coordinators, ...volunteers],
     };
   },
 

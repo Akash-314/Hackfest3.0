@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Sparkles,
   Terminal,
@@ -17,6 +17,7 @@ import {
   ArrowDown,
   ArrowRight,
   GitBranch,
+  Layers,
 } from 'lucide-react';
 import HoloBadge from './ui/HoloBadge';
 import './EventWorkflow.css';
@@ -136,6 +137,8 @@ const DAY2_WORKFLOW = [
 ];
 
 export default function EventWorkflow() {
+  const [activeDay, setActiveDay] = useState('all'); // 'all' | 'day1' | 'day2'
+
   return (
     <div className="event-workflow-section">
       {/* Workflow Header */}
@@ -149,11 +152,101 @@ export default function EventWorkflow() {
         <p className="event-workflow-lead">
           From competitive problem-solving to innovative solutions, explore the journey of HackFest 3.0.
         </p>
+
+        {/* Interactive Day Switcher */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            background: 'rgba(12, 18, 15, 0.85)',
+            border: '1px solid rgba(129, 193, 75, 0.25)',
+            borderRadius: '10px',
+            padding: '0.35rem',
+            marginTop: '1.75rem',
+            maxWidth: '100%',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setActiveDay('all')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '7px',
+              border: activeDay === 'all' ? '1px solid rgba(129, 193, 75, 0.6)' : '1px solid transparent',
+              background: activeDay === 'all' ? 'rgba(129, 193, 75, 0.18)' : 'transparent',
+              color: activeDay === 'all' ? '#FFFFFF' : '#8DDBB0',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <Layers size={13} />
+            <span>FULL JOURNEY (13)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveDay('day1')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '7px',
+              border: activeDay === 'day1' ? '1px solid #81C14B' : '1px solid transparent',
+              background: activeDay === 'day1' ? 'rgba(129, 193, 75, 0.22)' : 'transparent',
+              color: activeDay === 'day1' ? '#FFFFFF' : '#C7CED8',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#81C14B' }} />
+            <span>DAY 01 (5 STAGES)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveDay('day2')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '7px',
+              border: activeDay === 'day2' ? '1px solid #ECBA82' : '1px solid transparent',
+              background: activeDay === 'day2' ? 'rgba(236, 186, 130, 0.22)' : 'transparent',
+              color: activeDay === 'day2' ? '#FFFFFF' : '#C7CED8',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#ECBA82' }} />
+            <span>DAY 02 (8 STAGES)</span>
+          </button>
+        </div>
       </div>
 
       {/* Two Connected Visual Timelines */}
-      <div className="event-workflow-grid">
+      <div
+        className="event-workflow-grid"
+        style={activeDay !== 'all' ? { gridTemplateColumns: '1fr', maxWidth: '780px', margin: '0 auto' } : {}}
+      >
         {/* DAY 1 COLUMN */}
+        {(activeDay === 'all' || activeDay === 'day1') && (
         <div className="workflow-day-column workflow-day-1">
           <div className="workflow-day-banner">
             <div className="workflow-day-badge-wrap">
@@ -216,8 +309,10 @@ export default function EventWorkflow() {
             </div>
           </div>
         </div>
+        )}
 
         {/* DAY 2 COLUMN */}
+        {(activeDay === 'all' || activeDay === 'day2') && (
         <div className="workflow-day-column workflow-day-2">
           <div className="workflow-day-banner">
             <div className="workflow-day-badge-wrap">
@@ -268,6 +363,7 @@ export default function EventWorkflow() {
             })}
           </ol>
         </div>
+        )}
       </div>
     </div>
   );

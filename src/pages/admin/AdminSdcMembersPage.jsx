@@ -251,9 +251,9 @@ export default function AdminSdcMembersPage() {
     } catch (err) {
       console.error('Failed to save SDC member:', err);
       const isConstraintError = err.message?.includes('check constraint') || err.message?.includes('sdc_members_category_check');
-      if (isConstraintError && form.category === 'volunteer') {
+      if (isConstraintError && (form.category === 'volunteer' || form.category === 'director')) {
         notify(
-          'Database constraint: The "volunteer" category requires executing migration 20261018_add_volunteer_and_social_links_to_sdc_members.sql in Supabase SQL editor.',
+          `Database constraint: The "${form.category}" category requires executing migration 20261021_add_director_category_to_sdc_members.sql in Supabase SQL editor.`,
           'error'
         );
       } else {
@@ -294,6 +294,14 @@ export default function AdminSdcMembersPage() {
   };
 
   const getCategoryBadge = (cat) => {
+    if (cat === 'director') {
+      return {
+        label: 'DIRECTOR / PATRON',
+        color: 'var(--color-stark-gold)',
+        bg: 'rgba(245, 182, 66, 0.25)',
+        icon: Shield,
+      };
+    }
     if (cat === 'faculty_coordinator') {
       return {
         label: 'FACULTY COORDINATOR',
@@ -414,6 +422,7 @@ export default function AdminSdcMembersPage() {
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             {[
               { id: 'ALL', label: `ALL MEMBERS (${members.length})` },
+              { id: 'director', label: '0. DIRECTOR' },
               { id: 'faculty_coordinator', label: '1. FACULTY COORDINATOR' },
               { id: 'mentor', label: '2. MENTORS' },
               { id: 'coordinator', label: '3. COORDINATORS' },
@@ -820,6 +829,7 @@ export default function AdminSdcMembersPage() {
                       onChange={(e) => setForm({ ...form, category: e.target.value })}
                       style={{ width: '100%', padding: '0.65rem', background: '#111827', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff', fontFamily: 'var(--font-mono)' }}
                     >
+                      <option value="director">0. DIRECTOR / PATRON</option>
                       <option value="faculty_coordinator">1. FACULTY COORDINATOR</option>
                       <option value="mentor">2. MENTOR</option>
                       <option value="coordinator">3. COORDINATOR</option>
@@ -1112,25 +1122,27 @@ export default function AdminSdcMembersPage() {
                 <ProfileCard
                   avatarUrl={
                     previewMember.photo_url ||
-                    (previewMember.category === 'faculty_coordinator'
+                    (previewMember.name?.toLowerCase().includes('vibhash')
                       ? '/images/faculty/dr_vibhash_yadav.png'
                       : '/images/sdc-avatar-placeholder.svg')
                   }
                   miniAvatarUrl={
                     previewMember.photo_url ||
-                    (previewMember.category === 'faculty_coordinator'
+                    (previewMember.name?.toLowerCase().includes('vibhash')
                       ? '/images/faculty/dr_vibhash_yadav_mini.png'
                       : '/images/sdc-avatar-placeholder.svg')
                   }
                   name={previewMember.name}
                   title={previewMember.role_title}
                   handle={
-                    previewMember.category === 'faculty_coordinator'
+                    previewMember.category === 'director' || previewMember.category === 'faculty_coordinator'
                       ? null
                       : previewMember.handle || previewMember.name.toLowerCase().replace(/[^a-z0-9]/g, '_')
                   }
                   status={
-                    previewMember.category === 'faculty_coordinator'
+                    previewMember.category === 'director'
+                      ? 'Patron in Chief'
+                      : previewMember.category === 'faculty_coordinator'
                       ? 'Faculty Leadership'
                       : previewMember.category === 'mentor'
                       ? 'Technical Mentor'
@@ -1139,7 +1151,7 @@ export default function AdminSdcMembersPage() {
                       : 'Event Coordinator'
                   }
                   statusColor={
-                    previewMember.category === 'faculty_coordinator'
+                    previewMember.category === 'director' || previewMember.category === 'faculty_coordinator'
                       ? '#F5C451'
                       : previewMember.category === 'mentor'
                       ? '#39FF88'
