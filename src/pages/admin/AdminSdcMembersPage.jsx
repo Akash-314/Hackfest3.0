@@ -22,6 +22,7 @@ import {
   X,
   Check,
   HeartHandshake,
+  Shield,
 } from 'lucide-react';
 
 function LinkedInIcon({ size = 16 }) {
