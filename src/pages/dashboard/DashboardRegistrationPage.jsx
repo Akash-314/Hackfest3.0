@@ -139,8 +139,15 @@ export default function DashboardRegistrationPage() {
               </Link>
             </div>
           ) : (
-            registrations.map((reg) => (
-              <div key={reg.id} style={{ background: 'var(--color-surface-elevated)', border: '1px solid rgba(0, 217, 255, 0.25)', borderRadius: 'var(--radius-md)', padding: '1.8rem', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.65)' }}>
+            registrations.map((reg) => {
+              const isCodeathon =
+                reg.competition?.slug?.toLowerCase() === 'codeathon' ||
+                reg.competition?.name?.toLowerCase().includes('codeathon') ||
+                reg.competition?.id?.toLowerCase() === 'codeathon' ||
+                reg.competition_id === 'codeathon';
+
+              return (
+                <div key={reg.id} style={{ background: 'var(--color-surface-elevated)', border: '1px solid rgba(0, 217, 255, 0.25)', borderRadius: 'var(--radius-md)', padding: '1.8rem', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.65)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.2rem' }}>
                   <div>
                     <span className="chapter-badge" style={{ margin: '0 0 0.3rem 0' }}>
@@ -239,54 +246,57 @@ export default function DashboardRegistrationPage() {
                   </div>
                 )}
 
-                {/* Attached Document Section */}
-                <div style={{ background: 'rgba(17, 24, 39, 0.95)', border: '1px solid rgba(0, 217, 255, 0.2)', borderRadius: 'var(--radius-sm)', padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <FileText size={22} color="var(--color-arc-cyan)" />
-                    <div>
-                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>ATTACHED PRESENTATION / SYNOPSIS</div>
-                      {reg.document_url ? (
-                        <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600 }}>
-                          {reg.document_name || 'Presentation Deck'} {reg.document_type ? `(${reg.document_type})` : ''}
-                        </div>
-                      ) : (
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-                          No document attached yet
-                        </div>
-                      )}
+                {/* Attached Document Section - Not required for Codeathon */}
+                {!isCodeathon && (
+                  <div style={{ background: 'rgba(17, 24, 39, 0.95)', border: '1px solid rgba(0, 217, 255, 0.2)', borderRadius: 'var(--radius-sm)', padding: '1rem 1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <FileText size={22} color="var(--color-arc-cyan)" />
+                      <div>
+                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>ATTACHED PRESENTATION / SYNOPSIS</div>
+                        {reg.document_url ? (
+                          <div style={{ fontSize: '0.9rem', color: '#fff', fontWeight: 600 }}>
+                            {reg.document_name || 'Presentation Deck'} {reg.document_type ? `(${reg.document_type})` : ''}
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                            No document attached yet
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  <div style={{ display: 'flex', gap: '0.6rem' }}>
-                    {reg.document_url && (
-                      <a
-                        href={reg.document_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="btn btn-secondary"
+                    <div style={{ display: 'flex', gap: '0.6rem' }}>
+                      {reg.document_url && (
+                        <a
+                          href={reg.document_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-secondary"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', padding: '0.4rem 0.8rem' }}
+                        >
+                          <ExternalLink size={14} />
+                          VIEW / DOWNLOAD
+                        </a>
+                      )}
+                      <button
+                        type="button"
+                        disabled={uploadLoading}
+                        onClick={() => {
+                          setReplacingRegId(reg.id);
+                          fileInputRef.current?.click();
+                        }}
+                        className="btn btn-primary"
                         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', padding: '0.4rem 0.8rem' }}
                       >
-                        <ExternalLink size={14} />
-                        VIEW / DOWNLOAD
-                      </a>
-                    )}
-                    <button
-                      type="button"
-                      disabled={uploadLoading}
-                      onClick={() => {
-                        setReplacingRegId(reg.id);
-                        fileInputRef.current?.click();
-                      }}
-                      className="btn btn-primary"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', padding: '0.4rem 0.8rem' }}
-                    >
-                      <Upload size={14} />
-                      {reg.document_url ? 'REPLACE DECK' : 'ATTACH DECK'}
-                    </button>
+                        <Upload size={14} />
+                        {reg.document_url ? 'REPLACE DECK' : 'ATTACH DECK'}
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
-            ))
+            );
+          })
           )}
         </div>
       </div>
