@@ -1,0 +1,665 @@
+/* --------------------------------------------------------------------------
+   HACKFEST 3.0 - PREMIUM PODIUM & INTERACTIVE PRIZES SECTION
+   Theme: Apocalyptic Cyber-Technology (Emerald Green / Gold / Dark Charcoal)
+   -------------------------------------------------------------------------- */
+
+.prizes-section-wrapper {
+  background: #080A09;
+  position: relative;
+  overflow: hidden;
+  padding: 5.5rem 0 6.5rem 0;
+}
+
+/* Ambient Deep Forest Green Background Lighting */
+.prizes-ambient-glow {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(850px, 90vw);
+  height: 450px;
+  background: radial-gradient(ellipse at center, rgba(22, 132, 91, 0.16) 0%, rgba(11, 23, 17, 0.08) 50%, transparent 75%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* --------------------------------------------------------------------------
+   INTERACTIVE PRIZE ZONE & TROPHY STAGE
+   -------------------------------------------------------------------------- */
+.prize-interactive-zone {
+  position: relative;
+  z-index: 2;
+  margin: 1rem auto 2.8rem auto;
+  max-width: 960px;
+  width: 100%;
+}
+
+.trophy-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.trophy-interactive-wrap {
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 1rem;
+  border-radius: 20px;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.trophy-interactive-wrap:hover {
+  transform: translateY(-6px) scale(1.02);
+}
+
+.trophy-interactive-wrap:focus-visible {
+  outline: 2px solid var(--color-primary-emerald, #39FF88);
+  outline-offset: 4px;
+}
+
+/* Trophy Aura / Backlight */
+.trophy-backlight {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(57, 255, 136, 0.22) 0%, rgba(22, 132, 91, 0.12) 40%, transparent 70%);
+  filter: blur(28px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.trophy-interactive-wrap:hover .trophy-backlight {
+  transform: translate(-50%, -50%) scale(1.15);
+  background: radial-gradient(circle, rgba(57, 255, 136, 0.32) 0%, rgba(245, 196, 81, 0.18) 50%, transparent 75%);
+}
+
+/* 3D Trophy Floating Animation */
+.trophy-svg-element {
+  width: 140px;
+  height: 155px;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 16px rgba(57, 255, 136, 0.18));
+  animation: trophyFloat 4.5s ease-in-out infinite;
+  transition: filter 0.3s ease;
+}
+
+.trophy-interactive-wrap:hover .trophy-svg-element {
+  filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 24px rgba(57, 255, 136, 0.35));
+}
+
+@keyframes trophyFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.4deg);
+  }
+}
+
+/* Trophy Action Button: Simply "Reveal" */
+.trophy-reveal-btn {
+  margin-top: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, rgba(22, 132, 91, 0.45) 0%, rgba(11, 23, 17, 0.95) 100%);
+  border: 1px solid rgba(57, 255, 136, 0.45);
+  border-radius: 999px;
+  padding: 0.6rem 1.85rem;
+  color: #FFFFFF;
+  font-family: 'Orbitron', var(--font-heading), sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 16px rgba(57, 255, 136, 0.22);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.trophy-reveal-btn:hover {
+  border-color: rgba(57, 255, 136, 0.85);
+  background: linear-gradient(135deg, rgba(57, 255, 136, 0.25) 0%, rgba(22, 132, 91, 0.6) 100%);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8), 0 0 24px rgba(57, 255, 136, 0.45);
+  color: #FFFFFF;
+}
+
+.trophy-reveal-btn:focus-visible {
+  outline: 2px solid #39FF88;
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   REVEALED PRIZE SHOWCASE (₹25,000+ HERO & PARTICIPANT GOODIES)
+   -------------------------------------------------------------------------- */
+.prize-revealed-showcase {
+  background: linear-gradient(180deg, rgba(14, 29, 22, 0.92) 0%, rgba(11, 23, 17, 0.97) 50%, rgba(8, 10, 9, 0.98) 100%);
+  border: 1px solid rgba(57, 255, 136, 0.3);
+  border-top: 1px solid rgba(245, 196, 81, 0.55);
+  border-radius: 20px;
+  padding: 2.4rem 2.2rem 2.2rem 2.2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(57, 255, 136, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  animation: revealShowcaseIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes revealShowcaseIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Reset / Return to Trophy View Button */
+.prize-showcase-reset-btn {
+  position: absolute;
+  top: 1.15rem;
+  right: 1.25rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(8, 10, 9, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 0.32rem 0.8rem;
+  color: #8FA89B;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.prize-showcase-reset-btn:hover {
+  color: #FFFFFF;
+  border-color: rgba(57, 255, 136, 0.45);
+  background: rgba(22, 132, 91, 0.25);
+  transform: scale(1.03);
+}
+
+/* Showcase Ambient Glow */
+.prize-showcase-aura {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(600px, 90%);
+  height: 220px;
+  background: radial-gradient(ellipse at center, rgba(57, 255, 136, 0.22) 0%, rgba(245, 196, 81, 0.12) 40%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Total Prize Pool Hero Block */
+.prize-hero-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 2rem;
+}
+
+.prize-hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  color: #F5C451;
+  background: rgba(245, 196, 81, 0.08);
+  border: 1px solid rgba(245, 196, 81, 0.35);
+  border-radius: 999px;
+  padding: 0.28rem 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Grand Amount Display in Neo Font */
+.prize-amount-wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.2rem;
+  margin: 0.2rem 0 0.4rem 0;
+}
+
+.prize-amount-value {
+  font-family: var(--font-heading), 'Orbitron', var(--font-neo), sans-serif;
+  font-size: clamp(3.5rem, 8vw, 5.6rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, #FFFFFF 0%, #FFF2B2 25%, #F5C451 50%, #39FF88 85%, #8DDBB0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-flex;
+  align-items: baseline;
+  filter: drop-shadow(0 0 26px rgba(57, 255, 136, 0.5)) drop-shadow(0 0 50px rgba(245, 196, 81, 0.35));
+  animation: prizeAmountGleam 3.5s ease-in-out infinite;
+}
+
+.prize-currency {
+  font-family: var(--font-heading), 'Orbitron', var(--font-neo), 'Plus Jakarta Sans', sans-serif;
+  margin-right: 0.2rem;
+}
+
+.prize-digits {
+  font-family: var(--font-heading), 'Orbitron', var(--font-neo), sans-serif;
+}
+
+@keyframes prizeAmountGleam {
+  0%, 100% {
+    filter: drop-shadow(0 0 24px rgba(57, 255, 136, 0.45)) drop-shadow(0 0 45px rgba(245, 196, 81, 0.3));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 35px rgba(57, 255, 136, 0.7)) drop-shadow(0 0 65px rgba(245, 196, 81, 0.5));
+    transform: scale(1.012);
+  }
+}
+
+.prize-amount-sublead {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  color: #8DDBB0;
+  letter-spacing: 0.04em;
+  max-width: 620px;
+  margin: 0.4rem 0 0 0;
+}
+
+/* --------------------------------------------------------------------------
+   PARTICIPANT PERKS & GOODIES SECTION
+   -------------------------------------------------------------------------- */
+.prize-perks-section {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(57, 255, 136, 0.15);
+  padding-top: 1.5rem;
+}
+
+.prize-perks-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  color: #39FF88;
+  margin-bottom: 1.1rem;
+  text-transform: uppercase;
+}
+
+.prize-perks-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+}
+
+/* Row 1: 3 equal cards spanning 2 columns each (3 x 2 = 6) */
+.prize-perk-card:nth-child(1),
+.prize-perk-card:nth-child(2),
+.prize-perk-card:nth-child(3) {
+  grid-column: span 2;
+}
+
+/* Row 2: 2 equal cards spanning 3 columns each (2 x 3 = 6) */
+.prize-perk-card:nth-child(4),
+.prize-perk-card:nth-child(5) {
+  grid-column: span 3;
+}
+
+.prize-perk-card {
+  background: rgba(8, 10, 9, 0.65);
+  border: 1px solid rgba(28, 56, 42, 0.9);
+  border-radius: 12px;
+  padding: 1rem 1.15rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.prize-perk-card:hover {
+  border-color: rgba(57, 255, 136, 0.45);
+  background: rgba(14, 29, 22, 0.75);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.6), 0 0 18px rgba(57, 255, 136, 0.12);
+}
+
+.prize-perk-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(57, 255, 136, 0.08);
+  border: 1px solid rgba(57, 255, 136, 0.25);
+  color: #39FF88;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.prize-perk-card:hover .prize-perk-icon-wrap {
+  background: rgba(57, 255, 136, 0.16);
+  border-color: rgba(57, 255, 136, 0.55);
+  color: #FFFFFF;
+}
+
+.prize-perk-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.prize-perk-title {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.25rem 0;
+}
+
+.prize-perk-desc {
+  font-size: 0.78rem;
+  color: #8FA89B;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   THREE-LEVEL PODIUM SYSTEM (2ND LEFT, 1ST CENTER ELEVATED, 3RD RIGHT)
+   -------------------------------------------------------------------------- */
+.podium-structure-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 960px;
+  margin: 1.5rem auto 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.podium-column {
+  flex: 1;
+  min-width: 250px;
+  max-width: 310px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Column ordering for desktop: 2nd place on left, 1st place in center, 3rd place on right */
+.podium-col-second {
+  order: 1;
+}
+
+.podium-col-first {
+  order: 2;
+}
+
+.podium-col-third {
+  order: 3;
+}
+
+.podium-column:hover {
+  transform: translateY(-6px);
+}
+
+/* Monolithic Podium Card Block */
+.podium-block {
+  background: linear-gradient(180deg, #0E1D16 0%, #0B1711 60%, #080A09 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Level Specific Heights for True Podium Step Effect */
+.podium-col-first .podium-block {
+  min-height: 380px;
+  border-color: rgba(245, 196, 81, 0.38);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 25px rgba(245, 196, 81, 0.08);
+}
+
+.podium-col-second .podium-block {
+  min-height: 320px;
+  border-color: rgba(199, 206, 216, 0.28);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+
+.podium-col-third .podium-block {
+  min-height: 280px;
+  border-color: rgba(205, 127, 50, 0.28);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* Hover accent glows */
+.podium-col-first:hover .podium-block {
+  border-color: rgba(245, 196, 81, 0.65);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(245, 196, 81, 0.16);
+}
+
+.podium-col-second:hover .podium-block {
+  border-color: rgba(199, 206, 216, 0.55);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 25px rgba(199, 206, 216, 0.12);
+}
+
+.podium-col-third:hover .podium-block {
+  border-color: rgba(205, 127, 50, 0.55);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 25px rgba(205, 127, 50, 0.12);
+}
+
+/* Podium Top Beveled Surface */
+.podium-top-surface {
+  height: 14px;
+  width: 100%;
+  position: relative;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.podium-col-first .podium-top-surface {
+  background: linear-gradient(90deg, rgba(245, 196, 81, 0.1), rgba(245, 196, 81, 0.35), rgba(245, 196, 81, 0.1));
+  border-bottom: 1px solid rgba(245, 196, 81, 0.45);
+}
+
+.podium-col-second .podium-top-surface {
+  background: linear-gradient(90deg, rgba(199, 206, 216, 0.08), rgba(199, 206, 216, 0.28), rgba(199, 206, 216, 0.08));
+  border-bottom: 1px solid rgba(199, 206, 216, 0.35);
+}
+
+.podium-col-third .podium-top-surface {
+  background: linear-gradient(90deg, rgba(205, 127, 50, 0.08), rgba(205, 127, 50, 0.28), rgba(205, 127, 50, 0.08));
+  border-bottom: 1px solid rgba(205, 127, 50, 0.35);
+}
+
+/* Podium Body Inner Padding */
+.podium-body {
+  padding: 2rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  flex: 1;
+}
+
+/* Rank Graphic Badge */
+.podium-rank-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.35rem;
+  font-weight: 800;
+  position: relative;
+}
+
+.podium-col-first .podium-rank-badge {
+  background: rgba(245, 196, 81, 0.14);
+  border: 1px solid rgba(245, 196, 81, 0.5);
+  color: #F5C451;
+  box-shadow: 0 0 16px rgba(245, 196, 81, 0.2);
+}
+
+.podium-col-second .podium-rank-badge {
+  background: rgba(199, 206, 216, 0.12);
+  border: 1px solid rgba(199, 206, 216, 0.4);
+  color: #E2E8F0;
+  box-shadow: 0 0 12px rgba(199, 206, 216, 0.15);
+}
+
+.podium-col-third .podium-rank-badge {
+  background: rgba(205, 127, 50, 0.12);
+  border: 1px solid rgba(205, 127, 50, 0.4);
+  color: #CD7F32;
+  box-shadow: 0 0 12px rgba(205, 127, 50, 0.15);
+}
+
+/* Place Tag (e.g. 1ST PLACE) */
+.podium-place-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.podium-col-first .podium-place-tag {
+  color: #F5C451;
+}
+
+.podium-col-second .podium-place-tag {
+  color: #C7CED8;
+}
+
+.podium-col-third .podium-place-tag {
+  color: #CD7F32;
+}
+
+/* Main Title */
+.podium-title {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.45rem;
+  color: #F5F5F7;
+  letter-spacing: 0.03em;
+  margin: 0 0 1rem 0;
+}
+
+/* Podium Description */
+.podium-desc {
+  color: var(--color-text-secondary, #8FA89B);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Ambient Base Floor Line */
+.podium-floor-line {
+  max-width: 980px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, rgba(22, 132, 91, 0.3) 20%, rgba(57, 255, 136, 0.6) 50%, rgba(22, 132, 91, 0.3) 80%, transparent 100%);
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 16px rgba(57, 255, 136, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   RESPONSIVE DESIGN (MOBILE & TABLET ADAPTATION)
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .prize-revealed-showcase {
+    padding: 1.6rem 1.15rem;
+    border-radius: 16px;
+  }
+
+  .prize-amount-value {
+    font-size: clamp(2.8rem, 11vw, 3.8rem);
+  }
+
+  .prize-perks-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .prize-perk-card:nth-child(n) {
+    grid-column: span 1;
+  }
+
+  .prize-showcase-reset-btn {
+    top: 0.85rem;
+    right: 0.85rem;
+  }
+
+  .podium-structure-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+  }
+
+  /* On mobile: 1st Place is at the top, followed by 2nd and 3rd */
+  .podium-col-first {
+    order: 1;
+  }
+
+  .podium-col-second {
+    order: 2;
+  }
+
+  .podium-col-third {
+    order: 3;
+  }
+
+  .podium-col-first .podium-block,
+  .podium-col-second .podium-block,
+  .podium-col-third .podium-block {
+    min-height: auto;
+  }
+
+  .podium-body {
+    padding: 1.5rem 1.2rem;
+  }
+
+  .trophy-svg-element {
+    width: 120px;
+    height: 135px;
+  }
+}

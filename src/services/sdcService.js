@@ -400,6 +400,30 @@ export const defaultSdcMembers = [
     sort_order: 10,
     is_active: true,
   },
+
+  // ==========================================
+  // 5. IEEE MEMBERS (1 CARD)
+  // ==========================================
+  {
+    id: 'ieee-1',
+    name: 'IEEE Member 01',
+    category: 'ieee_member',
+    role_title: 'IEEE Student Branch Chair',
+    handle: 'ieee_chair',
+    status: 'IEEE Chair',
+    statusColor: '#0080FF',
+    backdropColor: '#0d1f2d',
+    avatarUrl: '/images/sdc-avatar-placeholder.svg',
+    miniAvatarUrl: '/images/sdc-avatar-placeholder.svg',
+    bio: 'Leading the IEEE Student Branch at REC Banda, coordinating technical initiatives, international standards awareness, and IEEE hackathon alliances.',
+    email: 'ieee.recbanda@gmail.com',
+    social_links: {
+      linkedin: 'https://www.linkedin.com/company/student-developer-club-rec-banda',
+      email: 'ieee.recbanda@gmail.com',
+    },
+    sort_order: 1,
+    is_active: true,
+  },
 ];
 
 export const sdcService = {
@@ -435,6 +459,7 @@ export const sdcService = {
    * 2. Mentors
    * 3. Coordinators
    * 4. Volunteers
+   * 5. IEEE Members (Last section before View All)
    */
   groupMembers(list) {
     let director = list
@@ -462,13 +487,23 @@ export const sdcService = {
       .filter((m) => m.category === 'volunteer')
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
+    let ieee = list
+      .filter((m) => m.category === 'ieee_member' || m.category === 'ieee')
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+    // Fallback to default IEEE members if none found in active DB list
+    if (ieee.length === 0) {
+      ieee = defaultSdcMembers.filter((m) => m.category === 'ieee_member' || m.category === 'ieee');
+    }
+
     return {
       director,
       faculty,
       mentors,
       coordinators,
       volunteers,
-      all: [...director, ...faculty, ...mentors, ...coordinators, ...volunteers],
+      ieee,
+      all: [...director, ...faculty, ...mentors, ...coordinators, ...volunteers, ...ieee],
     };
   },
 

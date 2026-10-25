@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   RefreshCw,
   HeartHandshake,
+  Cpu,
 } from 'lucide-react';
 
 export default function SdcMembersPage() {
@@ -19,6 +20,7 @@ export default function SdcMembersPage() {
     faculty: [],
     mentors: [],
     coordinators: [],
+    ieee: [],
     volunteers: [],
     all: [],
   });
@@ -38,6 +40,7 @@ export default function SdcMembersPage() {
         faculty: data.faculty || [],
         mentors: data.mentors || [],
         coordinators: data.coordinators || [],
+        ieee: data.ieee || [],
         volunteers: data.volunteers || [],
         all: data.all || [],
       });
@@ -61,6 +64,7 @@ export default function SdcMembersPage() {
       faculty: '/images/sdc-avatar-placeholder.svg',
       mentor: '/images/sdc-avatar-placeholder.svg',
       coordinator: '/images/sdc-avatar-placeholder.svg',
+      ieee: '/images/sdc-avatar-placeholder.svg',
       volunteer: '/images/sdc-avatar-placeholder.svg',
     };
 
@@ -79,6 +83,7 @@ export default function SdcMembersPage() {
       faculty: { status: 'Faculty Leadership', statusColor: '#F5C451', backdrop: '#282015' },
       mentor: { status: 'Technical Mentor', statusColor: '#39FF88', backdrop: '#0B1711' },
       coordinator: { status: 'Event Coordinator', statusColor: '#10B981', backdrop: '#1f162b' },
+      ieee: { status: 'IEEE Member', statusColor: '#0080FF', backdrop: '#0d1f2d' },
       volunteer: { status: 'SDC Volunteer', statusColor: '#A78BFA', backdrop: '#1c152b' },
     };
 
@@ -459,7 +464,7 @@ export default function SdcMembersPage() {
             </section>
 
             {/* ============================================================== */}
-            {/* 4. VOLUNTEERS SECTION (NEW DEDICATED SECTION)                   */}
+            {/* 4. VOLUNTEERS SECTION                                           */}
             {/* ============================================================== */}
             <section aria-labelledby="heading-volunteers">
               <div
@@ -534,6 +539,81 @@ export default function SdcMembersPage() {
                   }}
                 >
                   {members.volunteers.map((member) => renderMemberCard(member, 'volunteer'))}
+                </div>
+              )}
+            </section>
+
+            {/* ============================================================== */}
+            {/* 5. IEEE MEMBERS SECTION (LAST BEFORE VIEW ALL / FOOTER)         */}
+            {/* ============================================================== */}
+            <section aria-labelledby="heading-ieee">
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  marginBottom: '1.5rem',
+                  paddingBottom: '0.75rem',
+                  borderBottom: '1px solid rgba(0, 128, 255, 0.3)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '6px',
+                    background: 'rgba(0, 128, 255, 0.15)',
+                    border: '1px solid #0080FF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#38BDF8',
+                  }}
+                >
+                  <Cpu size={20} />
+                </div>
+                <div>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#38BDF8', letterSpacing: '0.12em' }}>
+                    IEEE STUDENT BRANCH • REC BANDA
+                  </span>
+                  <h2
+                    id="heading-ieee"
+                    style={{
+                      fontFamily: 'var(--font-heading)',
+                      fontSize: '1.65rem',
+                      color: 'var(--color-warm-off-white)',
+                      margin: 0,
+                    }}
+                  >
+                    IEEE MEMBERS ({members.ieee.length})
+                  </h2>
+                </div>
+              </div>
+
+              {members.ieee.length === 0 ? (
+                <div
+                  style={{
+                    padding: '2.5rem',
+                    textAlign: 'center',
+                    background: 'rgba(30, 41, 59, 0.4)',
+                    border: '1px dashed rgba(255, 255, 255, 0.15)',
+                    borderRadius: '8px',
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  IEEE Student Branch members roster being updated.
+                </div>
+              ) : (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                    gap: '2.5rem',
+                    justifyContent: 'center',
+                    alignItems: 'start',
+                  }}
+                >
+                  {members.ieee.map((member) => renderMemberCard(member, 'ieee'))}
                 </div>
               )}
             </section>
