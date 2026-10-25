@@ -23,6 +23,7 @@ import {
   Check,
   HeartHandshake,
   Shield,
+  Cpu,
 } from 'lucide-react';
 
 function LinkedInIcon({ size = 16 }) {
@@ -96,6 +97,7 @@ export default function AdminSdcMembersPage() {
 
   const filteredMembers = members.filter((m) => {
     if (categoryFilter === 'ALL') return true;
+    if (categoryFilter === 'ieee_member') return m.category === 'ieee_member' || m.category === 'ieee';
     return m.category === categoryFilter;
   });
 
@@ -252,9 +254,9 @@ export default function AdminSdcMembersPage() {
     } catch (err) {
       console.error('Failed to save SDC member:', err);
       const isConstraintError = err.message?.includes('check constraint') || err.message?.includes('sdc_members_category_check');
-      if (isConstraintError && (form.category === 'volunteer' || form.category === 'director')) {
+      if (isConstraintError && (form.category === 'volunteer' || form.category === 'director' || form.category === 'ieee_member' || form.category === 'ieee')) {
         notify(
-          `Database constraint: The "${form.category}" category requires executing migration 20261021_add_director_category_to_sdc_members.sql in Supabase SQL editor.`,
+          `Database constraint: The "${form.category}" category requires executing migration 20261025_add_ieee_member_category_to_sdc_members.sql in Supabase SQL editor.`,
           'error'
         );
       } else {
@@ -317,6 +319,14 @@ export default function AdminSdcMembersPage() {
         color: 'var(--color-arc-blue)',
         bg: 'rgba(0, 191, 255, 0.15)',
         icon: Sparkles,
+      };
+    }
+    if (cat === 'ieee_member' || cat === 'ieee') {
+      return {
+        label: 'IEEE MEMBER',
+        color: '#38BDF8',
+        bg: 'rgba(0, 128, 255, 0.18)',
+        icon: Cpu,
       };
     }
     if (cat === 'volunteer') {
@@ -428,6 +438,7 @@ export default function AdminSdcMembersPage() {
               { id: 'mentor', label: '2. MENTORS' },
               { id: 'coordinator', label: '3. COORDINATORS' },
               { id: 'volunteer', label: '4. VOLUNTEERS' },
+              { id: 'ieee_member', label: '5. IEEE MEMBERS' },
             ].map((tab) => {
               const active = categoryFilter === tab.id;
               return (
@@ -835,6 +846,7 @@ export default function AdminSdcMembersPage() {
                       <option value="mentor">2. MENTOR</option>
                       <option value="coordinator">3. COORDINATOR</option>
                       <option value="volunteer">4. VOLUNTEER</option>
+                      <option value="ieee_member">5. IEEE MEMBER</option>
                     </select>
                   </div>
 
