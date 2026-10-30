@@ -355,6 +355,50 @@ export default function AdminRegistrationsPage() {
     exportService.printSingleRegistration(registration);
   };
 
+  const handleDownloadDeck = async (e, docUrl, docName, docType) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!docUrl) return;
+
+    let targetFilename = docName || 'presentation';
+    const cleanType = (docType || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const ext = cleanType.includes('pdf')
+      ? 'pdf'
+      : cleanType.includes('pptx')
+      ? 'pptx'
+      : cleanType.includes('ppt')
+      ? 'ppt'
+      : 'pptx';
+
+    if (
+      !targetFilename.toLowerCase().endsWith('.pptx') &&
+      !targetFilename.toLowerCase().endsWith('.pdf') &&
+      !targetFilename.toLowerCase().endsWith('.ppt')
+    ) {
+      targetFilename = `${targetFilename}.${ext}`;
+    }
+
+    try {
+      showBanner(`Downloading ${targetFilename}...`, 'info');
+      const resp = await fetch(docUrl);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = targetFilename;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      }, 45000);
+      showBanner(`Downloaded ${targetFilename} successfully!`);
+    } catch (err) {
+      console.warn('Direct blob fetch failed, falling back to direct link:', err);
+      window.open(docUrl, '_blank');
+    }
+  };
+
   // Status updates
   const handleOpenStatusModal = (r) => {
     setStatusModalItem(r);
@@ -1015,9 +1059,9 @@ export default function AdminRegistrationsPage() {
                                   <ExternalLink size={11} />
                                   VIEW
                                 </a>
-                                <a
-                                  href={r.document_url}
-                                  download={r.document_name || 'presentation'}
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDownloadDeck(e, r.document_url, r.document_name, r.document_type)}
                                   style={{
                                     display: 'inline-flex',
                                     alignItems: 'center',
@@ -1031,12 +1075,13 @@ export default function AdminRegistrationsPage() {
                                     fontSize: '0.68rem',
                                     textDecoration: 'none',
                                     fontWeight: 700,
+                                    cursor: 'pointer',
                                   }}
-                                  title="Download presentation deck"
+                                  title={`Download ${r.document_name || 'presentation deck'}`}
                                 >
                                   <Download size={11} />
                                   GET
-                                </a>
+                                </button>
                                 {r.document_size && (
                                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: 'var(--text-muted)' }}>
                                     {(r.document_size / (1024 * 1024)).toFixed(1)}MB
@@ -1490,15 +1535,16 @@ export default function AdminRegistrationsPage() {
                         <ExternalLink size={13} />
                         OPEN
                       </a>
-                      <a
-                        href={inspectModalItem.document_url}
-                        download={inspectModalItem.document_name || 'presentation'}
+                      <button
+                        type="button"
+                        onClick={(e) => handleDownloadDeck(e, inspectModalItem.document_url, inspectModalItem.document_name, inspectModalItem.document_type)}
                         className="btn btn-secondary"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem', cursor: 'pointer' }}
+                        title={`Download ${inspectModalItem.document_name || 'presentation deck'}`}
                       >
                         <Download size={13} />
                         DOWNLOAD
-                      </a>
+                      </button>
                       <button
                         type="button"
                         disabled={docActionLoading}

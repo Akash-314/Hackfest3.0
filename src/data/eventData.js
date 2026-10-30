@@ -788,6 +788,22 @@ export const currentSponsorsList = [
     badge: "CONFIRMED ALLIANCE",
     theme: "light",
     is_published: true
+  },
+  {
+    id: "n8n",
+    name: "n8n",
+    title: "n8n",
+    subtitle: "Workflow Automation for Technical Teams",
+    description: "The leading fair-code workflow automation platform that gives developers and engineers the power to integrate services and build custom automations with flexible node-based logic.",
+    image: "/images/sponsors/n8n-tile.png",
+    cardLogo: "/images/sponsors/n8n.png",
+    website_url: "https://n8n.io",
+    link: "https://n8n.io",
+    tier: "gold",
+    tierLabel: "OFFICIAL SPONSOR",
+    badge: "CONFIRMED ALLIANCE",
+    theme: "light",
+    is_published: true
   }
 ];
 

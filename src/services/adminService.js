@@ -146,6 +146,7 @@ export const adminService = {
             college: m.college || m.profile?.college || reg.team.college || 'Rajkiya Engineering College Banda',
             branch: m.branch || m.profile?.branch || '',
             year: m.year || m.profile?.year || '',
+            roll_no: m.roll_no || m.roll_number || m.rollNo || m.roll || m.profile?.roll_no || m.profile?.roll_number || '',
           }));
         }
 
