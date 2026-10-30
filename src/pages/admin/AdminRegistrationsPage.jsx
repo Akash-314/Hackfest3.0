@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import AdminNav from '../../components/admin/AdminNav';
 import { adminService } from '../../services/adminService';
 import { exportService } from '../../services/exportService';
@@ -47,6 +47,17 @@ export default function AdminRegistrationsPage() {
   const [statusNotes, setStatusNotes] = useState('');
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [actionMessage, setActionMessage] = useState({ text: '', type: 'success' });
+  const [docActionLoading, setDocActionLoading] = useState(false);
+  const [uploadTargetId, setUploadTargetId] = useState(null);
+  const [deleteConfirmRegistration, setDeleteConfirmRegistration] = useState(null);
+  const [isDeletingRegistration, setIsDeletingRegistration] = useState(false);
+  const adminDocInputRef = useRef(null);
+  const tableFileInputRef = useRef(null);
+
+  const showBanner = (text, type = 'success') => {
+    setActionMessage({ text, type });
+    setTimeout(() => setActionMessage({ text: '', type: 'success' }), 4000);
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -65,9 +76,124 @@ export default function AdminRegistrationsPage() {
     loadData();
   }, []);
 
-  const showBanner = (text, type = 'success') => {
-    setActionMessage({ text, type });
-    setTimeout(() => setActionMessage({ text: '', type: 'success' }), 4000);
+  const handleAdminReplaceDocument = async (e, registrationId) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setDocActionLoading(true);
+    try {
+      const updated = await adminService.replaceRegistrationDocumentAdmin(registrationId, file);
+      showBanner(`Document "${file.name}" attached successfully!`, 'success');
+      setInspectModalItem((prev) => (prev && prev.id === registrationId ? { ...prev, ...updated } : prev));
+      await loadData();
+    } catch (err) {
+      showBanner(err.message || 'Failed to replace document.', 'error');
+    } finally {
+      setDocActionLoading(false);
+      if (adminDocInputRef.current) adminDocInputRef.current.value = '';
+    }
+  };
+
+  const handleTableRowUpload = (regId) => {
+    setUploadTargetId(regId);
+    if (tableFileInputRef.current) {
+      tableFileInputRef.current.value = '';
+      tableFileInputRef.current.click();
+    }
+  };
+
+  const handleTableFileSelected = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !uploadTargetId) return;
+
+    setDocActionLoading(true);
+    try {
+      await adminService.replaceRegistrationDocumentAdmin(uploadTargetId, file);
+      showBanner(`Document "${file.name}" uploaded successfully for registration!`, 'success');
+      await loadData();
+    } catch (err) {
+      showBanner(err.message || 'Failed to upload document.', 'error');
+    } finally {
+      setDocActionLoading(false);
+      setUploadTargetId(null);
+      if (tableFileInputRef.current) tableFileInputRef.current.value = '';
+    }
+  };
+
+  const handleAdminDeleteDocument = async (registrationId) => {
+    if (!window.confirm('Are you sure you want to delete this attached presentation document? This will remove the file from storage.')) return;
+
+    setDocActionLoading(true);
+    try {
+      await adminService.deleteRegistrationDocumentAdmin(registrationId);
+      showBanner('Document attachment removed successfully.', 'success');
+      setInspectModalItem((prev) => (prev && prev.id === registrationId ? {
+        ...prev,
+        document_url: null,
+        document_name: null,
+        document_type: null,
+        document_size: null,
+        document_path: null,
+      } : prev));
+      await loadData();
+    } catch (err) {
+      showBanner(err.message || 'Failed to delete document.', 'error');
+    } finally {
+      setDocActionLoading(false);
+    }
+  };
+
+  const handleAdminDeleteRegistration = (registrationId, teamId = null, teamName = '') => {
+    if (registrationId && typeof registrationId === 'object' && registrationId.id) {
+      setDeleteConfirmRegistration(registrationId);
+      return;
+    }
+    const item = registrations.find((r) => r.id === registrationId) || {
+      id: registrationId,
+      team_id: teamId,
+      team_name: teamName,
+      team: teamName ? { name: teamName, id: teamId } : null,
+    };
+    setDeleteConfirmRegistration(item);
+  };
+
+  const handleConfirmDeleteRegistration = async () => {
+    if (!deleteConfirmRegistration) return;
+    const target = deleteConfirmRegistration;
+    const registrationId = target.id;
+    const teamId = target.team_id || target.team?.id || null;
+    const teamName = target.team?.name || target.team_name || '';
+    const targetLabel = teamName
+      ? `team "${teamName}" and its registration`
+      : `registration #${registrationId ? registrationId.slice(0, 8) : ''}`;
+
+    setIsDeletingRegistration(true);
+    try {
+      await adminService.deleteRegistrationAndTeamAdmin(registrationId, teamId);
+
+      // Optimistically update local state so registration immediately vanishes from UI
+      setRegistrations((prev) =>
+        prev.filter((r) => r.id !== registrationId && (!teamId || (r.team_id !== teamId && r.team?.id !== teamId)))
+      );
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(registrationId);
+        return next;
+      });
+
+      if (inspectModalItem?.id === registrationId) {
+        setInspectModalItem(null);
+      }
+      setDeleteConfirmRegistration(null);
+      showBanner(`Deleted ${targetLabel} successfully.`, 'success');
+      // Re-sync with backend to ensure exact consistency
+      await loadData();
+    } catch (err) {
+      console.error('Failed to delete registration / team:', err);
+      showBanner(err.message || 'Failed to delete registration / team.', 'error');
+    } finally {
+      setIsDeletingRegistration(false);
+    }
   };
 
   // Filter & Search logic
@@ -328,6 +454,24 @@ export default function AdminRegistrationsPage() {
     <div style={{ paddingTop: 'calc(var(--nav-height) + 1.5rem)', paddingBottom: '6rem' }}>
       <div className="container" style={{ maxWidth: '1280px' }}>
         <AdminNav />
+
+        {/* Hidden file input for inspect modal document upload */}
+        <input
+          type="file"
+          ref={adminDocInputRef}
+          accept=".pptx,.ppt,.pdf"
+          style={{ display: 'none' }}
+          onChange={(e) => inspectModalItem && handleAdminReplaceDocument(e, inspectModalItem.id)}
+        />
+
+        {/* Hidden file input for direct table row document upload */}
+        <input
+          type="file"
+          ref={tableFileInputRef}
+          accept=".pptx,.ppt,.pdf"
+          style={{ display: 'none' }}
+          onChange={handleTableFileSelected}
+        />
 
         {/* Action message banner */}
         {actionMessage.text && (
@@ -1038,6 +1182,35 @@ export default function AdminRegistrationsPage() {
                             >
                               UPDATE
                             </button>
+
+                            {/* Delete Registered Team & Registration */}
+                            <button
+                              onClick={() =>
+                                handleAdminDeleteRegistration(
+                                  r.id,
+                                  r.team_id || r.team?.id,
+                                  r.team?.name || r.team_name
+                                )
+                              }
+                              style={{
+                                padding: '0.3rem 0.55rem',
+                                background: 'rgba(239, 68, 68, 0.15)',
+                                border: '1px solid rgba(239, 68, 68, 0.4)',
+                                color: '#f87171',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                              title={
+                                r.team?.name || r.team_id
+                                  ? `Delete Team "${r.team?.name || 'Registered Team'}" & Registration`
+                                  : 'Delete Registration'
+                              }
+                            >
+                              <Trash2 size={13} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1372,26 +1545,58 @@ export default function AdminRegistrationsPage() {
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '1rem' }}>
                 <button
-                  onClick={() => handlePrintSingle(inspectModalItem)}
-                  className="btn btn-secondary"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}
-                >
-                  <Printer size={14} />
-                  PRINT ENTRY PASS
-                </button>
-                <button
-                  onClick={() => {
-                    const item = inspectModalItem;
-                    setInspectModalItem(null);
-                    handleOpenStatusModal(item);
+                  type="button"
+                  onClick={() =>
+                    handleAdminDeleteRegistration(
+                      inspectModalItem.id,
+                      inspectModalItem.team_id || inspectModalItem.team?.id,
+                      inspectModalItem.team?.name || inspectModalItem.team_name
+                    )
+                  }
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    color: '#f87171',
+                    borderRadius: '4px',
+                    padding: '0.45rem 0.8rem',
+                    fontSize: '0.78rem',
+                    fontFamily: 'var(--font-mono)',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
                   }}
-                  className="btn btn-primary"
-                  style={{ fontSize: '0.8rem' }}
+                  title="Permanently delete this registration and registered team"
                 >
-                  EDIT STATUS
+                  <Trash2 size={14} />
+                  {inspectModalItem.team?.name || inspectModalItem.team_id
+                    ? 'DELETE TEAM & REGISTRATION'
+                    : 'DELETE REGISTRATION'}
                 </button>
+
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button
+                    onClick={() => handlePrintSingle(inspectModalItem)}
+                    className="btn btn-secondary"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}
+                  >
+                    <Printer size={14} />
+                    PRINT ENTRY PASS
+                  </button>
+                  <button
+                    onClick={() => {
+                      const item = inspectModalItem;
+                      setInspectModalItem(null);
+                      handleOpenStatusModal(item);
+                    }}
+                    className="btn btn-primary"
+                    style={{ fontSize: '0.8rem' }}
+                  >
+                    EDIT STATUS
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -1499,6 +1704,131 @@ export default function AdminRegistrationsPage() {
                 >
                   {isUpdatingStatus ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
                   UPDATE STATUS
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* DELETE REGISTRATION CONFIRMATION DIALOG MODAL                 */}
+        {/* ============================================================== */}
+        {deleteConfirmRegistration && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-reg-dialog-title"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.85)',
+              zIndex: 1100,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '1rem',
+              backdropFilter: 'blur(8px)',
+            }}
+          >
+            <div
+              style={{
+                background: '#161B22',
+                border: '1px solid rgba(239, 68, 68, 0.6)',
+                borderRadius: '8px',
+                width: '100%',
+                maxWidth: '480px',
+                padding: '1.75rem',
+                boxShadow: '0 25px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(239, 68, 68, 0.2)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '1rem' }}>
+                <div
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    border: '1px solid rgba(239, 68, 68, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Trash2 size={20} color="#f87171" />
+                </div>
+                <div>
+                  <h3 id="delete-reg-dialog-title" style={{ fontFamily: 'var(--font-heading)', fontSize: '1.25rem', color: '#FFFFFF', margin: 0 }}>
+                    CONFIRM PERMANENT DELETION
+                  </h3>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#f87171', letterSpacing: '0.06em' }}>
+                    ADMINISTRATIVE ACTION • IRREVERSIBLE
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  background: '#0D1117',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '6px',
+                  padding: '1rem',
+                  marginBottom: '1.25rem',
+                }}
+              >
+                <div style={{ fontSize: '0.88rem', color: '#FFFFFF', fontWeight: 600, marginBottom: '0.25rem' }}>
+                  {deleteConfirmRegistration.team?.name || deleteConfirmRegistration.team_name
+                    ? `Team: ${deleteConfirmRegistration.team?.name || deleteConfirmRegistration.team_name}`
+                    : `Participant: ${deleteConfirmRegistration.profile?.full_name || deleteConfirmRegistration.user_name || 'Participant'}`}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                  Registration ID: #{deleteConfirmRegistration.id ? deleteConfirmRegistration.id.slice(0, 8) : 'N/A'} • Track: {deleteConfirmRegistration.competition?.name || deleteConfirmRegistration.competition_name || 'Hackathon'}
+                </div>
+                {deleteConfirmRegistration.team?.members?.length > 0 && (
+                  <div style={{ fontSize: '0.78rem', color: '#ECBA82', fontFamily: 'var(--font-mono)', marginTop: '0.35rem' }}>
+                    Associated Roster: {deleteConfirmRegistration.team.members.length} registered participant(s)
+                  </div>
+                )}
+              </div>
+
+              <p style={{ color: '#E2E8F0', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>
+                Are you sure you want to permanently delete this registration?
+                {deleteConfirmRegistration.team?.name || deleteConfirmRegistration.team_id
+                  ? ' This operation permanently removes the registered team, its roster of members, and the registration record from the database.'
+                  : ' This operation permanently removes this registration record and associated submissions from the database.'}
+              </p>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={isDeletingRegistration}
+                  onClick={() => setDeleteConfirmRegistration(null)}
+                  style={{ fontSize: '0.82rem', padding: '0.55rem 1rem' }}
+                >
+                  CANCEL
+                </button>
+                <button
+                  type="button"
+                  disabled={isDeletingRegistration}
+                  onClick={handleConfirmDeleteRegistration}
+                  style={{
+                    background: '#DC2626',
+                    border: '1px solid #EF4444',
+                    color: '#FFFFFF',
+                    borderRadius: '4px',
+                    padding: '0.55rem 1.1rem',
+                    fontSize: '0.82rem',
+                    fontFamily: 'var(--font-mono)',
+                    fontWeight: 700,
+                    cursor: isDeletingRegistration ? 'not-allowed' : 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                  }}
+                >
+                  {isDeletingRegistration ? <RefreshCw size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                  {isDeletingRegistration ? 'DELETING...' : 'CONFIRM DELETE'}
                 </button>
               </div>
             </div>

@@ -291,12 +291,128 @@ export const adminService = {
   },
 
   async deleteRegistration(id) {
-    if (!isSupabaseConfigured) return;
-    const { error } = await supabase.from('registrations').delete().eq('id', id);
+    return this.deleteRegistrationAndTeamAdmin(id);
+  },
+
+  async deleteRegistrationAndTeamAdmin(registrationId, teamId = null) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+
+    let targetTeamId = teamId;
+    if (!targetTeamId && registrationId) {
+      try {
+        const { data: reg } = await supabase
+          .from('registrations')
+          .select('team_id, document_path')
+          .eq('id', registrationId)
+          .maybeSingle();
+        if (reg?.team_id) targetTeamId = reg.team_id;
+      } catch (err) {
+        console.warn('Note: lookup team_id during registration delete:', err);
+      }
+    }
+
+    // If an associated team exists, delete the team and all associated child records
+    if (targetTeamId) {
+      await this.deleteTeamAdmin(targetTeamId);
+      if (registrationId && registrationId !== targetTeamId) {
+        await supabase.from('registrations').delete().eq('id', registrationId).catch(() => {});
+      }
+    } else if (registrationId) {
+      // Solo / Individual registration deletion (e.g. Codeathon)
+      const { data: regData } = await supabase
+        .from('registrations')
+        .select('document_path')
+        .eq('id', registrationId)
+        .maybeSingle();
+
+      const { error: regDelErr } = await supabase
+        .from('registrations')
+        .delete()
+        .eq('id', registrationId);
+      if (regDelErr) throw regDelErr;
+
+      if (regData?.document_path) {
+        await supabase.storage.from('submissions').remove([regData.document_path]).catch(() => {});
+      }
+    }
+
+    await this.logAction('DELETE_REGISTRATION_AND_TEAM', 'registrations', registrationId || targetTeamId, { teamId: targetTeamId }).catch(() => {});
+    return true;
+  },
+
+  async replaceRegistrationDocumentAdmin(registrationId, file) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    if (!file) throw new Error('No file provided');
+
+    const cleanExt = (file.name || '').split('.').pop() || 'pdf';
+    const cleanBase = file.name
+      .replace(/\.[^/.]+$/, '')
+      .replace(/[^a-zA-Z0-9_-]/g, '_')
+      .slice(0, 50);
+    const storagePath = `registrations/${Date.now()}_${cleanBase}.${cleanExt}`;
+
+    const { error: uploadErr } = await supabase.storage
+      .from('submissions')
+      .upload(storagePath, file, { cacheControl: '3600', upsert: true });
+
+    if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('submissions')
+      .getPublicUrl(storagePath);
+
+    const docMeta = {
+      document_url: publicUrl,
+      document_name: file.name,
+      document_type: cleanExt.toUpperCase(),
+      document_size: file.size,
+      document_path: storagePath,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
+      .from('registrations')
+      .update(docMeta)
+      .eq('id', registrationId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    await this.logAction('REPLACE_REGISTRATION_DOCUMENT', 'registrations', registrationId, { document_name: file.name }).catch(() => {});
+    return data;
+  },
+
+  async deleteRegistrationDocumentAdmin(registrationId) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+
+    const { data: reg } = await supabase
+      .from('registrations')
+      .select('id, document_path')
+      .eq('id', registrationId)
+      .maybeSingle();
+
+    const { data, error } = await supabase
+      .from('registrations')
+      .update({
+        document_url: null,
+        document_name: null,
+        document_type: null,
+        document_size: null,
+        document_path: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', registrationId)
+      .select()
+      .single();
+
     if (error) throw error;
 
-    await this.logAction('DELETE_REGISTRATION', 'registration', id, {}).catch(() => {});
-    return true;
+    if (reg?.document_path) {
+      await supabase.storage.from('submissions').remove([reg.document_path]).catch(() => {});
+    }
+
+    await this.logAction('DELETE_REGISTRATION_DOCUMENT', 'registrations', registrationId, {}).catch(() => {});
+    return data;
   },
 
   // --------------------------------------------------------------------------
@@ -1280,4 +1396,661 @@ export const adminService = {
     await this.logAction('DELETE_PROBLEM_STATEMENT', 'problem_statements', id, {}).catch(() => {});
     return true;
   },
+
+  // --------------------------------------------------------------------------
+  // 9. PARTICIPANTS MANAGEMENT
+  // --------------------------------------------------------------------------
+  async getAllParticipants() {
+    if (!isSupabaseConfigured) return [];
+    try {
+      const { data: profiles, error: pError } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          full_name,
+          email,
+          phone,
+          college,
+          branch,
+          year,
+          role,
+          created_at,
+          registrations:registrations(id, registration_status, competition:competitions(id, name, slug)),
+          team_members:team_members(id, role, team:teams(id, name, code, competition:competitions(name)))
+        `)
+        .order('created_at', { ascending: false });
+
+      if (pError) throw pError;
+
+      // Also fetch unlinked team_members (members entered by leader who don't have user_id yet)
+      const { data: unlinkedMembers } = await supabase
+        .from('team_members')
+        .select(`
+          id,
+          name,
+          email,
+          phone,
+          college,
+          branch,
+          year,
+          role,
+          joined_at,
+          team:teams(id, name, code, competition:competitions(name))
+        `)
+        .is('user_id', null);
+
+      const combined = [...(profiles || [])];
+
+      if (unlinkedMembers && unlinkedMembers.length > 0) {
+        unlinkedMembers.forEach((um) => {
+          const existing = combined.find((c) => c.email && c.email.toLowerCase() === um.email?.toLowerCase());
+          if (!existing) {
+            combined.push({
+              id: 'unlinked_' + um.id,
+              memberId: um.id,
+              full_name: um.name || 'Team Member',
+              email: um.email,
+              phone: um.phone,
+              college: um.college || 'Rajkiya Engineering College Banda',
+              branch: um.branch,
+              year: um.year,
+              role: 'participant',
+              is_unlinked: true,
+              created_at: um.joined_at,
+              registrations: [],
+              team_members: [um],
+            });
+          }
+        });
+      }
+
+      return combined;
+    } catch (err) {
+      console.error('Failed to load participants:', err);
+      return [];
+    }
+  },
+
+  async updateParticipant(userId, updates) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+
+    if (String(userId).startsWith('unlinked_')) {
+      const memberId = userId.replace('unlinked_', '');
+      const { data, error } = await supabase
+        .from('team_members')
+        .update({
+          name: updates.full_name || updates.name,
+          email: updates.email,
+          phone: updates.phone,
+          college: updates.college,
+          branch: updates.branch,
+          year: updates.year,
+        })
+        .eq('id', memberId)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        full_name: updates.full_name || updates.name,
+        email: updates.email,
+        phone: updates.phone,
+        college: updates.college,
+        branch: updates.branch,
+        year: updates.year,
+        role: updates.role || undefined,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    await this.logAction('UPDATE_PARTICIPANT', 'profile', userId, updates).catch(() => {});
+    return data;
+  },
+
+  async deleteParticipant(userId) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+
+    if (String(userId).startsWith('unlinked_')) {
+      const memberId = userId.replace('unlinked_', '');
+      const { error } = await supabase.from('team_members').delete().eq('id', memberId);
+      if (error) throw error;
+      return true;
+    }
+
+    await supabase.from('registrations').delete().eq('user_id', userId).catch(() => {});
+    await supabase.from('team_members').delete().eq('user_id', userId).catch(() => {});
+
+    const { error } = await supabase.from('profiles').delete().eq('id', userId);
+    if (error) throw error;
+
+    await this.logAction('DELETE_PARTICIPANT', 'profile', userId, {}).catch(() => {});
+    return true;
+  },
+
+  // --------------------------------------------------------------------------
+  // 10. TEAMS & ROSTERS MANAGEMENT
+  // --------------------------------------------------------------------------
+  async getAllTeams() {
+    return this.getAllTeamsAdmin();
+  },
+
+  async getAllTeamsAdmin() {
+    if (!isSupabaseConfigured) return [];
+    try {
+      const { data, error } = await supabase
+        .from('teams')
+        .select(`
+          *,
+          competition:competitions(id, name, slug, max_team_size, min_team_size),
+          leader:profiles!teams_leader_id_fkey(id, full_name, email, phone, college),
+          members:team_members(
+            id,
+            user_id,
+            role,
+            name,
+            email,
+            phone,
+            college,
+            branch,
+            year,
+            joined_at,
+            profile:profiles(id, full_name, email, phone, college)
+          ),
+          registrations:registrations(
+            id,
+            registration_status,
+            document_url,
+            document_name,
+            document_type,
+            document_size,
+            document_path,
+            created_at
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('Teams relations query fallback:', error.message);
+        const { data: fallback } = await supabase
+          .from('teams')
+          .select(`*, competition:competitions(id, name, slug), members:team_members(*)`)
+          .order('created_at', { ascending: false });
+        return fallback || [];
+      }
+
+      return (data || []).map((t) => {
+        const rawMembers = t.members || [];
+        const normMembers = rawMembers.map((m) => ({
+          id: m.id,
+          user_id: m.user_id,
+          role: m.role || 'member',
+          name: m.name || m.profile?.full_name || 'Member',
+          email: m.email || m.profile?.email || 'N/A',
+          phone: m.phone || m.profile?.phone || '',
+          college: m.college || m.profile?.college || t.college || 'Rajkiya Engineering College Banda',
+          branch: m.branch || m.profile?.branch || '',
+          year: m.year || m.profile?.year || '',
+          joined_at: m.joined_at,
+        }));
+        // Find registration with attached presentation document
+        const regWithDoc = (t.registrations || []).find((r) => r.document_url) || t.registrations?.[0] || null;
+
+        return {
+          ...t,
+          members: normMembers,
+          registration: regWithDoc,
+          document_url: regWithDoc?.document_url || null,
+          document_name: regWithDoc?.document_name || null,
+          document_type: regWithDoc?.document_type || null,
+          document_size: regWithDoc?.document_size || null,
+          document_path: regWithDoc?.document_path || null,
+        };
+      });
+    } catch (err) {
+      console.error('Failed to load admin teams:', err);
+      return [];
+    }
+  },
+
+  async saveTeamAdmin(team) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    const compId = (team.competition_id && typeof team.competition_id === 'string' && team.competition_id.trim())
+      ? team.competition_id.trim()
+      : null;
+
+    if (team.id) {
+      const { data, error } = await supabase
+        .from('teams')
+        .update({
+          name: team.name?.trim(),
+          college: team.college?.trim(),
+          description: team.description?.trim(),
+          competition_id: compId,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', team.id)
+        .select()
+        .single();
+      if (error) throw error;
+      await this.logAction('UPDATE_TEAM', 'teams', team.id, team).catch(() => {});
+      return data;
+    } else {
+      const code = 'HF3-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      const { data, error } = await supabase
+        .from('teams')
+        .insert([{
+          name: team.name?.trim(),
+          code,
+          competition_id: compId,
+          college: team.college?.trim() || 'Rajkiya Engineering College Banda',
+          description: team.description?.trim() || '',
+          created_at: new Date().toISOString(),
+        }])
+        .select()
+        .single();
+      if (error) throw error;
+      await this.logAction('CREATE_TEAM', 'teams', data.id, team).catch(() => {});
+      return data;
+    }
+  },
+
+  async deleteTeamAdmin(id) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    if (!id) throw new Error('Team ID is required for deletion');
+
+    // 1. Try atomic server-side RPC first
+    let rpcSucceeded = false;
+    let rpcErrorDetail = null;
+
+    try {
+      const { data: rpcData, error: rpcError } = await supabase.rpc('delete_team_admin', {
+        p_team_id: id,
+      });
+
+      if (!rpcError && rpcData?.success) {
+        rpcSucceeded = true;
+        // Clean up presentation files from storage if any paths returned
+        if (Array.isArray(rpcData.storage_paths) && rpcData.storage_paths.length > 0) {
+          await supabase.storage.from('submissions').remove(rpcData.storage_paths).catch((stErr) => {
+            console.warn('Storage cleanup notice after RPC delete:', stErr);
+          });
+        }
+        await this.logAction('DELETE_TEAM', 'teams', id, {
+          team_name: rpcData.team_name,
+          deleted_members: rpcData.deleted_members,
+          deleted_registrations: rpcData.deleted_registrations,
+        }).catch(() => {});
+      } else if (rpcError) {
+        rpcErrorDetail = rpcError;
+        // If user is explicitly unauthorized, abort immediately
+        if (rpcError.code === '42501' || rpcError.message?.toLowerCase().includes('access denied')) {
+          throw new Error(rpcError.message || 'Access denied. Administrator clearance required.');
+        }
+      }
+    } catch (rpcErr) {
+      if (rpcErr.message?.toLowerCase().includes('access denied')) throw rpcErr;
+      console.warn('RPC delete_team_admin unavailable or returned error, using verified client sequence:', rpcErr.message);
+    }
+
+    // If RPC succeeded, verify the team is actually gone
+    if (rpcSucceeded) {
+      const { data: verifyStillInDb } = await supabase
+        .from('teams')
+        .select('id, name')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (!verifyStillInDb) {
+        return true;
+      }
+      console.warn('RPC reported success but team still found in database. Proceeding to verified sequential deletion...');
+    }
+
+    // 2. Sequential authorized deletion with explicit verification at each table
+    // A. Collect presentation document paths from registrations
+    const { data: teamRegs } = await supabase
+      .from('registrations')
+      .select('id, document_path')
+      .eq('team_id', id);
+
+    const docPaths = (teamRegs || [])
+      .map((r) => r.document_path)
+      .filter((p) => p && typeof p === 'string');
+
+    // B. Check for submissions and delete dependent scores first
+    const { data: teamSubs } = await supabase
+      .from('submissions')
+      .select('id, document_path')
+      .eq('team_id', id);
+
+    if (teamSubs && teamSubs.length > 0) {
+      const subIds = teamSubs.map((s) => s.id);
+      teamSubs.forEach((s) => {
+        if (s.document_path) docPaths.push(s.document_path);
+      });
+
+      const { error: scoreErr } = await supabase
+        .from('scores')
+        .delete()
+        .in('submission_id', subIds);
+      if (scoreErr) console.warn('Note deleting scores:', scoreErr.message);
+
+      const { error: subErr } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('team_id', id);
+      if (subErr) {
+        throw new Error(`Failed to remove team submissions: ${subErr.message}`);
+      }
+    }
+
+    // C. Delete registrations referencing this team
+    const { error: regErr } = await supabase
+      .from('registrations')
+      .delete()
+      .eq('team_id', id);
+    if (regErr) {
+      throw new Error(`Failed to remove team registrations: ${regErr.message}`);
+    }
+
+    // D. Delete team members
+    const { error: memErr } = await supabase
+      .from('team_members')
+      .delete()
+      .eq('team_id', id);
+    if (memErr) {
+      throw new Error(`Failed to remove team members: ${memErr.message}`);
+    }
+
+    // E. Delete the team itself with explicit row return
+    const { error: teamErr } = await supabase
+      .from('teams')
+      .delete()
+      .eq('id', id)
+      .select('id, name');
+
+    if (teamErr) {
+      throw new Error(`Failed to delete team: ${teamErr.message}`);
+    }
+
+    // F. Final database verification: ensure team is truly deleted
+    const { data: residualCheck } = await supabase
+      .from('teams')
+      .select('id, name')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (residualCheck) {
+      const detailMsg = rpcErrorDetail?.message ? ` (${rpcErrorDetail.message})` : '';
+      throw new Error(
+        `Database deletion rejected. The team "${residualCheck.name}" could not be deleted because Row Level Security policies or active database constraints prevented removal${detailMsg}.`
+      );
+    }
+
+    // G. Clean up exclusive document files from storage bucket 'submissions'
+    if (docPaths.length > 0) {
+      await supabase.storage.from('submissions').remove(docPaths).catch((stErr) => {
+        console.warn('Storage cleanup warning:', stErr);
+      });
+    }
+
+    await this.logAction('DELETE_TEAM', 'teams', id, {}).catch(() => {});
+    return true;
+  },
+
+  async addTeamMemberAdmin(teamId, memberData) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    const { data, error } = await supabase
+      .from('team_members')
+      .insert({
+        team_id: teamId,
+        name: memberData.name?.trim(),
+        email: memberData.email?.trim().toLowerCase(),
+        phone: memberData.phone?.trim() || null,
+        college: memberData.college?.trim() || 'Rajkiya Engineering College Banda',
+        branch: memberData.branch?.trim() || null,
+        year: memberData.year?.trim() || null,
+        role: memberData.role || 'member',
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    await this.logAction('ADD_TEAM_MEMBER', 'team_members', data.id, { teamId, ...memberData }).catch(() => {});
+    return data;
+  },
+
+  async updateTeamMemberAdmin(memberId, updates) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    const { data, error } = await supabase
+      .from('team_members')
+      .update({
+        name: updates.name?.trim(),
+        email: updates.email?.trim().toLowerCase(),
+        phone: updates.phone?.trim(),
+        college: updates.college?.trim(),
+        branch: updates.branch?.trim(),
+        year: updates.year?.trim(),
+        role: updates.role || undefined,
+      })
+      .eq('id', memberId)
+      .select()
+      .single();
+    if (error) throw error;
+    await this.logAction('UPDATE_TEAM_MEMBER', 'team_members', memberId, updates).catch(() => {});
+    return data;
+  },
+
+  async removeTeamMemberAdmin(memberId) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    const { error } = await supabase.from('team_members').delete().eq('id', memberId);
+    if (error) throw error;
+    await this.logAction('REMOVE_TEAM_MEMBER', 'team_members', memberId, {}).catch(() => {});
+    return true;
+  },
+
+  async changeTeamLeaderAdmin(teamId, newLeaderMemberId) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+
+    const { data: targetMem, error: fError } = await supabase
+      .from('team_members')
+      .select('*')
+      .eq('id', newLeaderMemberId)
+      .single();
+    if (fError || !targetMem) throw new Error('Member not found');
+
+    await supabase.from('team_members').update({ role: 'member' }).eq('team_id', teamId).eq('role', 'leader');
+    await supabase.from('team_members').update({ role: 'leader' }).eq('id', newLeaderMemberId);
+
+    if (targetMem.user_id) {
+      await supabase.from('teams').update({ leader_id: targetMem.user_id }).eq('id', teamId);
+    }
+    await this.logAction('CHANGE_TEAM_LEADER', 'teams', teamId, { newLeaderMemberId }).catch(() => {});
+    return true;
+  },
+
+  // --------------------------------------------------------------------------
+  // 11. SUBMISSIONS & ARTIFACTS MANAGEMENT
+  // --------------------------------------------------------------------------
+  async getAllSubmissionsAdmin() {
+    if (!isSupabaseConfigured) return [];
+    try {
+      const { data, error } = await supabase
+        .from('submissions')
+        .select(`
+          *,
+          competition:competitions(id, name, slug),
+          team:teams(
+            id,
+            name,
+            code,
+            college,
+            members:team_members(id, name, email, role, phone, college)
+          ),
+          problem_category:problem_categories(id, title, number, theme),
+          scores:scores(id, score, comments, criteria:judging_criteria(title, weight))
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.warn('Submissions fallback query:', error.message);
+      }
+
+      const finalSubmissions = [...(data || [])];
+      const existingTeamIds = new Set(finalSubmissions.map((s) => s.team_id).filter(Boolean));
+
+      // Also incorporate registrations that have an uploaded presentation deck
+      try {
+        const { data: regDocs } = await supabase
+          .from('registrations')
+          .select(`
+            id,
+            user_id,
+            team_id,
+            competition_id,
+            problem_category_id,
+            document_url,
+            document_name,
+            document_type,
+            document_size,
+            created_at,
+            notes,
+            competition:competitions(id, name, slug),
+            team:teams(
+              id,
+              name,
+              code,
+              college,
+              members:team_members(id, name, email, role, phone, college)
+            ),
+            problem_category:problem_categories(id, title, number, theme)
+          `)
+          .not('document_url', 'is', null);
+
+        if (regDocs && regDocs.length > 0) {
+          for (const rd of regDocs) {
+            if (rd.team_id && existingTeamIds.has(rd.team_id)) continue;
+            if (rd.team_id) existingTeamIds.add(rd.team_id);
+
+            finalSubmissions.push({
+              id: `reg-sub-${rd.id}`,
+              is_registration_deck: true,
+              registration_id: rd.id,
+              team_id: rd.team_id,
+              user_id: rd.user_id,
+              competition_id: rd.competition_id,
+              problem_category_id: rd.problem_category_id,
+              title: rd.team?.name ? `${rd.team.name} — Proposal & Slide Deck` : (rd.document_name || 'Presentation Deck'),
+              description: rd.notes || `Attached slide deck (${rd.document_name || 'PPTX/PDF'}) uploaded during registration.`,
+              document_url: rd.document_url,
+              document_name: rd.document_name,
+              document_type: rd.document_type,
+              document_size: rd.document_size,
+              status: 'submitted',
+              created_at: rd.created_at,
+              competition: rd.competition,
+              team: rd.team,
+              problem_category: rd.problem_category,
+              scores: [],
+            });
+          }
+        }
+      } catch (regErr) {
+        console.warn('Note: fetch registration decks in submissions:', regErr);
+      }
+
+      return finalSubmissions;
+    } catch (err) {
+      console.error('Failed to load admin submissions:', err);
+      return [];
+    }
+  },
+
+  async updateSubmissionAdmin(id, updates) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    const { data, error } = await supabase
+      .from('submissions')
+      .update({
+        title: updates.title,
+        description: updates.description,
+        github_url: updates.github_url,
+        demo_url: updates.demo_url,
+        video_url: updates.video_url,
+        document_url: updates.document_url,
+        status: updates.status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    await this.logAction('UPDATE_SUBMISSION', 'submissions', id, updates).catch(() => {});
+    return data;
+  },
+
+  async deleteSubmissionAdmin(id) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    const { error } = await supabase.from('submissions').delete().eq('id', id);
+    if (error) throw error;
+    await this.logAction('DELETE_SUBMISSION', 'submissions', id, {}).catch(() => {});
+    return true;
+  },
+
+  async replaceSubmissionDocumentAdmin(submissionId, file) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+
+    const cleanExt = (file.name || '').split('.').pop() || 'pdf';
+    const cleanBase = file.name.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 50);
+    const storagePath = `submissions/${Date.now()}_${cleanBase}.${cleanExt}`;
+
+    const { error: uploadErr } = await supabase.storage
+      .from('submissions')
+      .upload(storagePath, file, { cacheControl: '3600', upsert: true });
+
+    if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('submissions')
+      .getPublicUrl(storagePath);
+
+    const { data, error } = await supabase
+      .from('submissions')
+      .update({
+        document_url: publicUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', submissionId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    await this.logAction('REPLACE_SUBMISSION_DOCUMENT', 'submissions', submissionId, { document_name: file.name }).catch(() => {});
+    return data;
+  },
+
+  async deleteSubmissionDocumentAdmin(submissionId) {
+    if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+
+    const { data, error } = await supabase
+      .from('submissions')
+      .update({
+        document_url: null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', submissionId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    await this.logAction('DELETE_SUBMISSION_DOCUMENT', 'submissions', submissionId, {}).catch(() => {});
+    return data;
+  },
+
 };
