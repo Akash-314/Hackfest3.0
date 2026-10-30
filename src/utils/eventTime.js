@@ -19,33 +19,71 @@ export function parseEventDeadline(deadlineStr) {
   if (!trimmed) return null;
 
   // If it's a non-date descriptive status string, return null
-  if (/^(closing soon|tba|tbd|to be announced|soon|open|closed)/i.test(trimmed)) {
+  if (/^(closing soon|tba|tbd|to be announced|soon|open|closed)/i.test(trimmed) || /closing soon$/i.test(trimmed)) {
     return null;
   }
 
-  // 1. Check if string already contains timezone info (Z, GMT, UTC, or +/-offset)
-  const hasTimezone = /(Z|[+-]\d{2}:?\d{2}|UTC|GMT|IST)$/i.test(trimmed);
+  // Strip leading non-date descriptive prefixes like "REGISTRATION TILL", "TILL", "UNTIL", "DEADLINE:", etc.
+  let cleanStr = trimmed.replace(
+    /^(registration\s+)?(open\s+)?(till|until|deadline\s*:?|closing\s*(on|at|till|until)?)\s+/i,
+    ''
+  ).trim();
 
-  let dateToParse = trimmed;
+  // If after stripping it's still descriptive or empty, return null
+  if (!cleanStr || /^(closing soon|tba|tbd|soon|open|closed)$/i.test(cleanStr)) {
+    return null;
+  }
+
+  // If string does not have a 4-digit year (like 2026), inject the current event year (2026)
+  // Otherwise JavaScript Date.parse defaults missing years to 2001!
+  const currentYear = new Date().getFullYear();
+  if (!/\b20\d{2}\b/.test(cleanStr)) {
+    const dayFirst = /^(\d{1,2})\s+([a-zA-Z]+)[,\s]*(.*)$/;
+    const monthFirst = /^([a-zA-Z]+)\s+(\d{1,2})[,\s]*(.*)$/;
+    if (dayFirst.test(cleanStr)) {
+      cleanStr = cleanStr.replace(dayFirst, (m, d, mon, rest) => rest ? `${d} ${mon} ${currentYear}, ${rest}` : `${d} ${mon} ${currentYear}`);
+    } else if (monthFirst.test(cleanStr)) {
+      cleanStr = cleanStr.replace(monthFirst, (m, mon, d, rest) => rest ? `${mon} ${d}, ${currentYear} ${rest}` : `${mon} ${d}, ${currentYear}`);
+    }
+  }
+
+  // Check if string already contains timezone info (Z, GMT, UTC, or +/-offset)
+  const hasTimezone = /(Z|[+-]\d{2}:?\d{2}|UTC|GMT|IST)$/i.test(cleanStr);
+
+  let dateToParse = cleanStr;
   if (!hasTimezone) {
     // If it has a time like "12:00 PM" or "23:59", append IST offset +05:30
-    if (/\d{1,2}:\d{2}/.test(trimmed)) {
-      dateToParse = `${trimmed} GMT+0530`;
+    if (/\d{1,2}:\d{2}/.test(cleanStr)) {
+      dateToParse = `${cleanStr} GMT+0530`;
     } else {
       // If date only like "October 20, 2026", set to end of that day in IST: 23:59:59 GMT+0530
-      dateToParse = `${trimmed} 23:59:59 GMT+0530`;
+      dateToParse = `${cleanStr} 23:59:59 GMT+0530`;
     }
   }
 
   const timestamp = Date.parse(dateToParse);
   if (isNaN(timestamp)) {
-    // Fallback: try raw Date.parse
+    // Fallback: try raw Date.parse on cleanStr, then trimmed
+    const rawClean = Date.parse(cleanStr);
+    if (!isNaN(rawClean)) {
+      const d = new Date(rawClean);
+      if (d.getFullYear() < 2020) d.setFullYear(currentYear);
+      return d;
+    }
     const rawTimestamp = Date.parse(trimmed);
     if (isNaN(rawTimestamp)) return null;
-    return new Date(rawTimestamp);
+    const d = new Date(rawTimestamp);
+    if (d.getFullYear() < 2020) d.setFullYear(currentYear);
+    return d;
   }
 
-  return new Date(timestamp);
+  const parsedDate = new Date(timestamp);
+  // Sanity check: If date parsed with year < 2020 (likely 2001 default due to parser weirdness), adjust to current year
+  if (parsedDate.getFullYear() < 2020) {
+    parsedDate.setFullYear(currentYear);
+  }
+
+  return parsedDate;
 }
 
 /**

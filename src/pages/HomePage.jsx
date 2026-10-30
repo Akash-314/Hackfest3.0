@@ -258,7 +258,7 @@ export default function HomePage() {
               <Users className="doom-meta-icon" size={21} />
               <div className="doom-meta-info">
                 <span className="doom-meta-label">ORGANIZED BY</span>
-                <span className="doom-meta-value">Student Developer Club</span>
+                <span className="doom-meta-value">REC Banda Incubation Centre</span>
               </div>
             </div>
           </div>
