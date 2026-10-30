@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AdminNav from '../../components/admin/AdminNav';
 import { adminService } from '../../services/adminService';
 import { exportService } from '../../services/exportService';
@@ -24,10 +24,9 @@ import {
   Shield,
   Calendar,
   Check,
+  ExternalLink,
   Upload,
   Trash2,
-  ExternalLink,
-  FileCheck,
 } from 'lucide-react';
 
 export default function AdminRegistrationsPage() {
@@ -37,7 +36,6 @@ export default function AdminRegistrationsPage() {
   const [arenaFilter, setArenaFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [dateFilter, setDateFilter] = useState('ALL'); // ALL, TODAY, WEEK, MONTH
-  const [pptFilter, setPptFilter] = useState('ALL'); // ALL, WITH_PPT, WITHOUT_PPT
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [sortField, setSortField] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc' | 'desc'
@@ -49,10 +47,6 @@ export default function AdminRegistrationsPage() {
   const [statusNotes, setStatusNotes] = useState('');
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [actionMessage, setActionMessage] = useState({ text: '', type: 'success' });
-  const [docActionLoading, setDocActionLoading] = useState(false);
-  const [uploadTargetId, setUploadTargetId] = useState(null);
-  const adminDocInputRef = useRef(null);
-  const tableFileInputRef = useRef(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -74,96 +68,6 @@ export default function AdminRegistrationsPage() {
   const showBanner = (text, type = 'success') => {
     setActionMessage({ text, type });
     setTimeout(() => setActionMessage({ text: '', type: 'success' }), 4000);
-  };
-
-  const handleAdminReplaceDocument = async (e, registrationId) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setDocActionLoading(true);
-    try {
-      const updated = await adminService.replaceRegistrationDocumentAdmin(registrationId, file);
-      showBanner(`Document "${file.name}" attached successfully!`, 'success');
-      setInspectModalItem((prev) => (prev && prev.id === registrationId ? { ...prev, ...updated } : prev));
-      await loadData();
-    } catch (err) {
-      showBanner(err.message || 'Failed to replace document.', 'error');
-    } finally {
-      setDocActionLoading(false);
-      if (adminDocInputRef.current) adminDocInputRef.current.value = '';
-    }
-  };
-
-  const handleTableRowUpload = (regId) => {
-    setUploadTargetId(regId);
-    if (tableFileInputRef.current) {
-      tableFileInputRef.current.value = '';
-      tableFileInputRef.current.click();
-    }
-  };
-
-  const handleTableFileSelected = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !uploadTargetId) return;
-
-    setDocActionLoading(true);
-    try {
-      await adminService.replaceRegistrationDocumentAdmin(uploadTargetId, file);
-      showBanner(`Document "${file.name}" uploaded successfully for registration!`, 'success');
-      await loadData();
-    } catch (err) {
-      showBanner(err.message || 'Failed to upload document.', 'error');
-    } finally {
-      setDocActionLoading(false);
-      setUploadTargetId(null);
-      if (tableFileInputRef.current) tableFileInputRef.current.value = '';
-    }
-  };
-
-  const handleAdminDeleteDocument = async (registrationId) => {
-    if (!window.confirm('Are you sure you want to delete this attached presentation document? This will remove the file from storage.')) return;
-
-    setDocActionLoading(true);
-    try {
-      await adminService.deleteRegistrationDocumentAdmin(registrationId);
-      showBanner('Document attachment removed successfully.', 'success');
-      setInspectModalItem((prev) => (prev && prev.id === registrationId ? {
-        ...prev,
-        document_url: null,
-        document_name: null,
-        document_type: null,
-        document_size: null,
-        document_path: null,
-      } : prev));
-      await loadData();
-    } catch (err) {
-      showBanner(err.message || 'Failed to delete document.', 'error');
-    } finally {
-      setDocActionLoading(false);
-    }
-  };
-
-  const handleAdminDeleteRegistration = async (registrationId, teamId = null, teamName = '') => {
-    const targetLabel = teamName
-      ? `team "${teamName}" and its registration`
-      : `registration #${registrationId ? registrationId.slice(0, 8) : ''}`;
-
-    if (
-      !window.confirm(
-        `Are you sure you want to permanently delete ${targetLabel}? This will remove the registered team, its roster of members, and the registration record.`
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await adminService.deleteRegistrationAndTeamAdmin(registrationId, teamId);
-      showBanner(`Deleted ${targetLabel} successfully.`, 'success');
-      setInspectModalItem(null);
-      await loadData();
-    } catch (err) {
-      showBanner(err.message || 'Failed to delete registration / team.', 'error');
-    }
   };
 
   // Filter & Search logic
@@ -215,16 +119,9 @@ export default function AdminRegistrationsPage() {
         if (dateFilter === 'MONTH' && diffDays > 30) return false;
       }
 
-      // PPT / Proposal Deck Filter
-      if (pptFilter !== 'ALL') {
-        const hasDoc = Boolean(r.document_url || r.team?.document_url);
-        if (pptFilter === 'WITH_PPT' && !hasDoc) return false;
-        if (pptFilter === 'WITHOUT_PPT' && hasDoc) return false;
-      }
-
       return true;
     });
-  }, [registrations, searchQuery, arenaFilter, statusFilter, dateFilter, pptFilter]);
+  }, [registrations, searchQuery, arenaFilter, statusFilter, dateFilter]);
 
   // Sorting
   const sortedRegistrations = useMemo(() => {
@@ -426,21 +323,11 @@ export default function AdminRegistrationsPage() {
   const confirmedCount = registrations.filter((r) => r.registration_status === 'confirmed').length;
   const pendingCount = registrations.filter((r) => r.registration_status === 'pending').length;
   const waitlistCount = registrations.filter((r) => r.registration_status === 'waitlist' || r.registration_status === 'waitlisted').length;
-  const pptCount = registrations.filter((r) => Boolean(r.document_url || r.team?.document_url)).length;
 
   return (
     <div style={{ paddingTop: 'calc(var(--nav-height) + 1.5rem)', paddingBottom: '6rem' }}>
       <div className="container" style={{ maxWidth: '1280px' }}>
         <AdminNav />
-
-        {/* Hidden file input for direct table row document upload */}
-        <input
-          type="file"
-          ref={tableFileInputRef}
-          accept=".pptx,.ppt,.pdf"
-          style={{ display: 'none' }}
-          onChange={handleTableFileSelected}
-        />
 
         {/* Action message banner */}
         {actionMessage.text && (
@@ -481,7 +368,7 @@ export default function AdminRegistrationsPage() {
               REGISTRATION MANAGEMENT
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', margin: '0.3rem 0 0 0' }}>
-              Inspect event registrations, verify participant details, view uploaded presentation decks, and generate certified exports.
+              Inspect event registrations, verify participant details, manage statuses, and generate certified exports.
             </p>
           </div>
 
@@ -490,27 +377,6 @@ export default function AdminRegistrationsPage() {
             <div style={{ background: 'rgba(30, 41, 59, 0.7)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '6px', padding: '0.6rem 1rem', textAlign: 'center' }}>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-muted)' }}>TOTAL REGISTERED</div>
               <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.4rem', color: 'var(--color-warm-off-white)' }}>{totalCount}</div>
-            </div>
-            <div
-              onClick={() => {
-                setPptFilter((prev) => (prev === 'WITH_PPT' ? 'ALL' : 'WITH_PPT'));
-                setCurrentPage(1);
-              }}
-              style={{
-                background: pptFilter === 'WITH_PPT' ? 'rgba(52, 211, 153, 0.22)' : 'rgba(30, 41, 59, 0.7)',
-                border: `1px solid ${pptFilter === 'WITH_PPT' ? '#34D399' : 'rgba(52, 211, 153, 0.35)'}`,
-                borderRadius: '6px',
-                padding: '0.6rem 1rem',
-                textAlign: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-              title="Click to toggle filter: Registrations with PPT attached"
-            >
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: '#34D399', fontWeight: 700 }}>PPTs UPLOADED</div>
-              <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.4rem', color: '#34D399' }}>
-                {pptCount} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>({totalCount > 0 ? Math.round((pptCount / totalCount) * 100) : 0}%)</span>
-              </div>
             </div>
             <div style={{ background: 'rgba(30, 41, 59, 0.7)', border: '1px solid rgba(0, 191, 255, 0.3)', borderRadius: '6px', padding: '0.6rem 1rem', textAlign: 'center' }}>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--color-arc-blue)' }}>CONFIRMED</div>
@@ -616,32 +482,6 @@ export default function AdminRegistrationsPage() {
                 <option value="waitlist">WAITLIST</option>
                 <option value="rejected">REJECTED</option>
                 <option value="cancelled">CANCELLED</option>
-              </select>
-            </div>
-
-            {/* PPT / Presentation Deck Filter */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: pptFilter !== 'ALL' ? '#34D399' : 'var(--text-muted)', fontWeight: pptFilter !== 'ALL' ? 700 : 400 }}>PPT DECK:</span>
-              <select
-                value={pptFilter}
-                onChange={(e) => {
-                  setPptFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                style={{
-                  padding: '0.55rem 0.85rem',
-                  background: '#111827',
-                  border: pptFilter !== 'ALL' ? '1px solid #34D399' : '1px solid var(--border-subtle)',
-                  borderRadius: '4px',
-                  color: pptFilter !== 'ALL' ? '#34D399' : 'var(--color-tech-white)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.8rem',
-                  cursor: 'pointer',
-                }}
-              >
-                <option value="ALL">ALL (PPT STATUS)</option>
-                <option value="WITH_PPT">HAS PPT / ATTACHED</option>
-                <option value="WITHOUT_PPT">MISSING PPT (PENDING)</option>
               </select>
             </div>
 
@@ -860,12 +700,6 @@ export default function AdminRegistrationsPage() {
                       <ArrowUpDown size={12} />
                     </div>
                   </th>
-                  <th style={{ padding: '0.9rem 1rem' }}>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: '#34D399' }}>
-                      <FileText size={13} />
-                      PPT / PROPOSAL DECK
-                    </div>
-                  </th>
                   <th style={{ padding: '0.9rem 1rem' }}>COLLEGE / CONTACT</th>
                   <th
                     style={{ padding: '0.9rem 1rem', cursor: 'pointer' }}
@@ -891,14 +725,14 @@ export default function AdminRegistrationsPage() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="9" style={{ padding: '3.5rem', textAlign: 'center', color: 'var(--color-soft-gray)' }}>
+                    <td colSpan="8" style={{ padding: '3.5rem', textAlign: 'center', color: 'var(--color-soft-gray)' }}>
                       <RefreshCw size={28} className="animate-spin" style={{ margin: '0 auto 0.75rem auto', display: 'block', color: 'var(--color-arc-blue)' }} />
                       <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem' }}>QUERYING ENCRYPTED REGISTRATION VAULT...</div>
                     </td>
                   </tr>
                 ) : paginatedRegistrations.length === 0 ? (
                   <tr>
-                    <td colSpan="9" style={{ padding: '3.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    <td colSpan="8" style={{ padding: '3.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
                       <Trophy size={36} style={{ margin: '0 auto 0.75rem auto', display: 'block', color: 'rgba(255, 255, 255, 0.2)' }} />
                       <div style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', color: 'var(--color-warm-off-white)' }}>
                         NO REGISTRATIONS FOUND
@@ -912,7 +746,6 @@ export default function AdminRegistrationsPage() {
                           setArenaFilter('ALL');
                           setStatusFilter('ALL');
                           setDateFilter('ALL');
-                          setPptFilter('ALL');
                         }}
                         className="btn btn-secondary"
                         style={{ padding: '0.4rem 0.9rem', fontSize: '0.78rem' }}
@@ -1205,35 +1038,6 @@ export default function AdminRegistrationsPage() {
                             >
                               UPDATE
                             </button>
-
-                            {/* Simple Delete Registered Team & Registration */}
-                            <button
-                              onClick={() =>
-                                handleAdminDeleteRegistration(
-                                  r.id,
-                                  r.team_id || r.team?.id,
-                                  r.team?.name || r.team_name
-                                )
-                              }
-                              style={{
-                                padding: '0.3rem 0.55rem',
-                                background: 'rgba(239, 68, 68, 0.15)',
-                                border: '1px solid rgba(239, 68, 68, 0.4)',
-                                color: '#f87171',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
-                              title={
-                                r.team?.name || r.team_id
-                                  ? `Delete Team "${r.team?.name || 'Registered Team'}" & Registration`
-                                  : 'Delete Registration'
-                              }
-                            >
-                              <Trash2 size={13} />
-                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1421,6 +1225,13 @@ export default function AdminRegistrationsPage() {
                 </div>
 
                 <div style={{ background: '#111827', padding: '0.9rem', borderRadius: '6px' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-muted)' }}>BRANCH & ACADEMIC YEAR</div>
+                  <div style={{ fontSize: '0.88rem', color: '#fff' }}>
+                    {inspectModalItem.profile?.branch || inspectModalItem.branch || 'N/A'} • {inspectModalItem.profile?.year || inspectModalItem.year || 'N/A'}
+                  </div>
+                </div>
+
+                <div style={{ background: '#111827', padding: '0.9rem', borderRadius: '6px' }}>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-muted)' }}>TIMESTAMP</div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', color: '#94A3B8' }}>
                     {inspectModalItem.created_at ? new Date(inspectModalItem.created_at).toLocaleString('en-IN') : 'N/A'}
@@ -1428,74 +1239,27 @@ export default function AdminRegistrationsPage() {
                 </div>
               </div>
 
-              {/* Hidden file input for document replace / upload */}
-              <input
-                type="file"
-                ref={adminDocInputRef}
-                accept=".pptx,.ppt,.pdf"
-                style={{ display: 'none' }}
-                onChange={(e) => inspectModalItem && handleAdminReplaceDocument(e, inspectModalItem.id)}
-              />
-
-              {/* Team Members Roster */}
               {inspectModalItem.team?.members && inspectModalItem.team.members.length > 0 && (
-                <div style={{ background: '#111827', borderRadius: '6px', padding: '1rem', marginBottom: '1.25rem', border: '1px solid var(--border-subtle)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
-                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-stark-gold)', fontWeight: 700 }}>
-                      TEAM MEMBER ROSTER ({inspectModalItem.team.members.length} MEMBERS)
-                    </div>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                      TEAM CODE: {inspectModalItem.team.code}
-                    </span>
+                <div style={{ background: '#111827', padding: '1rem', borderRadius: '6px', marginBottom: '1.25rem' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-stark-gold)', marginBottom: '0.6rem', letterSpacing: '0.05em' }}>
+                    TEAM ROSTER ({inspectModalItem.team.members.length} MEMBERS):
                   </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-                    {inspectModalItem.team.members.map((m) => (
-                      <div
-                        key={m.id}
-                        style={{
-                          background: 'rgba(255, 255, 255, 0.03)',
-                          border: `1px solid ${m.role === 'leader' ? 'rgba(255, 179, 0, 0.3)' : 'rgba(255, 255, 255, 0.05)'}`,
-                          borderRadius: '4px',
-                          padding: '0.5rem 0.75rem',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          flexWrap: 'wrap',
-                          gap: '0.4rem',
-                          fontSize: '0.82rem',
-                        }}
-                      >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {inspectModalItem.team.members.map((m, idx) => (
+                      <div key={m.id || idx} style={{ background: 'rgba(255, 255, 255, 0.04)', padding: '0.6rem 0.8rem', borderRadius: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', fontSize: '0.82rem' }}>
                         <div>
-                          <span style={{ fontWeight: 600, color: '#fff', marginRight: '0.5rem' }}>
-                            {m.name || 'Member'}
+                          <strong style={{ color: '#fff' }}>{m.name || m.profile?.full_name || 'Member'}</strong>
+                          <span style={{ color: 'var(--color-stark-gold)', fontSize: '0.74rem', marginLeft: '0.5rem', fontFamily: 'var(--font-mono)' }}>
+                            [{m.role ? m.role.toUpperCase() : 'MEMBER'}]
                           </span>
-                          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-arc-blue)' }}>
-                            {m.email}
-                          </span>
-                          {m.phone && (
-                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
-                              📞 {m.phone}
-                            </span>
-                          )}
-                          <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-                            {m.college || 'REC Banda'} {m.branch ? `• ${m.branch}` : ''} {m.year ? `(${m.year})` : ''}
+                          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
+                            {m.email || m.profile?.email || 'No email'} {m.phone ? `• Ph: ${m.phone}` : ''}
                           </div>
                         </div>
-
-                        <span
-                          style={{
-                            fontFamily: 'var(--font-mono)',
-                            fontSize: '0.68rem',
-                            padding: '0.15rem 0.4rem',
-                            borderRadius: '3px',
-                            background: m.role === 'leader' ? 'rgba(255, 179, 0, 0.2)' : 'rgba(255, 255, 255, 0.08)',
-                            color: m.role === 'leader' ? 'var(--color-stark-gold)' : 'var(--text-muted)',
-                            fontWeight: 700,
-                          }}
-                        >
-                          {m.role?.toUpperCase()}
-                        </span>
+                        <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#cbd5e1' }}>
+                          <div>{m.branch || m.profile?.branch || 'N/A'}</div>
+                          <div style={{ color: 'var(--color-arc-blue)' }}>{m.year || m.profile?.year || 'N/A'}</div>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1598,7 +1362,7 @@ export default function AdminRegistrationsPage() {
               </div>
 
               {inspectModalItem.notes && (
-                <div style={{ background: '#111827', padding: '1rem', borderRadius: '6px', marginBottom: '1.25rem' }}>
+                <div style={{ background: '#111827', padding: '1rem', borderRadius: '6px', marginBottom: '1.5rem' }}>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--color-stark-gold)', marginBottom: '0.3rem' }}>
                     OPERATIONAL NOTES:
                   </div>
@@ -1608,58 +1372,26 @@ export default function AdminRegistrationsPage() {
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
                 <button
-                  type="button"
-                  onClick={() =>
-                    handleAdminDeleteRegistration(
-                      inspectModalItem.id,
-                      inspectModalItem.team_id || inspectModalItem.team?.id,
-                      inspectModalItem.team?.name || inspectModalItem.team_name
-                    )
-                  }
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.15)',
-                    border: '1px solid rgba(239, 68, 68, 0.4)',
-                    color: '#f87171',
-                    borderRadius: '4px',
-                    padding: '0.45rem 0.8rem',
-                    fontSize: '0.78rem',
-                    fontFamily: 'var(--font-mono)',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                  }}
-                  title="Permanently delete this registration and registered team"
+                  onClick={() => handlePrintSingle(inspectModalItem)}
+                  className="btn btn-secondary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}
                 >
-                  <Trash2 size={14} />
-                  {inspectModalItem.team?.name || inspectModalItem.team_id
-                    ? 'DELETE TEAM & REGISTRATION'
-                    : 'DELETE REGISTRATION'}
+                  <Printer size={14} />
+                  PRINT ENTRY PASS
                 </button>
-
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  <button
-                    onClick={() => handlePrintSingle(inspectModalItem)}
-                    className="btn btn-secondary"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem' }}
-                  >
-                    <Printer size={14} />
-                    PRINT PASS
-                  </button>
-                  <button
-                    onClick={() => {
-                      const item = inspectModalItem;
-                      setInspectModalItem(null);
-                      handleOpenStatusModal(item);
-                    }}
-                    className="btn btn-primary"
-                    style={{ fontSize: '0.8rem' }}
-                  >
-                    EDIT STATUS
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    const item = inspectModalItem;
+                    setInspectModalItem(null);
+                    handleOpenStatusModal(item);
+                  }}
+                  className="btn btn-primary"
+                  style={{ fontSize: '0.8rem' }}
+                >
+                  EDIT STATUS
+                </button>
               </div>
             </div>
           </div>
