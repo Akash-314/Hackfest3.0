@@ -9,7 +9,6 @@ import {
   Shield,
   RefreshCw,
   HeartHandshake,
-  Cpu,
 } from 'lucide-react';
 
 export default function SdcMembersSection() {
@@ -23,7 +22,7 @@ export default function SdcMembersSection() {
     all: [],
   });
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('leadership'); // 'leadership' | 'mentors' | 'coordinators' | 'ieee' | 'volunteers' | 'all'
+  const [selectedCategory, setSelectedCategory] = useState('leadership'); // 'leadership' | 'mentors' | 'coordinators' | 'volunteers' | 'all'
 
   useEffect(() => {
     let isMounted = true;
@@ -160,8 +159,7 @@ export default function SdcMembersSection() {
                 { id: 'mentors', label: 'TECHNICAL MENTORS', count: members.mentors.length, color: 'var(--color-arc-blue)', icon: Sparkles },
                 { id: 'coordinators', label: 'STUDENT COORDINATORS', count: members.coordinators.length, color: '#ffb4b7', icon: Users },
                 { id: 'volunteers', label: 'VOLUNTEERS', count: members.volunteers.length, color: '#A78BFA', icon: HeartHandshake },
-                { id: 'ieee', label: 'IEEE MEMBERS', count: members.ieee?.length || 0, color: '#38BDF8', icon: Cpu },
-                { id: 'all', label: 'VIEW ALL', count: members.director.length + members.faculty.length + members.mentors.length + members.coordinators.length + members.volunteers.length + (members.ieee?.length || 0), color: 'var(--color-arc-cyan)', icon: Shield },
+                { id: 'all', label: 'VIEW ALL', count: members.director.length + members.faculty.length + members.mentors.length + members.coordinators.length + members.volunteers.length, color: 'var(--color-arc-cyan)', icon: Shield },
               ].map((cat) => {
                 const active = selectedCategory === cat.id;
                 const Icon = cat.icon;
@@ -508,65 +506,6 @@ export default function SdcMembersSection() {
               </div>
             )}
 
-            {/* 5. IEEE MEMBERS (LAST BEFORE VIEW ALL) */}
-            {(selectedCategory === 'ieee' || selectedCategory === 'all') && (members.ieee?.length || 0) > 0 && (
-              <div aria-labelledby="heading-ieee-sec">
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    marginBottom: '1.5rem',
-                    paddingBottom: '0.75rem',
-                    borderBottom: '1px solid rgba(0, 128, 255, 0.3)',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '6px',
-                      background: 'rgba(0, 128, 255, 0.15)',
-                      border: '1px solid #0080FF',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#38BDF8',
-                    }}
-                  >
-                    <Cpu size={20} />
-                  </div>
-                  <div>
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: '#38BDF8', letterSpacing: '0.12em' }}>
-                      IEEE STUDENT BRANCH • REC BANDA
-                    </span>
-                    <h3
-                      id="heading-ieee-sec"
-                      style={{
-                        fontFamily: 'var(--font-heading)',
-                        fontSize: '1.65rem',
-                        color: 'var(--color-warm-off-white)',
-                        margin: 0,
-                      }}
-                    >
-                      IEEE MEMBERS ({members.ieee.length})
-                    </h3>
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
-                    gap: '2.5rem',
-                    justifyContent: 'center',
-                    alignItems: 'start',
-                  }}
-                >
-                  {members.ieee.map((member) => renderMemberCard(member, 'ieee'))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}

@@ -1,6 +1,275 @@
-import * as XLSX from 'xlsx';
+import XLSX from 'xlsx-js-style';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+
+/**
+ * Normalizes event information and returns explicit sorting rank:
+ * 1: HACKATHON
+ * 2: IDEATHON
+ * 3: CODEATHON
+ * 99: OTHER
+ */
+function getEventInfo(r) {
+  const compSlug = String(r.competition?.slug || '').toLowerCase();
+  const compName = String(r.competition?.name || r.competition_name || '').toLowerCase();
+  const compId = String(r.competition?.id || r.competition_id || '').toLowerCase();
+
+  if (
+    compSlug.includes('hackathon') ||
+    compName.includes('hackathon') ||
+    compId === 'c16ff34f-a8ca-4997-bfe9-50757ef3a451'
+  ) {
+    return { name: 'HACKATHON', order: 1 };
+  }
+  if (
+    compSlug.includes('ideathon') ||
+    compName.includes('ideathon') ||
+    compId === '5a6cea4a-84bc-486b-b34c-afda79232c64'
+  ) {
+    return { name: 'IDEATHON', order: 2 };
+  }
+  if (
+    compSlug.includes('codeathon') ||
+    compName.includes('codeathon') ||
+    compId === 'da7de04e-eb6d-494a-8d3d-909ee88ec88a'
+  ) {
+    return { name: 'CODEATHON', order: 3 };
+  }
+
+  const raw = String(r.competition?.name || r.competition_name || 'OTHER').toUpperCase();
+  return { name: raw, order: 99 };
+}
+
+/**
+ * Resolves Problem Statement Title from existing registration data:
+ * - Codeathon: Always blank
+ * - Team events:
+ *   1. Prefer existing specific Problem Track Theme
+ *   2. If theme unavailable, use existing Problem Track Title
+ *   3. If both unavailable, leave blank
+ *   Never infer or fabricate titles.
+ */
+function getProblemStatementTitle(r, isCodeathon) {
+  if (isCodeathon) return '';
+
+  // 1. Prefer existing specific Problem Track Theme when available
+  const theme = r.problem_category?.theme || r.team?.problem_category?.theme || r.theme || '';
+  if (typeof theme === 'string' && theme.trim().length > 0) {
+    return theme.trim();
+  }
+
+  // 2. Fallback to existing Problem Track Title
+  const title =
+    r.problem_category?.title ||
+    r.team?.problem_category?.title ||
+    r.problem_statement?.title ||
+    r.problem_title ||
+    r.title ||
+    '';
+  if (typeof title === 'string' && title.trim().length > 0) {
+    return title.trim();
+  }
+
+  return '';
+}
+
+/**
+ * Restructures registrations for Excel export:
+ * - 12 exact columns:
+ *   1. S.No.
+ *   2. Event
+ *   3. Team Name
+ *   4. Problem Statement Title
+ *   5. Team Leader Name
+ *   6. Participant Name
+ *   7. Contact No.
+ *   8. Email
+ *   9. Roll No.
+ *   10. College Name
+ *   11. Branch
+ *   12. Year
+ * - Explicit Event Sorting: HACKATHON -> IDEATHON -> CODEATHON
+ * - Team Member Expansion: 1 row per team member with their own details
+ * - Codeathon: Individual participant with Team Name="Individual", blank Leader & Problem
+ * - Teams participating in multiple events included under each event
+ * - Sequential S.No. starting from 1 to N
+ */
+function prepareExcelParticipantRows(registrations) {
+  if (!registrations || registrations.length === 0) return [];
+
+  // Group registrations into canonical event buckets
+  const buckets = {
+    HACKATHON: [],
+    IDEATHON: [],
+    CODEATHON: [],
+    OTHER: [],
+  };
+
+  registrations.forEach((r) => {
+    const { name: eventName } = getEventInfo(r);
+    if (buckets[eventName]) {
+      buckets[eventName].push(r);
+    } else {
+      buckets.OTHER.push(r);
+    }
+  });
+
+  const orderedEventKeys = ['HACKATHON', 'IDEATHON', 'CODEATHON', 'OTHER'];
+  const allRows = [];
+
+  orderedEventKeys.forEach((eventName) => {
+    const eventRegs = buckets[eventName] || [];
+    const seenTeamsInEvent = new Set();
+
+    eventRegs.forEach((r) => {
+      const isCodeathon = eventName === 'CODEATHON';
+
+      if (isCodeathon) {
+        // Individual participant for Codeathon
+        const partName = String(r.profile?.full_name || r.user_name || r.name || 'Participant').trim();
+        const contactNo = String(r.profile?.phone || r.phone || '').trim();
+        const email = String(r.profile?.email || r.user_email || r.email || '').trim();
+        const rollNo = String(
+          r.profile?.roll_no ||
+          r.profile?.roll_number ||
+          r.profile?.rollNo ||
+          r.profile?.roll ||
+          r.roll_no ||
+          r.roll_number ||
+          ''
+        ).trim();
+        const college = String(r.profile?.college || r.college || 'Rajkiya Engineering College Banda').trim();
+        const branch = String(r.profile?.branch || r.branch || '').trim();
+        const year = String(r.profile?.year || r.year || '').trim();
+
+        allRows.push({
+          'Event': 'CODEATHON',
+          'Team Name': 'Individual',
+          'Problem Statement Title': '',
+          'Team Leader Name': '',
+          'Participant Name': partName,
+          'Contact No.': contactNo,
+          'Email': email,
+          'Roll No.': rollNo,
+          'College Name': college,
+          'Branch': branch,
+          'Year': year,
+        });
+        return;
+      }
+
+      // Team event (Hackathon / Ideathon / Other)
+      const teamId = r.team?.id || r.team_id;
+      if (teamId) {
+        if (seenTeamsInEvent.has(teamId)) {
+          // Team already expanded in this event
+          return;
+        }
+        seenTeamsInEvent.add(teamId);
+      }
+
+      const teamName = String(r.team?.name || r.team_name || 'Team').trim();
+      const problemTitle = getProblemStatementTitle(r, false);
+
+      // Determine team leader name
+      let teamLeaderName = '';
+      const members = Array.isArray(r.team?.members) ? r.team.members : [];
+      const leaderMember = members.find(
+        (m) => m.role === 'leader' || (r.team?.leader_id && (m.user_id === r.team.leader_id || m.id === r.team.leader_id))
+      );
+
+      if (leaderMember && (leaderMember.name || leaderMember.profile?.full_name)) {
+        teamLeaderName = String(leaderMember.name || leaderMember.profile?.full_name).trim();
+      } else if (r.team?.leader_name) {
+        teamLeaderName = String(r.team.leader_name).trim();
+      } else if (r.profile?.full_name) {
+        teamLeaderName = String(r.profile.full_name).trim();
+      }
+
+      // Sort members so leader is listed first
+      const sortedMembers = [...members].sort((a, b) => {
+        const isLA = a.role === 'leader' || (r.team?.leader_id && (a.user_id === r.team.leader_id || a.id === r.team.leader_id));
+        const isLB = b.role === 'leader' || (r.team?.leader_id && (b.user_id === r.team.leader_id || b.id === r.team.leader_id));
+        if (isLA && !isLB) return -1;
+        if (!isLA && isLB) return 1;
+        return 0;
+      });
+
+      if (sortedMembers.length > 0) {
+        sortedMembers.forEach((m) => {
+          const partName = String(m.name || m.profile?.full_name || 'Member').trim();
+          const contactNo = String(m.phone || m.profile?.phone || '').trim();
+          const email = String(m.email || m.profile?.email || '').trim();
+          const rollNo = String(
+            m.roll_no ||
+            m.roll_number ||
+            m.rollNo ||
+            m.roll ||
+            m.profile?.roll_no ||
+            m.profile?.roll_number ||
+            m.profile?.rollNo ||
+            m.profile?.roll ||
+            ''
+          ).trim();
+          const college = String(m.college || m.profile?.college || r.team?.college || 'Rajkiya Engineering College Banda').trim();
+          const branch = String(m.branch || m.profile?.branch || '').trim();
+          const year = String(m.year || m.profile?.year || '').trim();
+
+          allRows.push({
+            'Event': eventName,
+            'Team Name': teamName,
+            'Problem Statement Title': problemTitle,
+            'Team Leader Name': teamLeaderName,
+            'Participant Name': partName,
+            'Contact No.': contactNo,
+            'Email': email,
+            'Roll No.': rollNo,
+            'College Name': college,
+            'Branch': branch,
+            'Year': year,
+          });
+        });
+      } else {
+        // Fallback for team without roster records: use master registration profile
+        const partName = String(r.profile?.full_name || r.user_name || 'Member').trim();
+        const contactNo = String(r.profile?.phone || r.phone || '').trim();
+        const email = String(r.profile?.email || r.user_email || r.email || '').trim();
+        const rollNo = String(
+          r.profile?.roll_no ||
+          r.profile?.roll_number ||
+          r.profile?.rollNo ||
+          r.profile?.roll ||
+          r.roll_no ||
+          r.roll_number ||
+          ''
+        ).trim();
+        const college = String(r.profile?.college || r.team?.college || 'Rajkiya Engineering College Banda').trim();
+        const branch = String(r.profile?.branch || r.branch || '').trim();
+        const year = String(r.profile?.year || r.year || '').trim();
+
+        allRows.push({
+          'Event': eventName,
+          'Team Name': teamName,
+          'Problem Statement Title': problemTitle,
+          'Team Leader Name': teamLeaderName || partName,
+          'Participant Name': partName,
+          'Contact No.': contactNo,
+          'Email': email,
+          'Roll No.': rollNo,
+          'College Name': college,
+          'Branch': branch,
+          'Year': year,
+        });
+      }
+    });
+  });
+
+  // Assign sequential S.No. (1 to N)
+  return allRows.map((row, idx) => ({
+    'S.No.': idx + 1,
+    ...row,
+  }));
+}
 
 /**
  * Format timestamp safely into readable Indian Standard Time (IST)
@@ -174,98 +443,251 @@ export function prepareRegistrationRows(registrations) {
 export const exportService = {
   /**
    * Export registrations to Microsoft Excel (.xlsx) file
+   * Features:
+   * - Exactly 12 columns in specified order
+   * - Sorted strictly: HACKATHON -> IDEATHON -> CODEATHON
+   * - Individual team member expansion with distinct contact details
+   * - Emerald-green header, auto-filter, frozen header, auto-width, text wrapping
    */
   exportToExcel(registrations, filename = 'HackFest3_Registrations.xlsx') {
     if (!registrations || registrations.length === 0) {
       throw new Error('No registration records available to export.');
     }
 
-    const dataRows = prepareRegistrationRows(registrations);
-    const worksheet = XLSX.utils.json_to_sheet(dataRows);
+    const participantRows = prepareExcelParticipantRows(registrations);
+    if (participantRows.length === 0) {
+      throw new Error('No valid participant records could be extracted for export.');
+    }
 
-    // Set proportional column widths for all columns (including individual member columns)
-    worksheet['!cols'] = [
-      { wch: 6 },   // S.No
-      { wch: 38 },  // Registration ID
-      { wch: 16 },  // Registration Status
-      { wch: 22 },  // Registration Date
-      { wch: 26 },  // Registration Timestamp (ISO)
-      { wch: 26 },  // Participant Name
-      { wch: 30 },  // Email Address
-      { wch: 16 },  // Contact Phone
-      { wch: 35 },  // College / Institution
-      { wch: 24 },  // Academic Department / Branch
-      { wch: 14 },  // Academic Year
-      { wch: 16 },  // User Account Role
-      { wch: 26 },  // Competition / Arena
-      { wch: 18 },  // Competition Slug
-      { wch: 20 },  // Competition Format
-      { wch: 16 },  // Competition Duration
-      { wch: 16 },  // Problem Track Code
-      { wch: 32 },  // Problem Track Title
-      { wch: 24 },  // Problem Track Theme
-      { wch: 18 },  // Participation Type
-      { wch: 24 },  // Team Name
-      { wch: 15 },  // Team Code
-      { wch: 38 },  // Team ID
-      { wch: 18 },  // Participant's Team Role
-      { wch: 24 },  // Team Leader Name
-      { wch: 28 },  // Team Leader Email
-      { wch: 16 },  // Team Leader Phone
-      { wch: 16 },  // Team Members Count
-      { wch: 60 },  // Team Members Roster
-      { wch: 18 },  // Experience Level
-      { wch: 35 },  // Operational Notes / Form Responses
-      { wch: 22 },  // Last Updated
-      // Member 1
-      { wch: 22 }, { wch: 12 }, { wch: 28 }, { wch: 16 }, { wch: 24 }, { wch: 14 },
-      // Member 2
-      { wch: 22 }, { wch: 12 }, { wch: 28 }, { wch: 16 }, { wch: 24 }, { wch: 14 },
-      // Member 3
-      { wch: 22 }, { wch: 12 }, { wch: 28 }, { wch: 16 }, { wch: 24 }, { wch: 14 },
-      // Member 4
-      { wch: 22 }, { wch: 12 }, { wch: 28 }, { wch: 16 }, { wch: 24 }, { wch: 14 },
+    const columns = [
+      'S.No.',
+      'Event',
+      'Team Name',
+      'Problem Statement Title',
+      'Team Leader Name',
+      'Participant Name',
+      'Contact No.',
+      'Email',
+      'Roll No.',
+      'College Name',
+      'Branch',
+      'Year',
     ];
+
+    // Build 2D Sheet array:
+    // Row 1: Merged Title Banner
+    // Row 2: Column Headers
+    // Row 3+: Expanded Participant Data Rows
+    const aoaData = [
+      ['HACKFEST 3.0 | PARTICIPANT REGISTRATION LIST'],
+      columns,
+      ...participantRows.map((row) => columns.map((col) => row[col] ?? '')),
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+
+    // Merge title banner across all 12 columns (A1:L1)
+    worksheet['!merges'] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: columns.length - 1 } },
+    ];
+
+    // Title Banner Styling (A1)
+    worksheet['A1'].s = {
+      font: { name: 'Calibri', sz: 13, bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '064E3B' } }, // Dark emerald banner
+      alignment: { horizontal: 'center', vertical: 'center' },
+    };
+
+    // Header Styling (Row 2, cells A2 to L2)
+    const headerStyle = {
+      font: { name: 'Calibri', sz: 11, bold: true, color: { rgb: 'FFFFFF' } },
+      fill: { fgColor: { rgb: '0F5132' } }, // Clean dark green (HackFest emerald theme)
+      alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+      border: {
+        top: { style: 'thin', color: { rgb: '043A24' } },
+        bottom: { style: 'medium', color: { rgb: '043A24' } },
+        left: { style: 'thin', color: { rgb: '043A24' } },
+        right: { style: 'thin', color: { rgb: '043A24' } },
+      },
+    };
+
+    for (let c = 0; c < columns.length; c++) {
+      const cellRef = XLSX.utils.encode_cell({ r: 1, c });
+      if (worksheet[cellRef]) {
+        worksheet[cellRef].s = headerStyle;
+      }
+    }
+
+    // Row heights: Title 32pt, Header 28pt, Data rows 24pt
+    const rowHeights = [{ hpt: 32 }, { hpt: 28 }];
+    for (let i = 0; i < participantRows.length; i++) {
+      rowHeights.push({ hpt: 24 });
+    }
+    worksheet['!rows'] = rowHeights;
+
+    // Generous Column Widths preventing text clipping
+    worksheet['!cols'] = [
+      { wch: 8 },   // 1. S.No.
+      { wch: 16 },  // 2. Event
+      { wch: 28 },  // 3. Team Name
+      { wch: 42 },  // 4. Problem Statement Title (wrap enabled)
+      { wch: 24 },  // 5. Team Leader Name
+      { wch: 24 },  // 6. Participant Name
+      { wch: 18 },  // 7. Contact No. (explicit text with leading zeros)
+      { wch: 34 },  // 8. Email (no truncation)
+      { wch: 18 },  // 9. Roll No.
+      { wch: 38 },  // 10. College Name (wrap enabled)
+      { wch: 26 },  // 11. Branch
+      { wch: 14 },  // 12. Year
+    ];
+
+    // Data Row Styling & Explicit Text Types for Contact No. and Roll No.
+    for (let r = 0; r < participantRows.length; r++) {
+      const rowIndex = r + 2;
+      const isEven = r % 2 === 0;
+      const rowBg = isEven ? 'FFFFFF' : 'F0FDF4'; // Subtle emerald zebra striping
+
+      for (let c = 0; c < columns.length; c++) {
+        const cellRef = XLSX.utils.encode_cell({ r: rowIndex, c });
+        const cell = worksheet[cellRef];
+        if (!cell) continue;
+
+        const colName = columns[c];
+
+        // Format Contact No. and Roll No. as text so leading zeros are never lost
+        if (colName === 'Contact No.' || colName === 'Roll No.') {
+          cell.t = 's';
+          cell.z = '@';
+        }
+
+        let hAlign = 'left';
+        if (['S.No.', 'Event', 'Contact No.', 'Roll No.', 'Year'].includes(colName)) {
+          hAlign = 'center';
+        }
+
+        const shouldWrap = colName === 'Problem Statement Title' || colName === 'College Name';
+
+        cell.s = {
+          font: {
+            name: 'Calibri',
+            sz: 10,
+            bold: colName === 'Event' || colName === 'S.No.',
+            color: { rgb: '0F172A' },
+          },
+          fill: { fgColor: { rgb: rowBg } },
+          alignment: {
+            horizontal: hAlign,
+            vertical: 'center',
+            wrapText: shouldWrap,
+          },
+          border: {
+            top: { style: 'thin', color: { rgb: 'E2E8F0' } },
+            bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
+            left: { style: 'thin', color: { rgb: 'E2E8F0' } },
+            right: { style: 'thin', color: { rgb: 'E2E8F0' } },
+          },
+        };
+      }
+    }
+
+    // Enable Excel autofilter on header row (Row 2: A2 to L{lastRowIndex})
+    const lastRowIndex = participantRows.length + 2;
+    worksheet['!autofilter'] = {
+      ref: `A2:${XLSX.utils.encode_col(columns.length - 1)}${lastRowIndex}`,
+    };
+
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Registrations');
 
-    XLSX.writeFile(workbook, filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`);
+    const finalFilename = filename.endsWith('.xlsx') ? filename : `${filename}.xlsx`;
+
+    // Download in browser environment
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      try {
+        XLSX.writeFile(workbook, finalFilename);
+      } catch (writeErr) {
+        console.warn('XLSX.writeFile fallback to Blob:', writeErr);
+        const finalBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([finalBuffer], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = finalFilename;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, 30000);
+      }
+    }
+
     return true;
   },
 
   /**
-   * Export registrations to CSV format with UTF-8 BOM
+   * Export registrations to CSV format matching the exact 12 columns
+   * Compatible with any spreadsheet software, text editor, or Google Sheets
    */
   exportToCsv(registrations, filename = 'HackFest3_Registrations.csv') {
     if (!registrations || registrations.length === 0) {
       throw new Error('No registration records available to export.');
     }
 
-    const dataRows = prepareRegistrationRows(registrations);
-    const headers = Object.keys(dataRows[0]);
+    const participantRows = prepareExcelParticipantRows(registrations);
+    if (participantRows.length === 0) {
+      throw new Error('No valid participant records could be extracted for export.');
+    }
+    const columns = [
+      'S.No.',
+      'Event',
+      'Team Name',
+      'Problem Statement Title',
+      'Team Leader Name',
+      'Participant Name',
+      'Contact No.',
+      'Email',
+      'Roll No.',
+      'College Name',
+      'Branch',
+      'Year',
+    ];
 
-    const csvContent = [
-      headers.map((h) => `"${h.replace(/"/g, '""')}"`).join(','),
-      ...dataRows.map((row) =>
-        headers
-          .map((field) => {
-            const val = row[field] === undefined || row[field] === null ? '' : String(row[field]);
-            return `"${val.replace(/"/g, '""')}"`;
+    const csvLines = [
+      columns.join(','),
+      ...participantRows.map((row) =>
+        columns
+          .map((col) => {
+            let val = row[col] === undefined || row[col] === null ? '' : String(row[col]);
+            // Escape double quotes
+            val = val.replace(/"/g, '""');
+            return `"${val}"`;
           })
           .join(',')
       ),
-    ].join('\r\n');
+    ];
 
+    const csvContent = csvLines.join('\r\n');
+
+    // Prepend UTF-8 BOM (\uFEFF) so Excel, Sheets, and all CSV readers open unicode and numbers cleanly
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', filename.endsWith('.csv') ? filename : `${filename}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const finalFilename = filename.endsWith('.csv') ? filename : `${filename}.csv`;
+
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = finalFilename;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 30000);
+    }
     return true;
   },
 
@@ -730,4 +1152,3 @@ export const exportService = {
 };
 
 export default exportService;
-

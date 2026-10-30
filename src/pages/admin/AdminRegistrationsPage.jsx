@@ -24,6 +24,9 @@ import {
   Shield,
   Calendar,
   Check,
+  ExternalLink,
+  Upload,
+  Trash2,
 } from 'lucide-react';
 
 export default function AdminRegistrationsPage() {
@@ -247,6 +250,50 @@ export default function AdminRegistrationsPage() {
 
   const handlePrintSingle = (registration) => {
     exportService.printSingleRegistration(registration);
+  };
+
+  const handleDownloadDeck = async (e, docUrl, docName, docType) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!docUrl) return;
+
+    let targetFilename = docName || 'presentation';
+    const cleanType = (docType || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const ext = cleanType.includes('pdf')
+      ? 'pdf'
+      : cleanType.includes('pptx')
+      ? 'pptx'
+      : cleanType.includes('ppt')
+      ? 'ppt'
+      : 'pptx';
+
+    if (
+      !targetFilename.toLowerCase().endsWith('.pptx') &&
+      !targetFilename.toLowerCase().endsWith('.pdf') &&
+      !targetFilename.toLowerCase().endsWith('.ppt')
+    ) {
+      targetFilename = `${targetFilename}.${ext}`;
+    }
+
+    try {
+      showBanner(`Downloading ${targetFilename}...`, 'info');
+      const resp = await fetch(docUrl);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = targetFilename;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      }, 45000);
+      showBanner(`Downloaded ${targetFilename} successfully!`);
+    } catch (err) {
+      console.warn('Direct blob fetch failed, falling back to direct link:', err);
+      window.open(docUrl, '_blank');
+    }
   };
 
   // Status updates
@@ -786,6 +833,133 @@ export default function AdminRegistrationsPage() {
                             </span>
                           )}
                         </td>
+                        {/* PPT / Presentation Deck Column */}
+                        <td style={{ padding: '0.9rem 1rem' }}>
+                          {r.document_url ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <span
+                                  style={{
+                                    fontFamily: 'var(--font-mono)',
+                                    fontSize: '0.68rem',
+                                    padding: '0.15rem 0.45rem',
+                                    borderRadius: '3px',
+                                    background: (r.document_type || '').toUpperCase() === 'PDF' ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255, 179, 0, 0.18)',
+                                    border: `1px solid ${(r.document_type || '').toUpperCase() === 'PDF' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 179, 0, 0.4)'}`,
+                                    color: (r.document_type || '').toUpperCase() === 'PDF' ? '#f87171' : 'var(--color-stark-gold)',
+                                    fontWeight: 700,
+                                  }}
+                                >
+                                  {r.document_type || 'PPT'}
+                                </span>
+                                <span
+                                  title={r.document_name || 'Presentation Deck'}
+                                  style={{
+                                    fontSize: '0.82rem',
+                                    color: '#fff',
+                                    fontWeight: 600,
+                                    maxWidth: '160px',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                  }}
+                                >
+                                  {r.document_name || 'Presentation Deck'}
+                                </span>
+                              </div>
+
+                              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+                                <a
+                                  href={r.document_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem',
+                                    padding: '0.2rem 0.45rem',
+                                    background: 'rgba(0, 191, 255, 0.15)',
+                                    border: '1px solid rgba(0, 191, 255, 0.4)',
+                                    borderRadius: '3px',
+                                    color: 'var(--color-arc-blue)',
+                                    fontFamily: 'var(--font-mono)',
+                                    fontSize: '0.68rem',
+                                    textDecoration: 'none',
+                                    fontWeight: 700,
+                                  }}
+                                  title="View / Open slide deck in new tab"
+                                >
+                                  <ExternalLink size={11} />
+                                  VIEW
+                                </a>
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDownloadDeck(e, r.document_url, r.document_name, r.document_type)}
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem',
+                                    padding: '0.2rem 0.45rem',
+                                    background: 'rgba(16, 185, 129, 0.15)',
+                                    border: '1px solid rgba(16, 185, 129, 0.4)',
+                                    borderRadius: '3px',
+                                    color: '#34D399',
+                                    fontFamily: 'var(--font-mono)',
+                                    fontSize: '0.68rem',
+                                    textDecoration: 'none',
+                                    fontWeight: 700,
+                                    cursor: 'pointer',
+                                  }}
+                                  title={`Download ${r.document_name || 'presentation deck'}`}
+                                >
+                                  <Download size={11} />
+                                  GET
+                                </button>
+                                {r.document_size && (
+                                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: 'var(--text-muted)' }}>
+                                    {(r.document_size / (1024 * 1024)).toFixed(1)}MB
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                              <span
+                                style={{
+                                  fontFamily: 'var(--font-mono)',
+                                  fontSize: '0.68rem',
+                                  color: 'var(--text-muted)',
+                                  padding: '0.15rem 0.45rem',
+                                  borderRadius: '3px',
+                                  background: 'rgba(255, 255, 255, 0.04)',
+                                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                                }}
+                              >
+                                NO PPT
+                              </span>
+                              <button
+                                onClick={() => handleTableRowUpload(r.id)}
+                                style={{
+                                  background: 'rgba(0, 191, 255, 0.1)',
+                                  border: '1px solid rgba(0, 191, 255, 0.3)',
+                                  borderRadius: '3px',
+                                  color: 'var(--color-arc-blue)',
+                                  cursor: 'pointer',
+                                  padding: '0.15rem 0.4rem',
+                                  fontSize: '0.68rem',
+                                  fontFamily: 'var(--font-mono)',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.25rem',
+                                }}
+                                title="Attach PPT deck for this registration"
+                              >
+                                <Upload size={11} />
+                                ATTACH
+                              </button>
+                            </div>
+                          )}
+                        </td>
                         <td style={{ padding: '0.9rem 1rem' }}>
                           <div style={{ fontSize: '0.82rem', color: 'var(--color-warm-off-white)' }}>
                             {r.profile?.college || 'REC Banda'}
@@ -1091,6 +1265,101 @@ export default function AdminRegistrationsPage() {
                   </div>
                 </div>
               )}
+
+              {/* Document Management Section */}
+              <div style={{ background: '#111827', borderRadius: '6px', padding: '1.1rem', marginBottom: '1.25rem', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-arc-blue)', fontWeight: 700, marginBottom: '0.6rem' }}>
+                  ATTACHED PRESENTATION / PROPOSAL DECK
+                </div>
+
+                {inspectModalItem.document_url ? (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', background: 'rgba(0, 217, 255, 0.05)', padding: '0.75rem', borderRadius: '4px', border: '1px solid rgba(0, 217, 255, 0.2)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                      <FileText size={22} color="var(--color-arc-blue)" />
+                      <div>
+                        <div style={{ fontSize: '0.88rem', color: '#fff', fontWeight: 600 }}>
+                          {inspectModalItem.document_name || 'Presentation Deck'} {inspectModalItem.document_type ? `[${inspectModalItem.document_type}]` : ''}
+                        </div>
+                        {inspectModalItem.document_size && (
+                          <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+                            SIZE: {(inspectModalItem.document_size / (1024 * 1024)).toFixed(2)} MB
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <a
+                        href={inspectModalItem.document_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}
+                      >
+                        <ExternalLink size={13} />
+                        OPEN
+                      </a>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDownloadDeck(e, inspectModalItem.document_url, inspectModalItem.document_name, inspectModalItem.document_type)}
+                        className="btn btn-secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem', cursor: 'pointer' }}
+                        title={`Download ${inspectModalItem.document_name || 'presentation deck'}`}
+                      >
+                        <Download size={13} />
+                        DOWNLOAD
+                      </button>
+                      <button
+                        type="button"
+                        disabled={docActionLoading}
+                        onClick={() => adminDocInputRef.current?.click()}
+                        className="btn btn-secondary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.65rem' }}
+                      >
+                        <Upload size={13} />
+                        REPLACE
+                      </button>
+                      <button
+                        type="button"
+                        disabled={docActionLoading}
+                        onClick={() => handleAdminDeleteDocument(inspectModalItem.id)}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.15)',
+                          border: '1px solid rgba(239, 68, 68, 0.4)',
+                          borderRadius: '4px',
+                          color: '#f87171',
+                          padding: '0.35rem 0.6rem',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.3rem',
+                          fontSize: '0.75rem',
+                          fontFamily: 'var(--font-mono)',
+                        }}
+                      >
+                        <Trash2 size={13} />
+                        DELETE
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                      No presentation deck attached to this registration.
+                    </span>
+                    <button
+                      type="button"
+                      disabled={docActionLoading}
+                      onClick={() => adminDocInputRef.current?.click()}
+                      className="btn btn-secondary"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}
+                    >
+                      <Upload size={13} />
+                      ATTACH FILE
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {inspectModalItem.notes && (
                 <div style={{ background: '#111827', padding: '1rem', borderRadius: '6px', marginBottom: '1.5rem' }}>

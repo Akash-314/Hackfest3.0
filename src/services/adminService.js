@@ -131,7 +131,23 @@ export const adminService = {
 
       const unifiedRegistrations = [...enrichedRegs];
 
-      // Unify registered teams that do not have a duplicate registration row
+      // 1. Build team document map so all teammates inherit the presentation deck
+      const teamDocMap = {};
+      rawRegs.forEach((r) => {
+        if (r.team_id && r.document_url) {
+          if (!teamDocMap[r.team_id] || r.team?.leader_id === r.user_id) {
+            teamDocMap[r.team_id] = {
+              document_url: r.document_url,
+              document_name: r.document_name,
+              document_type: r.document_type,
+              document_size: r.document_size,
+              document_path: r.document_path,
+            };
+          }
+        }
+      });
+
+      // 2. Unify registered teams that do not have a duplicate registration row
       rawTeams.forEach((team) => {
         if (!existingTeamIds.has(team.id)) {
           const leaderMember =
@@ -178,7 +194,50 @@ export const adminService = {
         }
       });
 
-      return unifiedRegistrations;
+      // 3. Normalize all unified registration items: attach documents and normalize member rosters
+      return unifiedRegistrations.map((reg) => {
+        const teamDoc = reg.team_id ? teamDocMap[reg.team_id] : null;
+        const resolvedDocUrl = reg.document_url || teamDoc?.document_url || null;
+        const resolvedDocName = reg.document_name || teamDoc?.document_name || null;
+        const resolvedDocType = reg.document_type || teamDoc?.document_type || null;
+        const resolvedDocSize = reg.document_size || teamDoc?.document_size || null;
+        const resolvedDocPath = reg.document_path || teamDoc?.document_path || null;
+
+        let normMembers = [];
+        if (reg.team && Array.isArray(reg.team.members)) {
+          normMembers = reg.team.members.map((m) => ({
+            id: m.id,
+            user_id: m.user_id,
+            role: m.role || 'member',
+            name: m.name || m.profile?.full_name || 'Member',
+            email: m.email || m.profile?.email || 'N/A',
+            phone: m.phone || m.profile?.phone || '',
+            college: m.college || m.profile?.college || reg.team?.college || 'Rajkiya Engineering College Banda',
+            branch: m.branch || m.profile?.branch || '',
+            year: m.year || m.profile?.year || '',
+            roll_no: m.roll_no || m.roll_number || m.rollNo || m.roll || m.profile?.roll_no || m.profile?.roll_number || '',
+          }));
+        }
+
+        return {
+          ...reg,
+          document_url: resolvedDocUrl,
+          document_name: resolvedDocName,
+          document_type: resolvedDocType,
+          document_size: resolvedDocSize,
+          document_path: resolvedDocPath,
+          team: reg.team
+            ? {
+                ...reg.team,
+                members: normMembers,
+                document_url: resolvedDocUrl,
+                document_name: resolvedDocName,
+                document_type: resolvedDocType,
+                document_size: resolvedDocSize,
+              }
+            : null,
+        };
+      });
     } catch (err) {
       console.warn('Failed to load unified registrations, attempting fallback query:', err.message);
       try {
