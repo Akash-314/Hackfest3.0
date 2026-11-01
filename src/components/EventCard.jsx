@@ -6,6 +6,8 @@ import './EventCard.css';
 
 export default function EventCard({ comp, meta }) {
   const destinationUrl = `/${comp.id}`;
+  const isCodeathon = comp.id?.toLowerCase() === 'codeathon';
+  const codeathonJoinUrl = 'https://www.hackerrank.com/hackfest-3-0-codethon';
 
   const backContent = (
     <div className="event-card-back">
@@ -37,7 +39,23 @@ export default function EventCard({ comp, meta }) {
         )}
       </div>
 
-      <div>
+      <div className="event-card-actions-group">
+        {isCodeathon && (
+          <a
+            href={codeathonJoinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              // Prevent event bubbling so activating the link does not re-flip the card
+              e.stopPropagation();
+            }}
+            className="event-card-action-btn event-card-join-btn"
+            aria-label="Join Codeathon on HackerRank"
+          >
+            <span>JOIN CODEATHON</span>
+            <ArrowUpRight size={15} />
+          </a>
+        )}
         <Link
           to={destinationUrl}
           onClick={(e) => {
