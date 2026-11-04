@@ -24,8 +24,8 @@ export const eventMeta = {
     ideathon: "3 to 4 members per team (Leader + 2 to 3 members)",
     codeathon: "Individual participation"
   },
-  registrationStatus: "OPEN",
-  registrationDeadline: "REGISTRATION CLOSING SOON",
+  registrationStatus: "CLOSED",
+  registrationDeadline: "REGISTRATION CLOSED",
   contactEmail: "sdc2021recbanda@gmail.com",
   socials: {
     instagram: "https://www.instagram.com/student_developer_club/",

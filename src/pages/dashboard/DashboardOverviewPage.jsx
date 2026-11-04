@@ -124,10 +124,10 @@ export default function DashboardOverviewPage() {
             {registrations.length === 0 ? (
               <div style={{ padding: '2rem 1rem', textAlign: 'center', background: 'var(--color-surface-secondary)', borderRadius: 'var(--radius-sm)' }}>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: '1rem' }}>
-                  You have not registered for any competition yet.
+                  No active registrations. Registrations for HackFest 3.0 are currently closed.
                 </p>
-                <Link to="/register" className="btn btn-primary" style={{ padding: '0.5rem 1.2rem', fontSize: '0.82rem' }}>
-                  REGISTER NOW
+                <Link to="/#winners" className="btn btn-primary" style={{ padding: '0.5rem 1.2rem', fontSize: '0.82rem' }}>
+                  VIEW WINNERS
                 </Link>
               </div>
             ) : (

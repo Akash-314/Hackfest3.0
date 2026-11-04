@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import AboutSection from '../components/AboutSection';
-import HighlightsSection from '../components/HighlightsSection';
 
 export default function AboutPage() {
   useEffect(() => {
@@ -21,7 +20,6 @@ export default function AboutPage() {
         </Link>
       </div>
       <AboutSection />
-      <HighlightsSection />
     </div>
   );
 }

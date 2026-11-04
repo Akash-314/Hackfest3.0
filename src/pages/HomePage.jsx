@@ -1,74 +1,27 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { Calendar, Clock, MapPin, Trophy, Users, ArrowUpRight } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Calendar, Clock, MapPin, Trophy, Users, CheckCircle, ChevronRight, Sparkles, ShieldCheck } from 'lucide-react';
 import doomImg from '../assets/doom.png';
 import ironImg from '../assets/iron.png';
 
 // All Sections for the Complete One-Page Website
-import AnnouncementTicker from '../components/AnnouncementTicker';
-import AboutSection from '../components/AboutSection';
+import WinnersSection from '../components/WinnersSection';
+import ResultsAndNoticesSection from '../components/ResultsAndNoticesSection';
+import DayOneOverviewSection from '../components/DayOneOverviewSection';
+import HackathonDayTwoSection from '../components/HackathonDayTwoSection';
 import CompetitionsHub from '../components/CompetitionsHub';
 import ScheduleSection from '../components/ScheduleSection';
 import MentorsJudgesSection from '../components/MentorsJudgesSection';
 import PrizesSection from '../components/PrizesSection';
 import SponsorsSection from '../components/SponsorsSection';
 import SdcMembersSection from '../components/SdcMembersSection';
-
-// Event start date: 1 November 2026 00:00:00 IST
-const TARGET_EVENT_DATE = new Date('2026-11-01T00:00:00+05:30');
-
-function calculateTimeLeft(targetDate = TARGET_EVENT_DATE) {
-  const now = new Date();
-  const diff = targetDate.getTime() - now.getTime();
-  if (diff <= 0) {
-    return { months: '00', days: '00', hours: '00', minutes: '00', seconds: '00' };
-  }
-
-  let temp = new Date(now.getTime());
-  let months = 0;
-  while (true) {
-    const nextMonth = new Date(temp.getTime());
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    if (nextMonth <= targetDate) {
-      months++;
-      temp = nextMonth;
-    } else {
-      break;
-    }
-  }
-
-  const remMs = targetDate.getTime() - temp.getTime();
-  const totalSec = Math.floor(remMs / 1000);
-  const seconds = totalSec % 60;
-  const totalMin = Math.floor(totalSec / 60);
-  const minutes = totalMin % 60;
-  const totalHours = Math.floor(totalMin / 60);
-  const hours = totalHours % 24;
-  const days = Math.floor(totalHours / 24);
-
-  return {
-    months: String(months).padStart(2, '0'),
-    days: String(days).padStart(2, '0'),
-    hours: String(hours).padStart(2, '0'),
-    minutes: String(minutes).padStart(2, '0'),
-    seconds: String(seconds).padStart(2, '0'),
-  };
-}
+import AboutSection from '../components/AboutSection';
 
 export default function HomePage() {
   const containerRef = useRef(null);
   const location = useLocation();
-  const [timeLeft, setTimeLeft] = useState(() => calculateTimeLeft());
 
-  // Live 1-second countdown tick
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Smooth scroll handler for anchor links (#about, #competitions, etc.)
+  // Smooth scroll handler for anchor links (#winners, #highlights, #competitions, etc.)
   useEffect(() => {
     if (location.hash) {
       const id = location.hash.replace('#', '');
@@ -85,6 +38,22 @@ export default function HomePage() {
       }
     }
   }, [location.hash]);
+
+  const scrollToWinners = (e) => {
+    if (e) e.preventDefault();
+    const el = document.getElementById('winners');
+    if (el) {
+      const navOffset = 70;
+      const elementPosition = el.getBoundingClientRect().top + window.pageYOffset;
+      window.scrollTo({
+        top: Math.max(0, elementPosition - navOffset),
+        behavior: 'smooth',
+      });
+      window.history.pushState(null, '', '#winners');
+    } else {
+      window.location.hash = '#winners';
+    }
+  };
 
   // Interactive Cursor Mask Handler (Doom reveals Iron underneath)
   const handleMouseMove = (e) => {
@@ -115,7 +84,7 @@ export default function HomePage() {
 
   return (
     <main>
-      {/* 01. FULL-SCREEN INTERACTIVE HERO: DOOM & IRON MAN REVEAL + HACKFEST 3.0 */}
+      {/* 01. FULL-SCREEN INTERACTIVE HERO: DOOM & IRON MAN REVEAL + ALL COMPETITIONS CONCLUDED */}
       <section
         id="hero"
         ref={containerRef}
@@ -145,64 +114,127 @@ export default function HomePage() {
           <div className="homepage-doom-overlay" />
         </div>
 
-        {/* Centered Hero Title: Hackfest 3.0 in Stroke Font */}
+        {/* Centered Hero Content: HackFest 3.0 + EVENT COMPLETED & WINNERS ANNOUNCED */}
         <div className="homepage-pure-content">
           <h1 className="homepage-pure-title">
             <span className="title-word-hackfest">Hackfest</span>
             <span className="title-number-version"> 3.0</span>
           </h1>
 
-          {/* COUNTDOWN TIMER */}
-          <div className="doomsday-countdown-wrap">
-            <div className="doomsday-countdown-grid">
-              <div className="doomsday-time-col">
-                <span className="doomsday-time-val">{timeLeft.months}</span>
-                <span className="doomsday-time-lbl">MONTHS</span>
-              </div>
-
-              <span className="doomsday-time-sep">:</span>
-
-              <div className="doomsday-time-col">
-                <span className="doomsday-time-val">{timeLeft.days}</span>
-                <span className="doomsday-time-lbl">DAYS</span>
-              </div>
-
-              <span className="doomsday-time-sep">:</span>
-
-              <div className="doomsday-time-col">
-                <span className="doomsday-time-val">{timeLeft.hours}</span>
-                <span className="doomsday-time-lbl">HOURS</span>
-              </div>
-
-              <span className="doomsday-time-sep">:</span>
-
-              <div className="doomsday-time-col">
-                <span className="doomsday-time-val">{timeLeft.minutes}</span>
-                <span className="doomsday-time-lbl">MINUTES</span>
-              </div>
-
-              <span className="doomsday-time-sep">:</span>
-
-              <div className="doomsday-time-col">
-                <span className="doomsday-time-val">{timeLeft.seconds}</span>
-                <span className="doomsday-time-lbl">SECONDS</span>
-              </div>
-            </div>
-          </div>
-
-          {/* PROMINENT REGISTER NOW ACTION DIRECTLY BELOW TIMER */}
-          <div className="hero-timer-cta-wrap">
-            <Link
-              to="/register"
-              className="hero-timer-register-btn"
-              id="hero-timer-register-cta"
-              aria-label="Register Now for HackFest 3.0"
+          {/* EVENT COMPLETION & WINNERS BANNER */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              marginTop: '1.25rem',
+              gap: '1rem',
+            }}
+          >
+            {/* ALL COMPETITIONS COMPLETED BADGE */}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                padding: '0.55rem 1.4rem',
+                borderRadius: '9999px',
+                background: 'rgba(57, 255, 136, 0.12)',
+                border: '1px solid #39FF88',
+                boxShadow: '0 0 25px rgba(57, 255, 136, 0.25)',
+              }}
             >
-              <span>REGISTER NOW</span>
-              <span className="hero-timer-btn-arrow" aria-hidden="true">
-                <ArrowUpRight size={15} />
+              <CheckCircle size={16} color="#39FF88" />
+              <span
+                style={{
+                  fontFamily: 'var(--font-mono, monospace)',
+                  fontSize: '0.9rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.12em',
+                  color: '#39FF88',
+                }}
+              >
+                EVENT COMPLETED • WINNERS ANNOUNCED
               </span>
-            </Link>
+            </div>
+
+            {/* Event Post-Challenge Tagline */}
+            <p
+              style={{
+                color: 'rgba(255, 255, 255, 0.85)',
+                fontFamily: 'var(--font-heading, monospace)',
+                fontSize: '1.15rem',
+                letterSpacing: '0.04em',
+                margin: '0.25rem 0 0.5rem 0',
+                textShadow: '0 2px 10px rgba(0, 0, 0, 0.8)',
+                textAlign: 'center',
+              }}
+            >
+              The challenges have concluded. The champions have risen.
+            </p>
+
+            {/* ACTION BUTTONS: VIEW WINNERS & EXPLORE HIGHLIGHTS */}
+            <div
+              style={{
+                display: 'flex',
+                gap: '0.85rem',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                marginTop: '0.4rem',
+                pointerEvents: 'auto',
+                position: 'relative',
+                zIndex: 25,
+              }}
+            >
+              <a
+                href="#winners"
+                onClick={scrollToWinners}
+                className="btn btn-primary"
+                id="hero-explore-winners-cta"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  padding: '0.85rem 2rem',
+                  fontSize: '0.92rem',
+                  fontFamily: 'var(--font-heading, monospace)',
+                  letterSpacing: '0.08em',
+                  borderRadius: '8px',
+                  pointerEvents: 'auto',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  zIndex: 26,
+                }}
+              >
+                <Trophy size={18} />
+                <span>VIEW OFFICIAL WINNERS</span>
+              </a>
+
+              <a
+                href="https://drive.google.com/drive/folders/1s-6y-Ci_WsAHvzldH8gJpiyfMhs5GTmC"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary"
+                id="hero-explore-highlights-cta"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.6rem',
+                  padding: '0.85rem 1.8rem',
+                  fontSize: '0.92rem',
+                  fontFamily: 'var(--font-heading, monospace)',
+                  letterSpacing: '0.08em',
+                  borderRadius: '8px',
+                  pointerEvents: 'auto',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  zIndex: 26,
+                }}
+              >
+                <span>ARENA HIGHLIGHTS</span>
+                <ChevronRight size={18} />
+              </a>
+            </div>
           </div>
         </div>
 
@@ -265,30 +297,37 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 02. ANNOUNCEMENTS TICKER */}
-      <div id="announcements">
-        <AnnouncementTicker />
-      </div>
+      {/* 02. DEDICATED WINNERS & RESULTS SECTION (HACKFEST 3.0 — WINNERS & RESULTS) */}
+      <WinnersSection />
 
-      {/* 03. ABOUT EVENT & SCALE */}
+      {/* 03. ANNOUNCEMENTS & RESULTS (LEADERBOARD / VERIFIED OUTCOMES) */}
+      <ResultsAndNoticesSection />
+
+      {/* 05. COMPETITION RECAP & TIMELINE */}
+      <DayOneOverviewSection />
+
+      {/* 06. FLAGSHIP HACKATHON RECAP */}
+      <HackathonDayTwoSection />
+
+      {/* 08. ABOUT EVENT & SCALE */}
       <AboutSection />
 
-      {/* 04. COMPETITIONS, PROBLEMS, HOW IT WORKS & RULES/FAQS (COMMAND CENTER HUB) */}
+      {/* 09. COMPETITIONS, PROBLEMS, HOW IT WORKS & RULES/FAQS (COMMAND CENTER HUB) */}
       <CompetitionsHub />
 
-      {/* 05. SCHEDULE */}
+      {/* 10. SCHEDULE */}
       <ScheduleSection />
 
-      {/* 06. MENTORS & JUDGES */}
+      {/* 11. MENTORS & JUDGES */}
       <MentorsJudgesSection />
 
-      {/* 07. PRIZES */}
+      {/* 12. PRIZES */}
       <PrizesSection />
 
-      {/* 08. SPONSORS */}
+      {/* 13. SPONSORS */}
       <SponsorsSection />
 
-      {/* 09. SDC TEAM & ORGANIZERS */}
+      {/* 14. SDC TEAM & ORGANIZERS */}
       <SdcMembersSection />
     </main>
   );

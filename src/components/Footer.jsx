@@ -136,7 +136,7 @@ export default function Footer() {
               <li><Link to="/codeathon">Codeathon (Speed Coding)</Link></li>
               <li><Link to="/ideathon">Ideathon (Innovation Lab)</Link></li>
               <li><Link to="/hackathon">Flagship 48H Hackathon</Link></li>
-              <li><Link to="/register">Event Registration</Link></li>
+              <li><Link to="/#schedule">Event Schedule</Link></li>
               <li><Link to="/sponsors">Sponsors & Partners</Link></li>
             </ul>
           </div>

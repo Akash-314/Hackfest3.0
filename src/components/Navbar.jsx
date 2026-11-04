@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   X,
+  Camera,
+  Bell,
   ArrowUpRight,
   LayoutDashboard,
   ShieldCheck,
@@ -164,6 +166,10 @@ export default function Navbar() {
   // Navigation action helper that executes one-page shortcuts and drawer closure
   const handleNavAction = (item) => {
     setDrawerOpen(false);
+    if (item?.isExternal && item?.path) {
+      window.open(item.path, '_blank', 'noopener,noreferrer');
+      return;
+    }
     const dest = item?.path || item?.href || '';
     const sectionId = item?.sectionId || (dest.includes('#') ? dest.split('#')[1] : null);
 
@@ -215,7 +221,7 @@ export default function Navbar() {
   // Drawer Group 1: Explore (One-page Shortcuts)
   const explorePages = [
     { label: 'Home', path: '/', sectionId: 'hero', icon: Home, tag: 'TOP' },
-    { label: 'My Registration', path: '/dashboard', icon: LayoutDashboard, tag: 'STATUS' },
+    { label: 'Participant Dashboard', path: '/dashboard', icon: LayoutDashboard, tag: 'PORTAL' },
     { label: 'About Event', path: '/#about', sectionId: 'about', icon: Info, tag: 'BRIEFING' },
     { label: 'Competitions', path: '/#competitions', sectionId: 'competitions', icon: Trophy, tag: 'ARENAS' },
     { label: 'Problem Statements', path: '/#problems', sectionId: 'problems', icon: Target, tag: 'TRACKS' },
@@ -223,6 +229,7 @@ export default function Navbar() {
     { label: 'Prizes & Rewards', path: '/#prizes', sectionId: 'prizes', icon: Award, tag: 'POOL' },
     { label: 'Rules & FAQs', path: '/#faq', sectionId: 'faq', icon: HelpCircle, tag: 'GUIDE' },
     { label: 'Judges & Mentors', path: '/#mentors-judges', sectionId: 'mentors-judges', icon: Users, tag: 'COUNCIL' },
+    { label: 'Arena Highlights', path: 'https://drive.google.com/drive/folders/1s-6y-Ci_WsAHvzldH8gJpiyfMhs5GTmC', isExternal: true, icon: Trophy, tag: 'DRIVE' },
     { label: 'Event Sponsors', path: '/#sponsors', sectionId: 'sponsors', icon: Sparkles, tag: 'BACKERS' },
     { label: 'SDC Family Members', path: '/#sdc-members', sectionId: 'sdc-members', icon: Users2, tag: 'SDC' },
     { label: 'Leaderboard', path: '/leaderboard', icon: TrendingUp, tag: 'LIVE' },
@@ -230,6 +237,7 @@ export default function Navbar() {
 
   // Drawer Group 2: Event Navigation
   const eventPages = [
+    { label: 'Arena Highlights', path: 'https://drive.google.com/drive/folders/1s-6y-Ci_WsAHvzldH8gJpiyfMhs5GTmC', isExternal: true, icon: Trophy },
     { label: 'Event Schedule', path: '/#schedule', sectionId: 'schedule', icon: Calendar },
     { label: 'Leaderboard', path: '/leaderboard', icon: TrendingUp },
     { label: 'Rules & FAQs', path: '/#faq', sectionId: 'faq', icon: HelpCircle },
@@ -386,26 +394,10 @@ export default function Navbar() {
               <div className="nav-auth-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <Link
                   to="/dashboard"
-                  className="nav-ref-pill-btn nav-ref-pill-dash hidden-mobile"
-                  aria-label="Access My Registration and Team Dashboard"
-                  title="View My Registration & Team Status"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderColor: 'var(--border-subtle)',
-                    color: '#39FF88',
-                  }}
-                >
-                  <span>MY REGISTRATION</span>
-                  <span className="nav-pill-arrow-circle" aria-hidden="true" style={{ background: '#39FF88' }}>
-                    <LayoutDashboard size={12} color="#080A09" />
-                  </span>
-                </Link>
-                <Link
-                  to="/register"
                   className="nav-ref-pill-btn"
-                  aria-label="Register Now for HackFest 3.0"
+                  title="Participant Dashboard"
                 >
-                  <span>REGISTER NOW</span>
+                  <span>DASHBOARD</span>
                   <span className="nav-pill-arrow-circle" aria-hidden="true">
                     <ArrowUpRight size={14} color="#08090D" strokeWidth={2.5} />
                   </span>
@@ -656,24 +648,6 @@ export default function Navbar() {
                 <Link
                   to="/dashboard"
                   onClick={() => setDrawerOpen(false)}
-                  className="btn btn-secondary"
-                  style={{
-                    padding: '0.75rem 1rem',
-                    fontSize: '0.85rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    borderColor: 'var(--border-subtle)',
-                    color: '#39FF88',
-                  }}
-                >
-                  <LayoutDashboard size={15} />
-                  <span>MY REGISTRATION / DASHBOARD</span>
-                </Link>
-                <Link
-                  to="/register"
-                  onClick={() => setDrawerOpen(false)}
                   className="btn btn-primary"
                   style={{
                     padding: '0.75rem 1rem',
@@ -684,9 +658,8 @@ export default function Navbar() {
                     gap: '0.5rem',
                   }}
                 >
-                  <Sparkles size={15} />
-                  <span>REGISTER FOR HACKFEST</span>
-                  <ArrowUpRight size={15} />
+                  <LayoutDashboard size={15} />
+                  <span>PARTICIPANT DASHBOARD</span>
                 </Link>
               </div>
             </div>

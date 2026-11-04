@@ -74,8 +74,8 @@ export default function CompetitionDetailPage({ competitionId }) {
           </p>
 
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link to={`/register?competition=${comp.slug || comp.id}`} state={{ arena: comp.slug || comp.id }} className="btn btn-primary">
-              REGISTER FOR {comp.title}
+            <Link to="/#winners" className="btn btn-primary">
+              VIEW {comp.title} WINNERS
               <ArrowUpRight size={18} />
             </Link>
             <a href="#rules" className="btn btn-secondary">
@@ -239,16 +239,16 @@ export default function CompetitionDetailPage({ competitionId }) {
       </section>
 
       {/* 7. CTA */}
-      <section className="section" style={{ textAlign: 'center', background: 'radial-gradient(ellipse at 50% 50%, rgba(143,48,53,0.12) 0%, transparent 70%)', padding: '4rem 0' }}>
+      <section className="section" style={{ textAlign: 'center', background: 'radial-gradient(ellipse at 50% 50%, rgba(57,255,136,0.08) 0%, transparent 70%)', padding: '4rem 0' }}>
         <div className="container" style={{ maxWidth: '680px' }}>
           <h2 className="heading-display" style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>
-            READY TO COMPETE IN {comp.title}?
+            {comp.title} CONCLUDED
           </h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-            Lock in your team, prepare your tooling, and represent your institution at HackFest 3.0 REC Banda.
+            The challenges have drawn to an end and verified winners have been announced.
           </p>
-          <Link to="/register" className="btn btn-primary" style={{ padding: '1rem 2.5rem' }}>
-            REGISTER FOR {comp.title} NOW
+          <Link to="/#winners" className="btn btn-primary" style={{ padding: '1rem 2.5rem' }}>
+            VIEW {comp.title} WINNERS
             <ArrowUpRight size={18} />
           </Link>
         </div>

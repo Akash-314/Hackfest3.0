@@ -35,6 +35,8 @@ import {
   ExternalLink,
   Image as ImageIcon,
   Sparkles,
+  Camera,
+  Pin,
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
@@ -170,7 +172,41 @@ export default function AdminCmsPage() {
     message: '',
     priority: 'normal',
     published: true,
+    is_pinned: false,
   });
+
+  // 6b. Photo Gallery State
+  const [galleryPhotos, setGalleryPhotos] = useState([]);
+  const [galleryModalOpen, setGalleryModalOpen] = useState(false);
+  const [editingPhoto, setEditingPhoto] = useState(null);
+  const [photoForm, setPhotoForm] = useState({
+    title: '',
+    caption: '',
+    category: 'event',
+    image_url: '',
+    storage_path: null,
+  });
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState('');
+  const [galleryCategoryFilter, setGalleryCategoryFilter] = useState('all');
+  const [gallerySearch, setGallerySearch] = useState('');
+
+  // 6c. Competition Highlights State
+  const [highlights, setHighlights] = useState([]);
+  const [highlightModalOpen, setHighlightModalOpen] = useState(false);
+  const [editingHighlight, setEditingHighlight] = useState(null);
+  const [highlightForm, setHighlightForm] = useState({
+    competition_id: 'codeathon',
+    title: '',
+    team_name: '',
+    description: '',
+    image_url: '',
+    storage_path: null,
+    result_badge: 'Winner',
+  });
+  const [highlightFile, setHighlightFile] = useState(null);
+  const [highlightPreview, setHighlightPreview] = useState('');
+  const [highlightsArenaFilter, setHighlightsArenaFilter] = useState('all');
 
   // 7. FAQs State
   const [faqs, setFaqs] = useState([]);
@@ -201,7 +237,7 @@ export default function AdminCmsPage() {
   const loadAllCmsData = async () => {
     setLoading(true);
     try {
-      const [settingsData, schedData, annData, faqData, compData, catData, stmtData, sponsData] = await Promise.all([
+      const [settingsData, schedData, annData, faqData, compData, catData, stmtData, sponsData, galleryData, highlightsData] = await Promise.all([
         eventService.getSettings(),
         adminService.getSchedulesAdmin(),
         adminService.getAnnouncementsAdmin(),
@@ -210,6 +246,8 @@ export default function AdminCmsPage() {
         adminService.getProblemCategoriesAdmin(),
         adminService.getProblemStatementsAdmin(),
         adminService.getSponsorsAdmin(),
+        adminService.getGalleryPhotosAdmin(),
+        adminService.getCompetitionHighlightsAdmin(),
       ]);
 
       if (settingsData) {
@@ -237,6 +275,8 @@ export default function AdminCmsPage() {
       setCategories(catData || []);
       setStatements(stmtData || []);
       setSponsors(sponsData || []);
+      setGalleryPhotos(galleryData || []);
+      setHighlights(highlightsData || []);
     } catch (err) {
       console.error('Failed to load CMS data:', err);
       notify('Failed to load some CMS records: ' + err.message, 'error');
@@ -841,6 +881,7 @@ export default function AdminCmsPage() {
         message: item.message || '',
         priority: item.priority || 'normal',
         published: item.published !== false,
+        is_pinned: Boolean(item.is_pinned),
       });
     } else {
       setEditingAnnouncement(null);
@@ -849,9 +890,206 @@ export default function AdminCmsPage() {
         message: '',
         priority: 'normal',
         published: true,
+        is_pinned: false,
       });
     }
     setAnnouncementModalOpen(true);
+  };
+
+  const handleTogglePinAnnouncement = async (ann) => {
+    try {
+      const nextPinned = !ann.is_pinned;
+      await adminService.togglePinAnnouncement(ann.id, nextPinned);
+      notify(nextPinned ? `Announcement "${ann.title}" pinned to top!` : `Announcement "${ann.title}" unpinned.`);
+      const updated = await adminService.getAnnouncementsAdmin();
+      setAnnouncements(updated || []);
+    } catch (err) {
+      notify('Failed to toggle pin: ' + err.message, 'error');
+    }
+  };
+
+  // --------------------------------------------------------------------------
+  // Photo Gallery Management
+  // --------------------------------------------------------------------------
+  const handleOpenGalleryModal = (item = null) => {
+    if (item) {
+      setEditingPhoto(item);
+      setPhotoForm({
+        title: item.title || '',
+        caption: item.caption || '',
+        category: item.category || 'event',
+        image_url: item.image_url || '',
+        storage_path: item.storage_path || null,
+      });
+      setPhotoPreview(item.image_url || '');
+    } else {
+      setEditingPhoto(null);
+      setPhotoForm({
+        title: '',
+        caption: '',
+        category: 'event',
+        image_url: '',
+        storage_path: null,
+      });
+      setPhotoPreview('');
+    }
+    setPhotoFile(null);
+    setGalleryModalOpen(true);
+  };
+
+  const handlePhotoFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setPhotoPreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveGalleryPhoto = async (e) => {
+    e.preventDefault();
+    if (!photoForm.title.trim()) {
+      notify('Photo title is required', 'error');
+      return;
+    }
+    if (!photoFile && !photoForm.image_url) {
+      notify('Please select an image file to upload', 'error');
+      return;
+    }
+    setSaving(true);
+    try {
+      let imageUrl = photoForm.image_url;
+      let storagePath = photoForm.storage_path;
+
+      if (photoFile) {
+        const uploadResult = await adminService.uploadGalleryPhoto(photoFile);
+        imageUrl = uploadResult.publicUrl;
+        storagePath = uploadResult.storagePath;
+      }
+
+      const payload = {
+        id: editingPhoto?.id,
+        title: photoForm.title,
+        caption: photoForm.caption,
+        category: photoForm.category,
+        image_url: imageUrl,
+        storage_path: storagePath,
+      };
+
+      await adminService.saveGalleryPhoto(payload);
+      notify(editingPhoto ? 'Photograph updated successfully' : 'Photograph uploaded to gallery!');
+      setGalleryModalOpen(false);
+      const updated = await adminService.getGalleryPhotosAdmin();
+      setGalleryPhotos(updated || []);
+    } catch (err) {
+      notify('Failed to save photograph: ' + err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteGalleryPhoto = async (photo) => {
+    if (!window.confirm(`Delete photo "${photo.title}"?`)) return;
+    try {
+      await adminService.deleteGalleryPhoto(photo.id, photo.storage_path);
+      notify(`Photograph "${photo.title}" deleted.`);
+      setGalleryPhotos((prev) => prev.filter((p) => p.id !== photo.id));
+    } catch (err) {
+      notify('Failed to delete photograph: ' + err.message, 'error');
+    }
+  };
+
+  // --------------------------------------------------------------------------
+  // Competition Highlights Management
+  // --------------------------------------------------------------------------
+  const handleOpenHighlightModal = (item = null) => {
+    if (item) {
+      setEditingHighlight(item);
+      setHighlightForm({
+        competition_id: item.competition_id || 'codeathon',
+        title: item.title || '',
+        team_name: item.team_name || '',
+        description: item.description || '',
+        image_url: item.image_url || '',
+        storage_path: item.storage_path || null,
+        result_badge: item.result_badge || 'Winner',
+      });
+      setHighlightPreview(item.image_url || '');
+    } else {
+      setEditingHighlight(null);
+      setHighlightForm({
+        competition_id: 'codeathon',
+        title: '',
+        team_name: '',
+        description: '',
+        image_url: '',
+        storage_path: null,
+        result_badge: 'Winner',
+      });
+      setHighlightPreview('');
+    }
+    setHighlightFile(null);
+    setHighlightModalOpen(true);
+  };
+
+  const handleHighlightFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setHighlightFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setHighlightPreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveHighlight = async (e) => {
+    e.preventDefault();
+    if (!highlightForm.title.trim() || !highlightForm.description.trim()) {
+      notify('Highlight title and description are required', 'error');
+      return;
+    }
+    setSaving(true);
+    try {
+      let imageUrl = highlightForm.image_url;
+      let storagePath = highlightForm.storage_path;
+
+      if (highlightFile) {
+        const uploadResult = await adminService.uploadHighlightPhoto(highlightFile);
+        imageUrl = uploadResult.publicUrl;
+        storagePath = uploadResult.storagePath;
+      }
+
+      const payload = {
+        id: editingHighlight?.id,
+        competition_id: highlightForm.competition_id,
+        title: highlightForm.title,
+        team_name: highlightForm.team_name,
+        description: highlightForm.description,
+        image_url: imageUrl,
+        storage_path: storagePath,
+        result_badge: highlightForm.result_badge,
+      };
+
+      await adminService.saveCompetitionHighlight(payload);
+      notify(editingHighlight ? 'Competition highlight updated' : 'Competition highlight created!');
+      setHighlightModalOpen(false);
+      const updated = await adminService.getCompetitionHighlightsAdmin();
+      setHighlights(updated || []);
+    } catch (err) {
+      notify('Failed to save highlight: ' + err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteHighlight = async (item) => {
+    if (!window.confirm(`Delete highlight "${item.title}"?`)) return;
+    try {
+      await adminService.deleteCompetitionHighlight(item.id, item.storage_path);
+      notify(`Highlight "${item.title}" deleted.`);
+      setHighlights((prev) => prev.filter((h) => h.id !== item.id));
+    } catch (err) {
+      notify('Failed to delete highlight: ' + err.message, 'error');
+    }
   };
 
   const handleSaveAnnouncement = async (e) => {
@@ -1038,11 +1276,13 @@ export default function AdminCmsPage() {
         >
           {[
             { id: 'settings', label: 'EVENT & SUBMISSION SETTINGS', icon: Calendar },
+            { id: 'announcements', label: `ANNOUNCEMENTS (${announcements.length})`, icon: Bell },
+            { id: 'gallery', label: `PHOTO GALLERY (${galleryPhotos.length})`, icon: Camera },
+            { id: 'highlights', label: `COMPETITION HIGHLIGHTS (${highlights.length})`, icon: Trophy },
             { id: 'problem_categories', label: `PROBLEM CATEGORIES (${categories.length})`, icon: Target },
             { id: 'problem_statements', label: `PROBLEM STATEMENTS (${statements.length})`, icon: Layers },
             { id: 'schedules', label: `EVENT SCHEDULE (${schedules.length})`, icon: Clock },
             { id: 'sponsors', label: `SPONSORS & ALLIES (${sponsors.length})`, icon: Handshake },
-            { id: 'announcements', label: `ANNOUNCEMENTS (${announcements.length})`, icon: Bell },
             { id: 'faqs', label: `FAQS (${faqs.length})`, icon: HelpCircle },
             { id: 'competitions', label: `COMPETITIONS & TRACKS (${competitions.length})`, icon: Trophy },
           ].map((tab) => {
@@ -2627,7 +2867,27 @@ export default function AdminCmsPage() {
                       }}
                     >
                       <div style={{ flex: '1 1 300px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
+                          {ann.is_pinned && (
+                            <span
+                              style={{
+                                fontFamily: 'var(--font-mono)',
+                                fontSize: '0.7rem',
+                                fontWeight: 700,
+                                padding: '0.15rem 0.45rem',
+                                borderRadius: '3px',
+                                background: 'rgba(0, 240, 255, 0.15)',
+                                color: '#00F0FF',
+                                border: '1px solid rgba(0, 240, 255, 0.4)',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                              }}
+                            >
+                              <Pin size={10} />
+                              PINNED
+                            </span>
+                          )}
                           <span
                             style={{
                               fontFamily: 'var(--font-mono)',
@@ -2660,6 +2920,20 @@ export default function AdminCmsPage() {
 
                       <div style={{ display: 'flex', gap: '0.4rem' }}>
                         <button
+                          onClick={() => handleTogglePinAnnouncement(ann)}
+                          title={ann.is_pinned ? 'Unpin announcement' : 'Pin announcement to top'}
+                          style={{
+                            padding: '0.35rem 0.65rem',
+                            background: ann.is_pinned ? 'rgba(0, 240, 255, 0.25)' : 'rgba(255, 255, 255, 0.05)',
+                            border: ann.is_pinned ? '1px solid #00F0FF' : '1px solid var(--border-subtle)',
+                            color: ann.is_pinned ? '#00F0FF' : 'var(--text-muted)',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <Pin size={13} />
+                        </button>
+                        <button
                           onClick={() => handleOpenAnnouncementModal(ann)}
                           style={{
                             padding: '0.35rem 0.65rem',
@@ -2688,6 +2962,334 @@ export default function AdminCmsPage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* TAB 3B: PHOTO GALLERY                                          */}
+        {/* ============================================================== */}
+        {activeTab === 'gallery' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', color: '#fff', margin: 0 }}>
+                  EVENT PHOTO GALLERY
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '0.2rem 0 0 0' }}>
+                  Upload, categorize, and curate real photographs from HackFest 3.0 for public display.
+                </p>
+              </div>
+              <button
+                onClick={() => handleOpenGalleryModal()}
+                className="btn btn-primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem' }}
+              >
+                <Plus size={16} />
+                UPLOAD PHOTOGRAPH
+              </button>
+            </div>
+
+            {/* Filter pills */}
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+              {['all', 'event', 'inauguration', 'hackathon', 'codeathon', 'ideathon', 'keynote', 'awards'].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setGalleryCategoryFilter(cat)}
+                  style={{
+                    padding: '0.35rem 0.85rem',
+                    borderRadius: '4px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                    border: galleryCategoryFilter === cat ? '1px solid #39FF88' : '1px solid var(--border-subtle)',
+                    background: galleryCategoryFilter === cat ? 'rgba(57, 255, 136, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                    color: galleryCategoryFilter === cat ? '#39FF88' : 'var(--text-muted)',
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <div
+              style={{
+                background: 'rgba(28, 32, 38, 0.95)',
+                border: '1px solid var(--border-medium)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.5rem',
+              }}
+            >
+              {galleryPhotos.filter((p) => galleryCategoryFilter === 'all' || p.category?.toLowerCase() === galleryCategoryFilter).length === 0 ? (
+                <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <Camera size={32} style={{ margin: '0 auto 0.5rem auto', display: 'block', opacity: 0.3 }} />
+                  No photographs uploaded in this category yet. Click "UPLOAD PHOTOGRAPH" to publish real event photos.
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '1.25rem' }}>
+                  {galleryPhotos
+                    .filter((p) => galleryCategoryFilter === 'all' || p.category?.toLowerCase() === galleryCategoryFilter)
+                    .map((photo) => (
+                      <div
+                        key={photo.id}
+                        style={{
+                          background: '#111827',
+                          border: '1px solid var(--border-subtle)',
+                          borderRadius: '8px',
+                          overflow: 'hidden',
+                          display: 'flex',
+                          flexDirection: 'column',
+                        }}
+                      >
+                        <div style={{ position: 'relative', width: '100%', height: '160px', background: '#0B1711' }}>
+                          <img
+                            src={photo.image_url}
+                            alt={photo.title}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                          <span
+                            style={{
+                              position: 'absolute',
+                              top: '0.5rem',
+                              left: '0.5rem',
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '0.65rem',
+                              fontWeight: 700,
+                              padding: '0.2rem 0.5rem',
+                              borderRadius: '4px',
+                              background: 'rgba(0,0,0,0.8)',
+                              color: '#39FF88',
+                              border: '1px solid rgba(57, 255, 136, 0.3)',
+                              textTransform: 'uppercase',
+                            }}
+                          >
+                            {photo.category || 'EVENT'}
+                          </span>
+                        </div>
+
+                        <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                          <h4 style={{ fontFamily: 'var(--font-heading)', fontSize: '0.95rem', color: '#fff', margin: '0 0 0.35rem 0' }}>
+                            {photo.title}
+                          </h4>
+                          {photo.caption && (
+                            <p style={{ color: '#94A3B8', fontSize: '0.8rem', lineHeight: 1.4, margin: '0 0 0.75rem 0', flex: 1 }}>
+                              {photo.caption}
+                            </p>
+                          )}
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                              {photo.upload_date ? new Date(photo.upload_date).toLocaleDateString('en-IN') : ''}
+                            </span>
+                            <div style={{ display: 'flex', gap: '0.35rem' }}>
+                              <button
+                                onClick={() => handleOpenGalleryModal(photo)}
+                                style={{
+                                  padding: '0.3rem 0.55rem',
+                                  background: 'rgba(0, 191, 255, 0.15)',
+                                  border: '1px solid var(--color-arc-blue)',
+                                  color: 'var(--color-arc-blue)',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                <Edit2 size={12} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteGalleryPhoto(photo)}
+                                style={{
+                                  padding: '0.3rem 0.55rem',
+                                  background: 'rgba(143, 48, 53, 0.2)',
+                                  border: '1px solid var(--color-muted-crimson)',
+                                  color: '#ffb4b7',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* TAB 3C: COMPETITION HIGHLIGHTS                                  */}
+        {/* ============================================================== */}
+        {activeTab === 'highlights' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', color: '#fff', margin: 0 }}>
+                  COMPETITION HIGHLIGHTS
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '0.2rem 0 0 0' }}>
+                  Publish verified results, standout performances, and team highlights for Codeathon and Ideathon.
+                </p>
+              </div>
+              <button
+                onClick={() => handleOpenHighlightModal()}
+                className="btn btn-primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem' }}
+              >
+                <Plus size={16} />
+                NEW HIGHLIGHT
+              </button>
+            </div>
+
+            {/* Arena filters */}
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+              {[
+                { id: 'all', label: 'ALL ARENAS' },
+                { id: 'codeathon', label: 'CODEATHON ARENA' },
+                { id: 'ideathon', label: 'IDEATHON ARENA' },
+              ].map((arena) => (
+                <button
+                  key={arena.id}
+                  onClick={() => setHighlightsArenaFilter(arena.id)}
+                  style={{
+                    padding: '0.35rem 0.85rem',
+                    borderRadius: '4px',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    border: highlightsArenaFilter === arena.id ? '1px solid #39FF88' : '1px solid var(--border-subtle)',
+                    background: highlightsArenaFilter === arena.id ? 'rgba(57, 255, 136, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                    color: highlightsArenaFilter === arena.id ? '#39FF88' : 'var(--text-muted)',
+                  }}
+                >
+                  {arena.label}
+                </button>
+              ))}
+            </div>
+
+            <div
+              style={{
+                background: 'rgba(28, 32, 38, 0.95)',
+                border: '1px solid var(--border-medium)',
+                borderRadius: 'var(--radius-md)',
+                padding: '1.5rem',
+              }}
+            >
+              {highlights.filter((h) => highlightsArenaFilter === 'all' || h.competition_id?.toLowerCase() === highlightsArenaFilter).length === 0 ? (
+                <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <Trophy size={32} style={{ margin: '0 auto 0.5rem auto', display: 'block', opacity: 0.3 }} />
+                  No competition highlights recorded yet. Click "NEW HIGHLIGHT" to post verified results or team accomplishments.
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.25rem' }}>
+                  {highlights
+                    .filter((h) => highlightsArenaFilter === 'all' || h.competition_id?.toLowerCase() === highlightsArenaFilter)
+                    .map((item) => {
+                      const isCodeathon = item.competition_id?.toLowerCase() === 'codeathon';
+                      const accentColor = isCodeathon ? '#39FF88' : '#C084FC';
+                      return (
+                        <div
+                          key={item.id}
+                          style={{
+                            background: '#111827',
+                            border: `1px solid ${isCodeathon ? 'rgba(57, 255, 136, 0.3)' : 'rgba(168, 85, 247, 0.3)'}`,
+                            borderRadius: '8px',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column',
+                          }}
+                        >
+                          {item.image_url && (
+                            <div style={{ width: '100%', height: '140px', background: '#0B1711' }}>
+                              <img src={item.image_url} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                          )}
+
+                          <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.4rem' }}>
+                              <span
+                                style={{
+                                  fontFamily: 'var(--font-mono)',
+                                  fontSize: '0.68rem',
+                                  fontWeight: 700,
+                                  color: accentColor,
+                                  textTransform: 'uppercase',
+                                }}
+                              >
+                                {isCodeathon ? 'CODEATHON' : 'IDEATHON'}
+                              </span>
+                              {item.result_badge && (
+                                <span
+                                  style={{
+                                    fontFamily: 'var(--font-mono)',
+                                    fontSize: '0.68rem',
+                                    fontWeight: 700,
+                                    padding: '0.15rem 0.45rem',
+                                    borderRadius: '3px',
+                                    background: isCodeathon ? 'rgba(57, 255, 136, 0.15)' : 'rgba(168, 85, 247, 0.15)',
+                                    color: accentColor,
+                                    border: `1px solid ${isCodeathon ? 'rgba(57, 255, 136, 0.35)' : 'rgba(168, 85, 247, 0.35)'}`,
+                                    textTransform: 'uppercase',
+                                  }}
+                                >
+                                  {item.result_badge}
+                                </span>
+                              )}
+                            </div>
+
+                            {item.team_name && (
+                              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: '#fff', fontWeight: 600, marginBottom: '0.25rem' }}>
+                                {item.team_name}
+                              </div>
+                            )}
+
+                            <h4 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.05rem', color: '#fff', margin: '0 0 0.4rem 0' }}>
+                              {item.title}
+                            </h4>
+
+                            <p style={{ color: '#94A3B8', fontSize: '0.84rem', lineHeight: 1.5, margin: '0 0 0.85rem 0', flex: 1 }}>
+                              {item.description}
+                            </p>
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.4rem', marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                              <button
+                                onClick={() => handleOpenHighlightModal(item)}
+                                style={{
+                                  padding: '0.35rem 0.65rem',
+                                  background: 'rgba(0, 191, 255, 0.15)',
+                                  border: '1px solid var(--color-arc-blue)',
+                                  color: 'var(--color-arc-blue)',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                <Edit2 size={13} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteHighlight(item)}
+                                style={{
+                                  padding: '0.35rem 0.65rem',
+                                  background: 'rgba(143, 48, 53, 0.2)',
+                                  border: '1px solid var(--color-muted-crimson)',
+                                  color: '#ffb4b7',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                }}
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>
@@ -3648,7 +4250,7 @@ export default function AdminCmsPage() {
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ marginBottom: '1.25rem' }}>
                   <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--color-stark-gold)', marginBottom: '0.3rem' }}>
                     BROADCAST MESSAGE:
                   </label>
@@ -3660,6 +4262,20 @@ export default function AdminCmsPage() {
                     placeholder="Detailed announcement or instructions for participants..."
                     style={{ width: '100%', padding: '0.6rem', background: '#111827', border: '1px solid var(--border-subtle)', borderRadius: '4px', color: '#fff' }}
                   />
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(announcementForm.is_pinned)}
+                      onChange={(e) => setAnnouncementForm({ ...announcementForm, is_pinned: e.target.checked })}
+                      style={{ width: '16px', height: '16px', accentColor: '#00F0FF', cursor: 'pointer' }}
+                    />
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: '#00F0FF', fontWeight: 600 }}>
+                      PIN TO TOP (📌 High-priority pinned notice for participants)
+                    </span>
+                  </label>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>

@@ -60,7 +60,6 @@ export default function AboutSection() {
 
   return (
     <section id="about" className="section about-section marvel-briefing-section">
-      <div id="highlights" style={{ position: 'relative', top: '-80px', visibility: 'hidden', height: 0 }} />
       <div className="section-transition-top" />
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         {/* Header Telemetry */}

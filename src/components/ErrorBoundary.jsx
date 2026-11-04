@@ -63,6 +63,28 @@ export default class ErrorBoundary extends React.Component {
             >
               An unexpected interface anomaly occurred while loading this view. The system has safely isolated the component.
             </p>
+            {this.state.error && (
+              <pre
+                style={{
+                  background: 'rgba(0,0,0,0.65)',
+                  border: '1px solid #ff4d4f',
+                  color: '#ff7875',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  fontSize: '0.78rem',
+                  textAlign: 'left',
+                  maxHeight: '220px',
+                  overflow: 'auto',
+                  marginBottom: '1.5rem',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                }}
+              >
+                {this.state.error?.toString()}
+                {'\n'}
+                {this.state.error?.stack}
+              </pre>
+            )}
             <button
               onClick={() => {
                 this.setState({ hasError: false, error: null });

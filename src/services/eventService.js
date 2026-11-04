@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase.js';
 import {
   eventMeta as fallbackEventMeta,
   competitions as fallbackCompetitions,
@@ -24,7 +24,7 @@ export const eventService = {
       if (error || !data) return fallbackEventMeta;
 
       const eventDateStr = data.event_date || (data.event_start ? new Date(data.event_start).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : fallbackEventMeta.dates);
-      const isRegOpen = data.registration_open !== undefined ? data.registration_open : (data.registration_status !== 'CLOSED');
+      const isRegOpen = false; // Registration officially closed
       const isPptOpen = data.ppt_submissions_open !== undefined ? Boolean(data.ppt_submissions_open) : true;
 
       return {
@@ -406,7 +406,24 @@ export const eventService = {
         .order('created_at', { ascending: false });
 
       if (error) return [];
-      return data || [];
+
+      let pinnedIds = [];
+      try {
+        const rawPinned = localStorage.getItem('hackfest_pinned_announcements');
+        if (rawPinned) pinnedIds = JSON.parse(rawPinned);
+      } catch {}
+
+      return (data || [])
+        .filter((a) => !(/registrations+(iss+)?(open|till|closing|deadline)/i.test(a.title || '') || /registrations+(iss+)?(onlys+)?(open|till|closing)/i.test(a.message || '')))
+        .map((a) => ({
+          ...a,
+          is_pinned: a.is_pinned === true || pinnedIds.includes(a.id) || a.title?.startsWith('[PINNED]'),
+        }))
+        .sort((a, b) => {
+          if (a.is_pinned && !b.is_pinned) return -1;
+          if (!a.is_pinned && b.is_pinned) return 1;
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
     } catch {
       return [];
     }

@@ -1,4 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase.js';
+import { galleryService } from './galleryService.js';
+import { highlightsService } from './highlightsService.js';
 
 export const adminService = {
   // --------------------------------------------------------------------------
@@ -972,7 +974,7 @@ export const adminService = {
     return publicUrlData.publicUrl;
   },
 
-  // Announcements (Add, Edit, Delete)
+  // Announcements (Add, Edit, Pin, Delete)
   async getAnnouncementsAdmin() {
     if (!isSupabaseConfigured) return [];
     try {
@@ -981,44 +983,122 @@ export const adminService = {
         .select('*')
         .order('created_at', { ascending: false });
       if (error) throw error;
-      return data || [];
+
+      let pinnedIds = [];
+      try {
+        const raw = localStorage.getItem('hackfest_pinned_announcements');
+        if (raw) pinnedIds = JSON.parse(raw);
+      } catch {}
+
+      return (data || [])
+        .map((a) => ({
+          ...a,
+          is_pinned: a.is_pinned === true || pinnedIds.includes(a.id) || a.title?.startsWith('[PINNED]'),
+        }))
+        .sort((a, b) => {
+          if (a.is_pinned && !b.is_pinned) return -1;
+          if (!a.is_pinned && b.is_pinned) return 1;
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
     } catch {
       return [];
     }
   },
 
+  async togglePinAnnouncement(id, isPinned) {
+    try {
+      let pinnedIds = new Set();
+      try {
+        const raw = localStorage.getItem('hackfest_pinned_announcements');
+        if (raw) pinnedIds = new Set(JSON.parse(raw));
+      } catch {}
+
+      if (isPinned) {
+        pinnedIds.add(id);
+      } else {
+        pinnedIds.delete(id);
+      }
+      localStorage.setItem('hackfest_pinned_announcements', JSON.stringify([...pinnedIds]));
+
+      if (isSupabaseConfigured) {
+        await supabase.from('announcements').update({ is_pinned: isPinned }).eq('id', id).catch(() => {});
+      }
+      await this.logAction(isPinned ? 'PIN_ANNOUNCEMENT' : 'UNPIN_ANNOUNCEMENT', 'announcements', id, { isPinned }).catch(() => {});
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
   async saveAnnouncement(item) {
     if (!isSupabaseConfigured) throw new Error('Supabase not configured');
+    const updatePayload = {
+      title: item.title,
+      message: item.message,
+      priority: item.priority || 'normal',
+      published: item.published !== undefined ? item.published : true,
+    };
+    if (item.is_pinned !== undefined) {
+      updatePayload.is_pinned = item.is_pinned;
+    }
+
     if (item.id) {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('announcements')
-        .update({
-          title: item.title,
-          message: item.message,
-          priority: item.priority || 'normal',
-          published: item.published !== undefined ? item.published : true,
-        })
+        .update(updatePayload)
         .eq('id', item.id)
         .select()
         .single();
+
+      if (error && error.message?.includes('is_pinned')) {
+        delete updatePayload.is_pinned;
+        const retry = await supabase
+          .from('announcements')
+          .update(updatePayload)
+          .eq('id', item.id)
+          .select()
+          .single();
+        data = retry.data;
+        error = retry.error;
+      }
+
       if (error) throw error;
+
+      if (item.is_pinned !== undefined) {
+        await this.togglePinAnnouncement(item.id, Boolean(item.is_pinned));
+      }
+
       await this.logAction('UPDATE_ANNOUNCEMENT', 'announcements', item.id, item).catch(() => {});
       return data;
     } else {
-      const { data, error } = await supabase
+      const insertPayload = {
+        ...updatePayload,
+        created_at: new Date().toISOString(),
+      };
+
+      let { data, error } = await supabase
         .from('announcements')
-        .insert([
-          {
-            title: item.title,
-            message: item.message,
-            priority: item.priority || 'normal',
-            published: item.published !== undefined ? item.published : true,
-            created_at: new Date().toISOString(),
-          },
-        ])
+        .insert([insertPayload])
         .select()
         .single();
+
+      if (error && error.message?.includes('is_pinned')) {
+        delete insertPayload.is_pinned;
+        const retry = await supabase
+          .from('announcements')
+          .insert([insertPayload])
+          .select()
+          .single();
+        data = retry.data;
+        error = retry.error;
+      }
+
       if (error) throw error;
+
+      if (item.is_pinned && data?.id) {
+        await this.togglePinAnnouncement(data.id, true);
+      }
+
       await this.logAction('CREATE_ANNOUNCEMENT', 'announcements', data.id, item).catch(() => {});
       return data;
     }
@@ -1028,8 +1108,62 @@ export const adminService = {
     if (!isSupabaseConfigured) throw new Error('Supabase not configured');
     const { error } = await supabase.from('announcements').delete().eq('id', id);
     if (error) throw error;
+    try {
+      const raw = localStorage.getItem('hackfest_pinned_announcements');
+      if (raw) {
+        const pinnedIds = new Set(JSON.parse(raw));
+        pinnedIds.delete(id);
+        localStorage.setItem('hackfest_pinned_announcements', JSON.stringify([...pinnedIds]));
+      }
+    } catch {}
     await this.logAction('DELETE_ANNOUNCEMENT', 'announcements', id, {}).catch(() => {});
     return true;
+  },
+
+  // --------------------------------------------------------------------------
+  // PHOTO GALLERY (Add, Edit, Delete, Upload)
+  // --------------------------------------------------------------------------
+  async getGalleryPhotosAdmin() {
+    return galleryService.getPhotosAdmin();
+  },
+
+  async uploadGalleryPhoto(file) {
+    return galleryService.uploadPhoto(file);
+  },
+
+  async saveGalleryPhoto(photoData) {
+    const res = await galleryService.savePhoto(photoData);
+    await this.logAction(photoData.id ? 'UPDATE_GALLERY_PHOTO' : 'CREATE_GALLERY_PHOTO', 'gallery_photos', res.id, photoData).catch(() => {});
+    return res;
+  },
+
+  async deleteGalleryPhoto(id, storagePath) {
+    const res = await galleryService.deletePhoto(id, storagePath);
+    await this.logAction('DELETE_GALLERY_PHOTO', 'gallery_photos', id, { storagePath }).catch(() => {});
+    return res;
+  },
+
+  // --------------------------------------------------------------------------
+  // COMPETITION HIGHLIGHTS (Add, Edit, Delete, Upload)
+  // --------------------------------------------------------------------------
+  async getCompetitionHighlightsAdmin() {
+    return highlightsService.getHighlightsAdmin();
+  },
+
+  async uploadHighlightPhoto(file) {
+    return highlightsService.uploadHighlightPhoto(file);
+  },
+
+  async saveCompetitionHighlight(highlightData) {
+    const res = await highlightsService.saveHighlight(highlightData);
+    await this.logAction(highlightData.id ? 'UPDATE_COMPETITION_HIGHLIGHT' : 'CREATE_COMPETITION_HIGHLIGHT', 'competition_highlights', res.id, highlightData).catch(() => {});
+    return res;
+  },
+
+  async deleteCompetitionHighlight(id, storagePath) {
+    const res = await highlightsService.deleteHighlight(id, storagePath);
+    await this.logAction('DELETE_COMPETITION_HIGHLIGHT', 'competition_highlights', id, { storagePath }).catch(() => {});
+    return res;
   },
 
   // FAQs (Add, Edit, Delete)

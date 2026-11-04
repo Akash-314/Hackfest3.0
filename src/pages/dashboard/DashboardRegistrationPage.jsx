@@ -84,10 +84,9 @@ export default function DashboardRegistrationPage() {
             </p>
           </div>
 
-          <Link to="/register" className="btn btn-primary" style={{ padding: '0.6rem 1.1rem', fontSize: '0.82rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Plus size={16} />
-            REGISTER FOR ANOTHER EVENT
-          </Link>
+          <span style={{ padding: '0.5rem 1rem', fontSize: '0.78rem', fontFamily: 'var(--font-mono)', background: 'rgba(57, 255, 136, 0.1)', border: '1px solid rgba(57, 255, 136, 0.3)', borderRadius: '6px', color: '#39FF88', fontWeight: 600 }}>
+            REGISTRATION CONCLUDED
+          </span>
         </div>
 
         {message.text && (
@@ -134,8 +133,8 @@ export default function DashboardRegistrationPage() {
               <p style={{ color: 'var(--color-text-secondary)', maxWidth: '480px', margin: '0 auto 1.5rem auto', lineHeight: '1.6' }}>
                 Join Codeathon (Day 1 speed algorithm arena), Ideathon (Day 1 innovation pitch), or the flagship 48-Hour Hackathon.
               </p>
-              <Link to="/register" className="btn btn-primary">
-                REGISTER FOR AN EVENT
+              <Link to="/#winners" className="btn btn-primary">
+                VIEW EVENT WINNERS
               </Link>
             </div>
           ) : (
